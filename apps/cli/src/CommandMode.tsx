@@ -64,7 +64,7 @@ export default function CommandMode({ onSwitchToMenu }: Props) {
       {history.map((entry, i) => (
         <Box key={i} flexDirection="column" marginBottom={1}>
           <Text>
-            <Text color="green">$ </Text>
+            <Text color="#2c84db">$ </Text>
             <Text>{entry.input}</Text>
           </Text>
           <OutputRenderer output={entry.output} />
@@ -72,9 +72,9 @@ export default function CommandMode({ onSwitchToMenu }: Props) {
       ))}
 
       <Box>
-        <Text color="green">$ </Text>
+        <Text color="#2c84db">$ </Text>
         <Text>{input}</Text>
-        <Text color="green">_</Text>
+        <Text color="#2c84db">_</Text>
       </Box>
 
       <Text dimColor>Tab/Esc: menu mode | exit: quit | Type &quot;help&quot; for commands</Text>

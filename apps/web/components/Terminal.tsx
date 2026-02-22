@@ -22,10 +22,10 @@ interface HistoryEntry {
 export default function Terminal() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [showWelcome, setShowWelcome] = useState(true);
-  const [showMenu, setShowMenu] = useState(true);
   const [theme, setTheme] = useState<Theme>(themes[DEFAULT_THEME]);
   const [commandHistoryList, setCommandHistoryList] = useState<string[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const menuItems = getMenuItems();
 
   // Auto-scroll on new output
   useEffect(() => {
@@ -50,17 +50,16 @@ export default function Terminal() {
     (input: string) => {
       const trimmed = input.trim().toLowerCase();
 
-      // Handle welcome command
+      // Handle welcome command — show banner again and clear history
       if (trimmed === 'welcome' || trimmed === 'home' || trimmed === 'banner') {
         setShowWelcome(true);
-        setShowMenu(true);
         setHistory([]);
         setCommandHistoryList((prev) => [...prev, input]);
         return;
       }
 
+      // Hide the welcome banner once a real command runs
       setShowWelcome(false);
-      setShowMenu(false);
 
       const result: CommandResult = executeCommand(input);
 
@@ -81,13 +80,6 @@ export default function Terminal() {
       setCommandHistoryList((prev) => [...prev, input]);
     },
     [],
-  );
-
-  const handleMenuSelect = useCallback(
-    (command: string) => {
-      handleCommand(command);
-    },
-    [handleCommand],
   );
 
   return (
@@ -168,16 +160,18 @@ export default function Terminal() {
       >
         {showWelcome && (
           <WelcomeScreen
-            showMenu={showMenu}
-            menuItems={getMenuItems()}
-            onMenuSelect={handleMenuSelect}
+            showMenu={false}
+            menuItems={menuItems}
+            onMenuSelect={handleCommand}
           />
         )}
 
         {history.map((entry, i) => (
           <div key={i} style={{ marginBottom: '16px' }}>
             <div>
-              <span style={{ color: 'var(--accent)', userSelect: 'none' }}>$ </span>
+              <span style={{ color: 'var(--accent)', userSelect: 'none' }}>
+                ${' '}
+              </span>
               <span style={{ color: 'var(--fg)' }}>{entry.input}</span>
             </div>
             <OutputRenderer output={entry.output} theme={theme} />
@@ -191,7 +185,48 @@ export default function Terminal() {
         />
       </div>
 
-      {/* Mobile tappable commands */}
+      {/* Always-visible menu bar */}
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '6px',
+          padding: '10px 16px',
+          borderTop: '1px solid var(--dimmed)',
+          background: 'rgba(255,255,255,0.03)',
+          borderRadius: '0 0 8px 8px',
+        }}
+      >
+        {menuItems.map((item) => (
+          <button
+            key={item.value}
+            onClick={() => handleCommand(item.value)}
+            style={{
+              background: 'transparent',
+              border: '1px solid var(--primary)',
+              color: 'var(--primary)',
+              padding: '5px 12px',
+              borderRadius: '4px',
+              fontFamily: 'inherit',
+              fontSize: '12px',
+              cursor: 'pointer',
+              transition: 'background-color 0.15s, color 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--primary)';
+              e.currentTarget.style.color = 'var(--bg)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = 'var(--primary)';
+            }}
+          >
+            {item.value}
+          </button>
+        ))}
+      </div>
+
+      {/* Mobile tappable commands (larger buttons, shown only on small screens) */}
       <MobileCommands onCommand={handleCommand} />
     </div>
   );

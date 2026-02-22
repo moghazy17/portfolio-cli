@@ -14,7 +14,7 @@ export default function App() {
     <Box flexDirection="column" padding={1}>
       {showBanner && (
         <Box flexDirection="column" marginBottom={1}>
-          <Text color="green">{ASCII_BANNER}</Text>
+          <Text color="#2c84db">{ASCII_BANNER}</Text>
           <Text bold>{WELCOME_SUBTITLE}</Text>
           <Text dimColor>
             Use arrow keys to select a section, or press Tab to switch to command mode.

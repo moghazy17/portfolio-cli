@@ -12,11 +12,11 @@ export default function OutputRenderer({ output }: Props) {
       case 'text': {
         const color =
           block.style?.color === 'primary'
-            ? 'green'
+            ? '#2c84db'
             : block.style?.color === 'error'
               ? 'red'
               : block.style?.color === 'success'
-                ? 'green'
+                ? '#2c84db'
                 : block.style?.color === 'accent'
                   ? 'cyan'
                   : undefined;
@@ -47,7 +47,7 @@ export default function OutputRenderer({ output }: Props) {
           <Box key={index} flexDirection="column" paddingLeft={2}>
             {block.items.map((item, i) => (
               <Text key={i}>
-                <Text color="green">{block.ordered ? `${i + 1}.` : '\u25B8'}</Text>
+                <Text color="#2c84db">{block.ordered ? `${i + 1}.` : '\u25B8'}</Text>
                 {' '}
                 {item}
               </Text>
@@ -78,7 +78,7 @@ export default function OutputRenderer({ output }: Props) {
 
       case 'ascii':
         return (
-          <Text key={index} color="green">
+          <Text key={index} color="#2c84db">
             {block.content}
           </Text>
         );

@@ -3,14 +3,14 @@ import type { Theme } from './types.js';
 export const themes: Record<string, Theme> = {
   matrix: {
     name: 'matrix',
-    primary: '#00ff41',
-    secondary: '#008f11',
-    accent: '#00ff41',
+    primary: '#2c84db',
+    secondary: '#1a5fa0',
+    accent: '#2c84db',
     background: '#0d1117',
     foreground: '#c9d1d9',
     dimmed: '#6e7681',
     error: '#ff6b6b',
-    success: '#00ff41',
+    success: '#2c84db',
   },
   dracula: {
     name: 'dracula',

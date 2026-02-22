@@ -1,0 +1,37 @@
+{
+  "name": "ahmed-moghazy",
+  "version": "1.0.0",
+  "description": "Interactive CLI portfolio of Ahmed Moghazy — Data Science & ML Engineer",
+  "type": "module",
+  "bin": {
+    "ahmed-moghazy": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "ink": "^5.1.0",
+    "@inkjs/ui": "^2.0.0",
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "@ahmed-moghazy/shared": "*",
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.0",
+    "@types/react": "^18.3.0"
+  },
+  "keywords": [
+    "cli",
+    "portfolio",
+    "data-science",
+    "ml-engineer",
+    "ahmed-moghazy"
+  ],
+  "author": "Ahmed Moghazy",
+  "license": "MIT"
+}

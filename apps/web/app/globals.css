@@ -1,0 +1,59 @@
+:root {
+  --bg: #0d1117;
+  --fg: #c9d1d9;
+  --primary: #00ff41;
+  --secondary: #008f11;
+  --accent: #00ff41;
+  --dimmed: #6e7681;
+  --error: #ff6b6b;
+  --success: #00ff41;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-mono, 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--dimmed);
+  border-radius: 4px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@media (max-width: 768px) {
+  .mobile-commands {
+    display: flex !important;
+  }
+
+  .ascii-banner {
+    font-size: 5px !important;
+  }
+}

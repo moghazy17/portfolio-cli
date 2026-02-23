@@ -76,6 +76,14 @@ export default function Terminal() {
         if (t) setTheme(t);
       }
 
+      // Web-only: open URL in new tab for `open` command
+      if (parts[0]?.toLowerCase() === 'open') {
+        const linkOutput = result.output.find((o) => o.type === 'link');
+        if (linkOutput && linkOutput.type === 'link') {
+          window.open(linkOutput.url, '_blank', 'noopener,noreferrer');
+        }
+      }
+
       setHistory((prev) => [...prev, { input, output: result.output }]);
       setCommandHistoryList((prev) => [...prev, input]);
     },

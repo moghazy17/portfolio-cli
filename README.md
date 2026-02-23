@@ -13,6 +13,9 @@ An interactive terminal portfolio for **Ahmed Moghazy**, Data Science & ML Engin
 
 Available as a **runnable CLI** and a **live web app** built from the same shared codebase.
 
+[![npm version](https://img.shields.io/npm/v/ahmed-moghazy?color=2c84db&label=npm)](https://www.npmjs.com/package/ahmed-moghazy)
+[![License: MIT](https://img.shields.io/badge/License-MIT-2c84db.svg)](LICENSE)
+
 ---
 
 ## Live Demo

@@ -8,6 +8,22 @@ import { themes, DEFAULT_THEME } from './theme';
 import { ASCII_BANNER, WELCOME_SUBTITLE, WELCOME_HINT } from './ascii';
 
 // ============================================================
+// HELPERS
+// ============================================================
+
+function parseTimelineDate(s: string): number {
+  if (s === 'Present') return Infinity;
+  const MONTHS: Record<string, number> = {
+    jan: 1, feb: 2, mar: 3, apr: 4, may: 5,
+    jun: 6, june: 6, jul: 7, july: 7,
+    aug: 8, sep: 9, oct: 10, nov: 11, dec: 12,
+  };
+  const parts = s.trim().split(/\s+/);
+  if (parts.length < 2) return 0;
+  return parseInt(parts[1], 10) * 100 + (MONTHS[parts[0].toLowerCase()] ?? 0);
+}
+
+// ============================================================
 // COMMAND IMPLEMENTATIONS
 // ============================================================
 
@@ -236,6 +252,73 @@ function whoamiCommand(): CommandResult {
   };
 }
 
+function openCommand(args: string[]): CommandResult {
+  const targets: Record<string, string> = {
+    github:   cvData.contact.github,
+    linkedin: cvData.contact.linkedin,
+  };
+
+  if (args.length === 0) {
+    return {
+      output: [
+        { type: 'text', content: 'Openable targets:', style: { bold: true } },
+        ...Object.entries(targets).map(([name, url]) => ({ type: 'link' as const, text: name, url })),
+        { type: 'text', content: 'Usage: open <target>', style: { dim: true } },
+      ],
+    };
+  }
+
+  const target = args[0].toLowerCase();
+
+  if (!targets[target]) {
+    return {
+      output: [{
+        type: 'text',
+        content: `Unknown target "${args[0]}". Available: ${Object.keys(targets).join(', ')}`,
+        style: { color: 'error' },
+      }],
+    };
+  }
+
+  return {
+    output: [
+      { type: 'text', content: `Opening ${target}...`, style: { color: 'success' } },
+      { type: 'link', text: target, url: targets[target] },
+    ],
+  };
+}
+
+function timelineCommand(): CommandResult {
+  const entries = [
+    {
+      endNum:   parseTimelineDate(cvData.education.endDate),
+      startNum: parseTimelineDate(cvData.education.startDate),
+      period:   `${cvData.education.startDate} – ${cvData.education.endDate}`,
+      role:     cvData.education.degree,
+      org:      cvData.education.institution,
+    },
+    ...cvData.experience.map((exp) => ({
+      endNum:   parseTimelineDate(exp.endDate),
+      startNum: parseTimelineDate(exp.startDate),
+      period:   `${exp.startDate} – ${exp.endDate}`,
+      role:     exp.role,
+      org:      exp.company,
+    })),
+  ];
+
+  entries.sort((a, b) =>
+    b.endNum !== a.endNum ? b.endNum - a.endNum : b.startNum - a.startNum,
+  );
+
+  return {
+    output: [{
+      type: 'table',
+      headers: ['Period', 'Role / Degree', 'Organization'],
+      rows: entries.map((e) => [e.period, e.role, e.org]),
+    }],
+  };
+}
+
 function themeCommand(args: string[]): CommandResult {
   if (args.length === 0) {
     return {
@@ -334,6 +417,20 @@ export const commandRegistry: CommandDefinition[] = [
     execute: () => contactCommand(),
   },
   {
+    name: 'open',
+    description: 'Open a profile link in your browser',
+    usage: 'open [target]',
+    aliases: [],
+    execute: (args) => openCommand(args),
+  },
+  {
+    name: 'timeline',
+    description: 'Reverse-chronological career overview',
+    usage: 'timeline',
+    aliases: ['tl'],
+    execute: () => timelineCommand(),
+  },
+  {
     name: 'theme',
     description: 'Switch color theme',
     usage: 'theme [name]',
@@ -408,7 +505,7 @@ export function getCompletions(partial: string): string[] {
 
 export function getMenuItems(): Array<{ label: string; value: string }> {
   return commandRegistry
-    .filter((c) => !['clear', 'welcome', 'whoami', 'theme'].includes(c.name))
+    .filter((c) => !['clear', 'welcome', 'whoami', 'theme', 'open'].includes(c.name))
     .map((c) => ({
       label: `${c.name.padEnd(16)} ${c.description}`,
       value: c.name,

@@ -13,7 +13,7 @@ An interactive terminal portfolio for **Ahmed Moghazy**, Data Science & ML Engin
 
 Available as a **runnable CLI** and a **live web app** built from the same shared codebase.
 
-[![npm version](https://img.shields.io/npm/v/ahmed-moghazy?color=2c84db&label=npm)](https://www.npmjs.com/package/ahmed-moghazy)
+[![npm version](https://img.shields.io/npm/v/moghazy?color=2c84db&label=npm)](https://www.npmjs.com/package/moghazy)
 [![License: MIT](https://img.shields.io/badge/License-MIT-2c84db.svg)](LICENSE)
 
 ---
@@ -25,14 +25,14 @@ Available as a **runnable CLI** and a **live web app** built from the same share
 ## Run via CLI
 
 ```bash
-npx ahmed-moghazy
+npx moghazy
 ```
 
 Or install globally:
 
 ```bash
-npm install -g ahmed-moghazy
-ahmed-moghazy
+npm install -g moghazy
+moghazy
 ```
 
 Requires **Node.js 18+**.
@@ -64,6 +64,8 @@ Press `q` or type `exit` to quit.
 | `skills [category]` | `sk` | Skills by category |
 | `certifications` | `certs`, `awards` | Certifications & achievements |
 | `contact` | `email`, `links` | Email, LinkedIn, GitHub |
+| `open [target]` | — | Open GitHub or LinkedIn in browser |
+| `timeline` | `tl` | Reverse-chronological career overview |
 | `theme [name]` | — | Switch color theme |
 | `welcome` | `home`, `banner` | Show the ASCII banner |
 | `whoami` | — | Easter egg |

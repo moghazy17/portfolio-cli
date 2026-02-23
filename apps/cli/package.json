@@ -1,10 +1,10 @@
 {
-  "name": "ahmed-moghazy",
+  "name": "moghazy",
   "version": "1.0.0",
   "description": "Interactive CLI portfolio of Ahmed Moghazy — Data Science & ML Engineer",
   "type": "module",
   "bin": {
-    "ahmed-moghazy": "./dist/index.js"
+    "moghazy": "dist/index.js"
   },
   "files": [
     "dist"
@@ -30,6 +30,7 @@
     "portfolio",
     "data-science",
     "ml-engineer",
+    "moghazy",
     "ahmed-moghazy"
   ],
   "author": "Ahmed Moghazy",

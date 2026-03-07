@@ -8,7 +8,7 @@ interface Props {
 
 export default function MobileCommands({ onCommand }: Props) {
   const visibleCommands = commandRegistry.filter(
-    (c) => !['clear', 'welcome', 'whoami', 'theme'].includes(c.name),
+    (c) => !c.hidden && !['clear', 'welcome', 'whoami', 'theme'].includes(c.name),
   );
 
   return (

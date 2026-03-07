@@ -1,94 +1,17 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import {
-  executeCommand,
-  getCompletions,
-  getMenuItems,
-  themes,
-  DEFAULT_THEME,
-} from '@ahmed-moghazy/shared';
-import type { CommandOutput, CommandResult, Theme } from '@ahmed-moghazy/shared';
+import { getCompletions, getMenuItems } from '@ahmed-moghazy/shared';
 import CommandLine from './CommandLine';
 import OutputRenderer from './OutputRenderer';
 import WelcomeScreen from './WelcomeScreen';
 import MobileCommands from './MobileCommands';
+import { useTerminal } from '../hooks/useTerminal';
 
-interface HistoryEntry {
-  input: string;
-  output: CommandOutput[];
-}
+const menuItems = getMenuItems();
 
 export default function Terminal() {
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
-  const [showWelcome, setShowWelcome] = useState(true);
-  const [theme, setTheme] = useState<Theme>(themes[DEFAULT_THEME]);
-  const [commandHistoryList, setCommandHistoryList] = useState<string[]>([]);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const menuItems = getMenuItems();
-
-  // Auto-scroll on new output
-  useEffect(() => {
-    scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
-  }, [history]);
-
-  // Apply theme CSS variables
-  useEffect(() => {
-    const root = document.documentElement;
-    root.style.setProperty('--bg', theme.background);
-    root.style.setProperty('--fg', theme.foreground);
-    root.style.setProperty('--primary', theme.primary);
-    root.style.setProperty('--secondary', theme.secondary);
-    root.style.setProperty('--accent', theme.accent);
-    root.style.setProperty('--dimmed', theme.dimmed);
-    root.style.setProperty('--error', theme.error);
-    root.style.setProperty('--success', theme.success);
-    document.body.style.backgroundColor = theme.background;
-  }, [theme]);
-
-  const handleCommand = useCallback(
-    (input: string) => {
-      const trimmed = input.trim().toLowerCase();
-
-      // Handle welcome command — show banner again and clear history
-      if (trimmed === 'welcome' || trimmed === 'home' || trimmed === 'banner') {
-        setShowWelcome(true);
-        setHistory([]);
-        setCommandHistoryList((prev) => [...prev, input]);
-        return;
-      }
-
-      // Hide the welcome banner once a real command runs
-      setShowWelcome(false);
-
-      const result: CommandResult = executeCommand(input);
-
-      // Handle clear
-      if (result.clear) {
-        setHistory([]);
-        return;
-      }
-
-      // Handle theme switching
-      const parts = input.trim().split(/\s+/);
-      if (parts[0]?.toLowerCase() === 'theme' && parts[1]) {
-        const t = themes[parts[1].toLowerCase()];
-        if (t) setTheme(t);
-      }
-
-      // Web-only: open URL in new tab for `open` command
-      if (parts[0]?.toLowerCase() === 'open') {
-        const linkOutput = result.output.find((o) => o.type === 'link');
-        if (linkOutput && linkOutput.type === 'link') {
-          window.open(linkOutput.url, '_blank', 'noopener,noreferrer');
-        }
-      }
-
-      setHistory((prev) => [...prev, { input, output: result.output }]);
-      setCommandHistoryList((prev) => [...prev, input]);
-    },
-    [],
-  );
+  const { history, showWelcome, theme, commandHistoryList, scrollRef, handleCommand } =
+    useTerminal();
 
   return (
     <div

@@ -134,12 +134,18 @@ export interface CommandDefinition {
   description: string;
   usage: string;
   aliases: string[];
-  execute: (args: string[]) => CommandResult;
+  hidden?: boolean;
+  execute: (args: string[]) => CommandResult | Promise<CommandResult>;
 }
 
 export interface CommandResult {
   output: CommandOutput[];
   clear?: boolean;
+}
+
+export interface HistoryEntry {
+  input: string;
+  output: CommandOutput[];
 }
 
 // ============================================================

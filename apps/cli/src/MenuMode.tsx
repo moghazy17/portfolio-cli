@@ -36,9 +36,11 @@ export default function MenuMode({ onSwitchToCommand }: Props) {
       } else if (key.downArrow) {
         setSelectedIndex((i) => (i < menuItems.length - 1 ? i + 1 : 0));
       } else if (key.return) {
-        const result = executeCommand(menuItems[selectedIndex].value);
-        setOutput(result.output);
-        setShowMenu(false);
+        (async () => {
+          const result = await executeCommand(menuItems[selectedIndex].value);
+          setOutput(result.output);
+          setShowMenu(false);
+        })();
       }
     }
   });

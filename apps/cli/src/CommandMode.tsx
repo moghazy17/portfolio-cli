@@ -2,13 +2,8 @@ import React, { useState } from 'react';
 import { Box, Text, useInput } from 'ink';
 import { exec } from 'child_process';
 import { executeCommand, getCompletions } from '@ahmed-moghazy/shared';
-import type { CommandOutput } from '@ahmed-moghazy/shared';
+import type { HistoryEntry } from '@ahmed-moghazy/shared';
 import OutputRenderer from './OutputRenderer.js';
-
-interface HistoryEntry {
-  input: string;
-  output: CommandOutput[];
-}
 
 interface Props {
   onSwitchToMenu: () => void;
@@ -71,30 +66,32 @@ export default function CommandMode({ onSwitchToMenu }: Props) {
       setHistoryIndex(-1);
       setSavedInput('');
 
-      const result = executeCommand(value);
+      (async () => {
+        const result = await executeCommand(value);
 
-      // CLI-only: open URL in browser for `open` command
-      const cmdName = value.trim().split(/\s+/)[0].toLowerCase();
-      if (cmdName === 'open') {
-        const linkOutput = result.output.find((o) => o.type === 'link');
-        if (linkOutput && linkOutput.type === 'link') {
-          const url = linkOutput.url;
-          const opener =
-            process.platform === 'win32'  ? `start "" "${url}"` :
-            process.platform === 'darwin' ? `open "${url}"` :
-                                            `xdg-open "${url}"`;
-          exec(opener);
+        // CLI-only: open URL in browser for `open` command
+        const cmdName = value.trim().split(/\s+/)[0].toLowerCase();
+        if (cmdName === 'open') {
+          const linkOutput = result.output.find((o) => o.type === 'link');
+          if (linkOutput && linkOutput.type === 'link') {
+            const url = linkOutput.url;
+            const opener =
+              process.platform === 'win32'  ? `start "" "${url}"` :
+              process.platform === 'darwin' ? `open "${url}"` :
+                                              `xdg-open "${url}"`;
+            exec(opener);
+          }
         }
-      }
 
-      if (result.clear) {
-        setHistory([]);
+        if (result.clear) {
+          setHistory([]);
+          setInput('');
+          return;
+        }
+
+        setHistory((prev) => [...prev, { input: value, output: result.output }]);
         setInput('');
-        return;
-      }
-
-      setHistory((prev) => [...prev, { input: value, output: result.output }]);
-      setInput('');
+      })();
       return;
     }
 

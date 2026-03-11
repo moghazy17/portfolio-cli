@@ -8,6 +8,8 @@ import { getGitHubData } from '../../../lib/github-cache';
 
 const ALLOWED_ORIGINS = [
   'https://moghazy.vercel.app',
+  'https://moghazy.me',
+  'https://www.moghazy.me',
   'http://localhost:3000',
 ];
 

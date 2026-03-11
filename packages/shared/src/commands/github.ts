@@ -1,106 +1,43 @@
 import type { CommandResult, CommandOutput } from '../types';
 import { cvData } from '../data';
-
-const GITHUB_USERNAME = cvData.contact.github.replace('https://github.com/', '');
-
-interface GitHubUser {
-  public_repos: number;
-  followers: number;
-  following: number;
-  bio: string | null;
-  created_at: string;
-}
-
-interface GitHubRepo {
-  name: string;
-  stargazers_count: number;
-  language: string | null;
-  fork: boolean;
-  description: string | null;
-}
+import { fetchGitHubData, GITHUB_USERNAME } from '../github';
 
 export async function githubCommand(): Promise<CommandResult> {
   try {
-    const [userRes, reposRes] = await Promise.all([
-      fetch(`https://api.github.com/users/${GITHUB_USERNAME}`),
-      fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=stars`),
-    ]);
-
-    if (!userRes.ok || !reposRes.ok) {
-      if (userRes.status === 403 || reposRes.status === 403) {
-        return {
-          output: [
-            { type: 'text', content: 'GitHub API rate limit exceeded. Try again later.', style: { color: 'error' } },
-          ],
-        };
-      }
-      return {
-        output: [
-          { type: 'text', content: `Failed to fetch GitHub data (HTTP ${userRes.status}).`, style: { color: 'error' } },
-        ],
-      };
-    }
-
-    const user: GitHubUser = await userRes.json();
-    const repos: GitHubRepo[] = await reposRes.json();
-
-    const ownRepos = repos.filter((r) => !r.fork);
-    const totalStars = ownRepos.reduce((sum, r) => sum + r.stargazers_count, 0);
-
-    // Top languages by repo count
-    const langCount: Record<string, number> = {};
-    for (const repo of ownRepos) {
-      if (repo.language) {
-        langCount[repo.language] = (langCount[repo.language] || 0) + 1;
-      }
-    }
-    const topLangs = Object.entries(langCount)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([lang, count]) => `${lang} (${count} repos)`);
-
-    // Top repos by stars
-    const topRepos = ownRepos
-      .filter((r) => r.stargazers_count > 0)
-      .sort((a, b) => b.stargazers_count - a.stargazers_count)
-      .slice(0, 5);
-
-    // Account age
-    const createdYear = new Date(user.created_at).getFullYear();
-    const accountAge = new Date().getFullYear() - createdYear;
+    const stats = await fetchGitHubData();
 
     const output: CommandOutput[] = [
       {
         type: 'section',
         title: `GitHub — @${GITHUB_USERNAME}`,
         children: [
-          ...(user.bio ? [{ type: 'text' as const, content: user.bio, style: { dim: true } }] : []),
+          ...(stats.user.bio ? [{ type: 'text' as const, content: stats.user.bio, style: { dim: true } }] : []),
           { type: 'divider' },
           {
             type: 'table',
             headers: ['Metric', 'Value'],
             rows: [
-              ['Public Repos', String(user.public_repos)],
-              ['Own Repos (non-fork)', String(ownRepos.length)],
-              ['Total Stars', String(totalStars)],
-              ['Followers', String(user.followers)],
-              ['Following', String(user.following)],
-              ['Account Age', `${accountAge} year${accountAge !== 1 ? 's' : ''}`],
+              ['Public Repos', String(stats.user.publicRepos)],
+              ['Own Repos (non-fork)', String(stats.ownRepos.length)],
+              ['Total Stars', String(stats.totalStars)],
+              ['Followers', String(stats.user.followers)],
+              ['Following', String(stats.user.following)],
+              ['Account Age', `${stats.user.accountAge} year${stats.user.accountAge !== 1 ? 's' : ''}`],
             ],
           },
         ],
       },
     ];
 
-    if (topLangs.length > 0) {
+    if (stats.topLanguages.length > 0) {
       output.push({
         type: 'section',
         title: 'Top Languages',
-        children: [{ type: 'list', items: topLangs }],
+        children: [{ type: 'list', items: stats.topLanguages.map((l) => `${l.language} (${l.count} repos)`) }],
       });
     }
 
-    if (topRepos.length > 0) {
+    if (stats.topRepos.length > 0) {
       output.push({
         type: 'section',
         title: 'Top Repos by Stars',
@@ -108,7 +45,7 @@ export async function githubCommand(): Promise<CommandResult> {
           {
             type: 'table',
             headers: ['Repository', 'Stars', 'Language'],
-            rows: topRepos.map((r) => [r.name, String(r.stargazers_count), r.language || '—']),
+            rows: stats.topRepos.map((r) => [r.name, String(r.stars), r.language || '—']),
           },
         ],
       });
@@ -117,10 +54,15 @@ export async function githubCommand(): Promise<CommandResult> {
     output.push({ type: 'link', text: 'View on GitHub', url: cvData.contact.github });
 
     return { output };
-  } catch {
+  } catch (err) {
+    const message = err instanceof Error && err.message.includes('403')
+      ? 'GitHub API rate limit exceeded. Try again later.'
+      : err instanceof Error && err.message.includes('HTTP')
+        ? err.message
+        : 'Failed to connect to GitHub API. Check your network connection.';
     return {
       output: [
-        { type: 'text', content: 'Failed to connect to GitHub API. Check your network connection.', style: { color: 'error' } },
+        { type: 'text', content: message, style: { color: 'error' } },
       ],
     };
   }

@@ -37,3 +37,5 @@ export const themes: Record<string, Theme> = {
 };
 
 export const DEFAULT_THEME = 'matrix';
+
+export const defaultTheme = themes[DEFAULT_THEME];

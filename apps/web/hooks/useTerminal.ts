@@ -3,10 +3,13 @@ import { executeCommand, themes } from '@ahmed-moghazy/shared';
 import type { HistoryEntry } from '@ahmed-moghazy/shared';
 import { useThemeApplier } from './useThemeApplier';
 
+export type TerminalMode = 'command' | 'chat';
+
 export function useTerminal() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [showWelcome, setShowWelcome] = useState(true);
   const [commandHistoryList, setCommandHistoryList] = useState<string[]>([]);
+  const [mode, setMode] = useState<TerminalMode>('command');
   const scrollRef = useRef<HTMLDivElement>(null);
   const { theme, setTheme } = useThemeApplier();
 
@@ -40,18 +43,23 @@ export function useTerminal() {
         if (t) setTheme(t);
       }
 
-      if (parts[0]?.toLowerCase() === 'open') {
-        const linkOutput = result.output.find((o) => o.type === 'link');
-        if (linkOutput && linkOutput.type === 'link') {
-          window.open(linkOutput.url, '_blank', 'noopener,noreferrer');
-        }
+      if (result.openUrl) {
+        window.open(result.openUrl, '_blank', 'noopener,noreferrer');
       }
 
       setHistory((prev) => [...prev, { input, output: result.output }]);
       setCommandHistoryList((prev) => [...prev, input]);
+
+      if (result.mode === 'chat') {
+        setMode('chat');
+      }
     },
     [setTheme],
   );
 
-  return { history, showWelcome, theme, commandHistoryList, scrollRef, handleCommand };
+  const exitChat = useCallback(() => {
+    setMode('command');
+  }, []);
+
+  return { history, showWelcome, theme, commandHistoryList, scrollRef, handleCommand, mode, exitChat };
 }

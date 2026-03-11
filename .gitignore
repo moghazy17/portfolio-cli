@@ -1,11 +1,36 @@
+# Dependencies
 node_modules/
+
+# Build output
 dist/
 .next/
 .turbo/
 *.tsbuildinfo
+
+# Environment
 .env
 .env.local
+.env.production.local
+
+# Vercel
 .vercel
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Project-specific
 .claude/
-*.pdf
+.playwright-mcp/
+Ahmed_Moghazy.pdf
 .npmrc
+
+.vercel

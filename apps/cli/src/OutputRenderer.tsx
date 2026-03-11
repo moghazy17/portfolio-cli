@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Text } from 'ink';
+import { defaultTheme } from '@ahmed-moghazy/shared';
 import type { CommandOutput } from '@ahmed-moghazy/shared';
 
 interface Props {
@@ -12,11 +13,11 @@ export default function OutputRenderer({ output }: Props) {
       case 'text': {
         const color =
           block.style?.color === 'primary'
-            ? '#2c84db'
+            ? defaultTheme.primary
             : block.style?.color === 'error'
               ? 'red'
               : block.style?.color === 'success'
-                ? '#2c84db'
+                ? defaultTheme.success
                 : block.style?.color === 'accent'
                   ? 'cyan'
                   : undefined;
@@ -47,7 +48,7 @@ export default function OutputRenderer({ output }: Props) {
           <Box key={index} flexDirection="column" paddingLeft={2}>
             {block.items.map((item, i) => (
               <Text key={i}>
-                <Text color="#2c84db">{block.ordered ? `${i + 1}.` : '\u25B8'}</Text>
+                <Text color={defaultTheme.primary}>{block.ordered ? `${i + 1}.` : '\u25B8'}</Text>
                 {' '}
                 {item}
               </Text>
@@ -78,7 +79,7 @@ export default function OutputRenderer({ output }: Props) {
 
       case 'ascii':
         return (
-          <Text key={index} color="#2c84db">
+          <Text key={index} color={defaultTheme.primary}>
             {block.content}
           </Text>
         );

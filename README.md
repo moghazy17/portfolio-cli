@@ -20,7 +20,7 @@ Available as a **runnable CLI** and a **live web app** built from the same share
 
 ## Live Demo
 
-> **Web:** [ahmed-moghazy.vercel.app](https://moghazy.vercel.app)
+> **Web:** [moghazy.vercel.app](https://moghazy.vercel.app)
 
 ## Run via CLI
 
@@ -64,6 +64,8 @@ Press `q` or type `exit` to quit.
 | `skills [category]` | `sk` | Skills by category |
 | `certifications` | `certs`, `awards` | Certifications & achievements |
 | `contact` | `email`, `links` | Email, LinkedIn, GitHub |
+| `github` | `gh` | Live GitHub profile stats |
+| `chat` | `ask`, `ai` | Chat with AI about Ahmed |
 | `open [target]` | — | Open GitHub or LinkedIn in browser |
 | `timeline` | `tl` | Reverse-chronological career overview |
 | `theme [name]` | — | Switch color theme |
@@ -77,6 +79,15 @@ experience act
 projects automl
 skills llm
 ```
+
+---
+
+## AI Chat
+
+Type `chat` (or `ask` / `ai`) to enter AI chat mode. The AI knows about Ahmed's experience, projects, skills, and live GitHub activity. Ask anything — it responds as Ahmed in a terminal-friendly format.
+
+- **Web:** Powered by Google Gemini via Vercel AI SDK
+- **CLI:** Streams responses from the web app's `/api/chat` endpoint
 
 ---
 
@@ -102,9 +113,27 @@ theme matrix
 |-------|-----------|
 | CLI UI | React 18 + [Ink](https://github.com/vadimdemedes/ink) |
 | Web UI | Next.js 15 + React 18 |
-| Shared logic | TypeScript (no runtime deps) |
+| Shared logic | TypeScript (monorepo package) |
+| AI Chat | Google Gemini + [Vercel AI SDK](https://sdk.vercel.ai) |
+| Caching | [Upstash Redis](https://upstash.com) |
 | Bundler (CLI) | tsup (ESM) |
 | Monorepo | npm workspaces |
+
+---
+
+## Environment Variables
+
+### Web App (`apps/web/.env.example`)
+```
+KV_REST_API_URL=         # Upstash Redis URL (optional, for GitHub data caching)
+KV_REST_API_TOKEN=       # Upstash Redis token
+GOOGLE_GENERATIVE_AI_API_KEY=  # Google AI key (required for chat)
+```
+
+### CLI (`apps/cli/.env.example`)
+```
+PORTFOLIO_API_URL=       # Your deployed web app URL + /api/chat (required for chat)
+```
 
 ---
 
@@ -139,10 +168,10 @@ Changes there are reflected in both the CLI and web app automatically.
 ```
 portfolio-cli/
 ├── apps/
-│   ├── cli/          # Ink-based terminal app (published as `ahmed-moghazy`)
-│   └── web/          # Next.js web app
+│   ├── cli/          # Ink-based terminal app (published as `moghazy`)
+│   └── web/          # Next.js web app (deployed on Vercel)
 └── packages/
-    └── shared/       # Commands, data, types, themes, ASCII art
+    └── shared/       # Commands, data, types, themes, GitHub fetch, AI prompt
 ```
 
 ---
@@ -155,4 +184,3 @@ portfolio-cli/
 - **Location:** Cairo, EG
 
 ---
-

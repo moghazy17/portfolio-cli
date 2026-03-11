@@ -23,6 +23,7 @@ import {
   helloCommand,
   exitCommand,
 } from './easter-eggs';
+import { chatCommand } from './chat';
 
 function helpCommand(): CommandResult {
   const rows = commandRegistry
@@ -140,6 +141,13 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'github',
     aliases: ['gh'],
     execute: () => githubCommand(),
+  },
+  {
+    name: 'chat',
+    description: 'Chat with AI about Ahmed',
+    usage: 'chat',
+    aliases: ['ask', 'ai'],
+    execute: () => chatCommand(),
   },
   {
     name: 'clear',

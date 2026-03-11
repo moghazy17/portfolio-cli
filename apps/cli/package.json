@@ -15,15 +15,16 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "ink": "^5.1.0",
     "@inkjs/ui": "^2.0.0",
+    "ai": "^6.0.116",
+    "ink": "^5.1.0",
     "react": "^18.3.1"
   },
   "devDependencies": {
     "@ahmed-moghazy/shared": "*",
+    "@types/react": "^18.3.0",
     "tsup": "^8.3.0",
-    "typescript": "^5.7.0",
-    "@types/react": "^18.3.0"
+    "typescript": "^5.7.0"
   },
   "keywords": [
     "cli",

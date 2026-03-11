@@ -141,6 +141,13 @@ export interface CommandDefinition {
 export interface CommandResult {
   output: CommandOutput[];
   clear?: boolean;
+  mode?: 'chat';
+  openUrl?: string;
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
 }
 
 export interface HistoryEntry {

@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { Box, Text, useInput } from 'ink';
 import { exec } from 'child_process';
-import { executeCommand, getCompletions } from '@ahmed-moghazy/shared';
+import { executeCommand, getCompletions, defaultTheme } from '@ahmed-moghazy/shared';
 import type { HistoryEntry } from '@ahmed-moghazy/shared';
 import OutputRenderer from './OutputRenderer.js';
 
 interface Props {
   onSwitchToMenu: () => void;
+  onEnterChat: () => void;
 }
 
-export default function CommandMode({ onSwitchToMenu }: Props) {
+export default function CommandMode({ onSwitchToMenu, onEnterChat }: Props) {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [input, setInput] = useState('');
   const [inputHistory, setInputHistory] = useState<string[]>([]);
@@ -69,18 +70,12 @@ export default function CommandMode({ onSwitchToMenu }: Props) {
       (async () => {
         const result = await executeCommand(value);
 
-        // CLI-only: open URL in browser for `open` command
-        const cmdName = value.trim().split(/\s+/)[0].toLowerCase();
-        if (cmdName === 'open') {
-          const linkOutput = result.output.find((o) => o.type === 'link');
-          if (linkOutput && linkOutput.type === 'link') {
-            const url = linkOutput.url;
-            const opener =
-              process.platform === 'win32'  ? `start "" "${url}"` :
-              process.platform === 'darwin' ? `open "${url}"` :
-                                              `xdg-open "${url}"`;
-            exec(opener);
-          }
+        if (result.openUrl) {
+          const opener =
+            process.platform === 'win32'  ? `start "" "${result.openUrl}"` :
+            process.platform === 'darwin' ? `open "${result.openUrl}"` :
+                                            `xdg-open "${result.openUrl}"`;
+          exec(opener, () => {});
         }
 
         if (result.clear) {
@@ -91,6 +86,10 @@ export default function CommandMode({ onSwitchToMenu }: Props) {
 
         setHistory((prev) => [...prev, { input: value, output: result.output }]);
         setInput('');
+
+        if (result.mode === 'chat') {
+          onEnterChat();
+        }
       })();
       return;
     }
@@ -110,7 +109,7 @@ export default function CommandMode({ onSwitchToMenu }: Props) {
       {history.map((entry, i) => (
         <Box key={i} flexDirection="column" marginBottom={1}>
           <Text>
-            <Text color="#2c84db">$ </Text>
+            <Text color={defaultTheme.primary}>$ </Text>
             <Text>{entry.input}</Text>
           </Text>
           <OutputRenderer output={entry.output} />
@@ -118,9 +117,9 @@ export default function CommandMode({ onSwitchToMenu }: Props) {
       ))}
 
       <Box>
-        <Text color="#2c84db">$ </Text>
+        <Text color={defaultTheme.primary}>$ </Text>
         <Text>{input}</Text>
-        <Text color="#2c84db">_</Text>
+        <Text color={defaultTheme.primary}>_</Text>
       </Box>
 
       <Text dimColor>Tab/Esc: menu mode | ↑↓: history | exit: quit | Type &quot;help&quot; for commands</Text>

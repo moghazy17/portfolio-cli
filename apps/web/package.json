@@ -8,10 +8,15 @@
     "start": "next start"
   },
   "dependencies": {
+    "@ahmed-moghazy/shared": "*",
+    "@ai-sdk/google": "^3.0.43",
+    "@ai-sdk/react": "^3.0.118",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.36.4",
+    "ai": "^6.0.116",
     "next": "^15.1.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "@ahmed-moghazy/shared": "*"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

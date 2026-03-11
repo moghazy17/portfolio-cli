@@ -1,15 +1,13 @@
 'use client';
 
-import { commandRegistry } from '@ahmed-moghazy/shared';
+import { getMenuItems } from '@ahmed-moghazy/shared';
 
 interface Props {
   onCommand: (cmd: string) => void;
 }
 
 export default function MobileCommands({ onCommand }: Props) {
-  const visibleCommands = commandRegistry.filter(
-    (c) => !c.hidden && !['clear', 'welcome', 'whoami', 'theme'].includes(c.name),
-  );
+  const menuItems = getMenuItems();
 
   return (
     <div
@@ -23,10 +21,10 @@ export default function MobileCommands({ onCommand }: Props) {
         background: 'rgba(255,255,255,0.03)',
       }}
     >
-      {visibleCommands.map((cmd) => (
+      {menuItems.map((item) => (
         <button
-          key={cmd.name}
-          onClick={() => onCommand(cmd.name)}
+          key={item.value}
+          onClick={() => onCommand(item.value)}
           style={{
             background: 'transparent',
             border: '1px solid var(--primary)',
@@ -38,7 +36,7 @@ export default function MobileCommands({ onCommand }: Props) {
             cursor: 'pointer',
           }}
         >
-          {cmd.name}
+          {item.value}
         </button>
       ))}
     </div>

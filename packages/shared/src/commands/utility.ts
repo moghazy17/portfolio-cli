@@ -37,6 +37,7 @@ export function openCommand(args: string[]): CommandResult {
       { type: 'text', content: `Opening ${target}...`, style: { color: 'success' } },
       { type: 'link', text: target, url: targets[target] },
     ],
+    openUrl: targets[target],
   };
 }
 

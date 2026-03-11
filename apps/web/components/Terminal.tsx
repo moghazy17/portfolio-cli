@@ -5,12 +5,13 @@ import CommandLine from './CommandLine';
 import OutputRenderer from './OutputRenderer';
 import WelcomeScreen from './WelcomeScreen';
 import MobileCommands from './MobileCommands';
+import ChatRenderer from './ChatRenderer';
 import { useTerminal } from '../hooks/useTerminal';
 
 const menuItems = getMenuItems();
 
 export default function Terminal() {
-  const { history, showWelcome, theme, commandHistoryList, scrollRef, handleCommand } =
+  const { history, showWelcome, theme, commandHistoryList, scrollRef, handleCommand, mode, exitChat } =
     useTerminal();
 
   return (
@@ -109,11 +110,15 @@ export default function Terminal() {
           </div>
         ))}
 
-        <CommandLine
-          onSubmit={handleCommand}
-          commandHistory={commandHistoryList}
-          getCompletions={getCompletions}
-        />
+        {mode === 'chat' ? (
+          <ChatRenderer onExit={exitChat} />
+        ) : (
+          <CommandLine
+            onSubmit={handleCommand}
+            commandHistory={commandHistoryList}
+            getCompletions={getCompletions}
+          />
+        )}
       </div>
 
       {/* Always-visible menu bar */}

@@ -3,3 +3,5 @@ export * from './data';
 export * from './commands/index';
 export * from './theme';
 export * from './ascii';
+export * from './prompt';
+export * from './github';

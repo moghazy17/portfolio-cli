@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Text, useInput } from 'ink';
-import { getMenuItems, executeCommand } from '@ahmed-moghazy/shared';
+import { getMenuItems, executeCommand, defaultTheme } from '@ahmed-moghazy/shared';
 import type { CommandOutput } from '@ahmed-moghazy/shared';
 import OutputRenderer from './OutputRenderer.js';
 
@@ -58,7 +58,7 @@ export default function MenuMode({ onSwitchToCommand }: Props) {
 
   return (
     <Box flexDirection="column">
-      <Text bold color="#2c84db">
+      <Text bold color={defaultTheme.primary}>
         {'>'} Select a section:
       </Text>
       <Box flexDirection="column" marginTop={1}>
@@ -66,7 +66,7 @@ export default function MenuMode({ onSwitchToCommand }: Props) {
           <Text
             key={item.value}
             color={i === selectedIndex ? 'black' : undefined}
-            backgroundColor={i === selectedIndex ? '#2c84db' : undefined}
+            backgroundColor={i === selectedIndex ? defaultTheme.primary : undefined}
           >
             {i === selectedIndex ? ' > ' : '   '}
             {item.label}

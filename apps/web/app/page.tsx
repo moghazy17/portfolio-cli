@@ -3,7 +3,7 @@ import Terminal from '../components/Terminal';
 
 export default function Home() {
   return (
-    <main style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <main className="full-height" style={{ display: 'flex', flexDirection: 'column' }}>
       {/* Hidden semantic HTML for SEO — crawlers see real content */}
       <article className="sr-only">
         <h1>{cvData.name} — Data Science & ML Engineer</h1>

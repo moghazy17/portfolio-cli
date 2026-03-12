@@ -51,6 +51,7 @@ export default function WelcomeScreen({
           color: 'var(--primary)',
           fontSize: '10px',
           lineHeight: '1.1',
+          overflowX: 'auto',
         }}
       >
         {ASCII_BANNER}

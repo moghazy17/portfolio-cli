@@ -4,7 +4,7 @@ import { getCompletions, getMenuItems } from '@ahmed-moghazy/shared';
 import CommandLine from './CommandLine';
 import OutputRenderer from './OutputRenderer';
 import WelcomeScreen from './WelcomeScreen';
-import MobileCommands from './MobileCommands';
+
 import ChatRenderer from './ChatRenderer';
 import { useTerminal } from '../hooks/useTerminal';
 
@@ -16,6 +16,7 @@ export default function Terminal() {
 
   return (
     <div
+      className="terminal-container"
       style={{
         flex: 1,
         display: 'flex',
@@ -24,7 +25,6 @@ export default function Terminal() {
         margin: '0 auto',
         width: '100%',
         padding: '16px',
-        height: '100vh',
       }}
     >
       {/* Terminal window chrome */}
@@ -123,6 +123,7 @@ export default function Terminal() {
 
       {/* Always-visible menu bar */}
       <div
+        className="menu-bar"
         style={{
           display: 'flex',
           flexWrap: 'wrap',
@@ -136,6 +137,7 @@ export default function Terminal() {
         {menuItems.map((item) => (
           <button
             key={item.value}
+            className="menu-btn"
             onClick={() => handleCommand(item.value)}
             style={{
               background: 'transparent',
@@ -162,8 +164,6 @@ export default function Terminal() {
         ))}
       </div>
 
-      {/* Mobile tappable commands (larger buttons, shown only on small screens) */}
-      <MobileCommands onCommand={handleCommand} />
     </div>
   );
 }

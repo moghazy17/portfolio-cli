@@ -17,16 +17,9 @@ export default function CommandLine({
   const [historyIndex, setHistoryIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Always focus the input
+  // Focus the input on mount
   useEffect(() => {
     inputRef.current?.focus();
-  });
-
-  // Click anywhere on page focuses the input
-  useEffect(() => {
-    const handler = () => inputRef.current?.focus();
-    document.addEventListener('click', handler);
-    return () => document.removeEventListener('click', handler);
   }, []);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -93,6 +86,7 @@ export default function CommandLine({
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
+        enterKeyHint="go"
         spellCheck={false}
         autoComplete="off"
         autoCapitalize="off"
@@ -104,7 +98,7 @@ export default function CommandLine({
           outline: 'none',
           color: 'var(--fg)',
           fontFamily: 'inherit',
-          fontSize: 'inherit',
+          fontSize: '16px',
           caretColor: 'var(--primary)',
         }}
       />

@@ -24,12 +24,6 @@ export default function ChatRenderer({ onExit }: Props) {
 
   useEffect(() => {
     inputRef.current?.focus();
-  });
-
-  useEffect(() => {
-    const handler = () => inputRef.current?.focus();
-    document.addEventListener('click', handler);
-    return () => document.removeEventListener('click', handler);
   }, []);
 
   useEffect(() => {
@@ -93,8 +87,8 @@ export default function ChatRenderer({ onExit }: Props) {
         </div>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <span style={{ color: 'var(--primary)', marginRight: '8px', userSelect: 'none' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ color: 'var(--primary)', marginRight: '0', userSelect: 'none' }}>
           &gt;
         </span>
         <input
@@ -103,6 +97,7 @@ export default function ChatRenderer({ onExit }: Props) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={onKeyDown}
+          enterKeyHint="send"
           placeholder="Ask about Ahmed... (type 'exit' to leave)"
           disabled={isLoading}
           spellCheck={false}
@@ -116,10 +111,29 @@ export default function ChatRenderer({ onExit }: Props) {
             outline: 'none',
             color: 'var(--fg)',
             fontFamily: 'inherit',
-            fontSize: 'inherit',
+            fontSize: '16px',
             caretColor: 'var(--primary)',
           }}
         />
+        <button
+          onClick={handleSubmit}
+          disabled={!input.trim() || isLoading}
+          aria-label="Send message"
+          style={{
+            background: input.trim() && !isLoading ? 'var(--primary)' : 'transparent',
+            border: '1px solid var(--primary)',
+            color: input.trim() && !isLoading ? 'var(--bg)' : 'var(--dimmed)',
+            padding: '6px 14px',
+            borderRadius: '4px',
+            fontFamily: 'inherit',
+            fontSize: '14px',
+            cursor: input.trim() && !isLoading ? 'pointer' : 'default',
+            whiteSpace: 'nowrap',
+            opacity: input.trim() && !isLoading ? 1 : 0.5,
+          }}
+        >
+          Send
+        </button>
       </div>
 
       <div style={{ color: 'var(--dimmed)', fontSize: '12px' }}>

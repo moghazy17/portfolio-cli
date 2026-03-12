@@ -79,43 +79,44 @@ export default function OutputRenderer({ output, theme }: Props) {
 
       case 'table':
         return (
-          <table
-            key={index}
-            style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              marginBottom: '8px',
-            }}
-          >
-            <thead>
-              <tr>
-                {block.headers.map((h, i) => (
-                  <th
-                    key={i}
-                    style={{
-                      textAlign: 'left',
-                      color: theme.accent,
-                      padding: '4px 12px 4px 0',
-                      borderBottom: `1px solid ${theme.dimmed}`,
-                    }}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {block.rows.map((row, ri) => (
-                <tr key={ri}>
-                  {row.map((cell, ci) => (
-                    <td key={ci} style={{ padding: '2px 12px 2px 0' }}>
-                      {cell}
-                    </td>
+          <div key={index} style={{ overflowX: 'auto', marginBottom: '8px' }}>
+            <table
+              style={{
+                width: '100%',
+                borderCollapse: 'collapse',
+              }}
+            >
+              <thead>
+                <tr>
+                  {block.headers.map((h, i) => (
+                    <th
+                      key={i}
+                      style={{
+                        textAlign: 'left',
+                        color: theme.accent,
+                        padding: '4px 12px 4px 0',
+                        borderBottom: `1px solid ${theme.dimmed}`,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {h}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {block.rows.map((row, ri) => (
+                  <tr key={ri}>
+                    {row.map((cell, ci) => (
+                      <td key={ci} style={{ padding: '2px 12px 2px 0' }}>
+                        {cell}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         );
 
       case 'ascii':
@@ -143,7 +144,7 @@ export default function OutputRenderer({ output, theme }: Props) {
               href={block.url}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: theme.primary, textDecoration: 'underline' }}
+              style={{ color: theme.primary, textDecoration: 'underline', wordBreak: 'break-all' }}
             >
               {block.url}
             </a>

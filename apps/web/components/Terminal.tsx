@@ -138,7 +138,7 @@ export default function Terminal() {
           <button
             key={item.value}
             className="menu-btn"
-            onClick={() => handleCommand(item.value)}
+            onClick={(e) => { e.stopPropagation(); handleCommand(item.value); }}
             style={{
               background: 'transparent',
               border: '1px solid var(--primary)',

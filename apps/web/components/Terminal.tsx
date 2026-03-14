@@ -11,7 +11,7 @@ import { useTerminal } from '../hooks/useTerminal';
 const menuItems = getMenuItems();
 
 export default function Terminal() {
-  const { history, showWelcome, theme, commandHistoryList, scrollRef, handleCommand, mode, exitChat } =
+  const { history, showWelcome, animationTrigger, theme, commandHistoryList, scrollRef, handleCommand, mode, exitChat } =
     useTerminal();
 
   return (
@@ -95,6 +95,7 @@ export default function Terminal() {
             showMenu={false}
             menuItems={menuItems}
             onMenuSelect={handleCommand}
+            animationTrigger={animationTrigger}
           />
         )}
 

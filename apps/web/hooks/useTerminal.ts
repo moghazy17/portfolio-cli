@@ -8,6 +8,7 @@ export type TerminalMode = 'command' | 'chat';
 export function useTerminal() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [animationTrigger, setAnimationTrigger] = useState(0);
   const [commandHistoryList, setCommandHistoryList] = useState<string[]>([]);
   const [mode, setMode] = useState<TerminalMode>('command');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -23,6 +24,7 @@ export function useTerminal() {
 
       if (trimmed === 'welcome' || trimmed === 'home' || trimmed === 'banner') {
         setShowWelcome(true);
+        setAnimationTrigger((t) => t + 1);
         setHistory([]);
         setCommandHistoryList((prev) => [...prev, input]);
         return;
@@ -61,5 +63,5 @@ export function useTerminal() {
     setMode('command');
   }, []);
 
-  return { history, showWelcome, theme, commandHistoryList, scrollRef, handleCommand, mode, exitChat };
+  return { history, showWelcome, animationTrigger, theme, commandHistoryList, scrollRef, handleCommand, mode, exitChat };
 }

@@ -103,3 +103,9 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `PORTFOLIO_API_URL` | Yes (for chat) | URL to the deployed web app's `/api/chat` endpoint |
+
+## Active Technologies
+- TypeScript (ES2022, bundler module resolution) + React 18, Ink 4 (CLI), Next.js 14 (web) (001-animated-ascii-banner)
+
+## Recent Changes
+- 001-animated-ascii-banner: Added TypeScript (ES2022, bundler module resolution) + React 18, Ink 4 (CLI), Next.js 14 (web)

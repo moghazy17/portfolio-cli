@@ -95,8 +95,8 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 ### Web App (`apps/web/`)
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `KV_REST_API_URL` | No | Upstash Redis URL for GitHub data caching |
-| `KV_REST_API_TOKEN` | No | Upstash Redis token |
+| `UPSTASH_REDIS_REST_URL` | No | Upstash Redis REST URL for GitHub data caching |
+| `UPSTASH_REDIS_REST_TOKEN` | No | Upstash Redis REST token |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | Yes (for chat) | Google AI API key for Gemini |
 
 ### CLI App (`apps/cli/`)

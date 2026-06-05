@@ -125,8 +125,8 @@ theme matrix
 
 ### Web App (`apps/web/.env.example`)
 ```
-KV_REST_API_URL=         # Upstash Redis URL (optional, for GitHub data caching)
-KV_REST_API_TOKEN=       # Upstash Redis token
+UPSTASH_REDIS_REST_URL=   # Upstash Redis REST URL (optional, for GitHub data caching)
+UPSTASH_REDIS_REST_TOKEN= # Upstash Redis REST token
 GOOGLE_GENERATIVE_AI_API_KEY=  # Google AI key (required for chat)
 ```
 

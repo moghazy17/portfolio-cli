@@ -16,9 +16,9 @@ const ALLOWED_ORIGINS = [
 const MAX_MESSAGE_LENGTH = 1000;
 const MAX_MESSAGES = 20;
 
-const ratelimit = (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN)
+const ratelimit = (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
   ? new Ratelimit({
-      redis: new Redis({ url: process.env.KV_REST_API_URL, token: process.env.KV_REST_API_TOKEN }),
+      redis: new Redis({ url: process.env.UPSTASH_REDIS_REST_URL, token: process.env.UPSTASH_REDIS_REST_TOKEN }),
       limiter: Ratelimit.slidingWindow(15, '10 m'),
       prefix: 'ratelimit:chat',
     })
@@ -31,15 +31,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  // Rate limiting by IP
+  // Rate limiting by IP — fail open if Redis is unreachable so a cache
+  // outage degrades gracefully instead of taking down chat entirely.
   if (ratelimit) {
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '127.0.0.1';
-    const { success } = await ratelimit.limit(ip);
-    if (!success) {
-      return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
-        { status: 429 },
-      );
+    try {
+      const { success } = await ratelimit.limit(ip);
+      if (!success) {
+        return NextResponse.json(
+          { error: 'Too many requests. Please try again later.' },
+          { status: 429 },
+        );
+      }
+    } catch (err) {
+      console.error('Rate limiter unavailable, allowing request:', err);
     }
   }
 
@@ -76,7 +81,7 @@ export async function POST(req: Request) {
   const modelMessages = await convertToModelMessages(messages);
 
   const result = streamText({
-    model: google('gemini-2.5-flash'),
+    model: google('gemini-3.1-flash-lite'),
     system: systemPrompt,
     messages: modelMessages,
   });

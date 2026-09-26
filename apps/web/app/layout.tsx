@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
+import { profile, site } from '@ahmed-moghazy/shared';
 import './globals.css';
 
 const jetbrainsMono = JetBrains_Mono({
@@ -8,31 +9,20 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Ahmed Moghazy | Data Science & ML Engineer',
-  description:
-    'Interactive terminal portfolio of Ahmed Moghazy — Data Science graduate specializing in ML, AI, RAG, and LangChain. Type "help" to explore.',
-  keywords: [
-    'Ahmed Moghazy',
-    'Data Science',
-    'Machine Learning',
-    'Portfolio',
-    'ML Engineer',
-    'AI',
-    'RAG',
-    'LangChain',
-  ],
-  authors: [{ name: 'Ahmed Moghazy' }],
+  title: site.title,
+  description: site.description,
+  keywords: site.keywords,
+  authors: [{ name: profile.name }],
   openGraph: {
-    title: 'Ahmed Moghazy | Terminal Portfolio',
-    description:
-      'Interactive terminal-style portfolio. Explore experience, projects, and skills.',
+    title: site.ogTitle,
+    description: site.ogDescription,
     type: 'website',
     images: ['/og-image.png'],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Ahmed Moghazy | Terminal Portfolio',
-    description: 'Interactive terminal-style portfolio',
+    title: site.ogTitle,
+    description: site.twitterDescription,
   },
 };
 

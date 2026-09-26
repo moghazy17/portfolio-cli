@@ -1,5 +1,5 @@
 import type { CommandResult, CommandOutput } from '../types';
-import { cvData } from '../data';
+import { cvData } from '../content';
 import { fetchGitHubData, GITHUB_USERNAME } from '../github';
 
 export async function githubCommand(): Promise<CommandResult> {

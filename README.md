@@ -158,8 +158,18 @@ npm run build
 
 ### Updating portfolio content
 
-All CV data lives in one place: [packages/shared/src/data.ts](packages/shared/src/data.ts).
-Changes there are reflected in both the CLI and web app automatically.
+Edit [`content/resume.yaml`](content/resume.yaml) for CV content and
+[`content/site.yaml`](content/site.yaml) for site copy. Changes are reflected in the web app, the
+`/api/content` endpoint and the AI assistant on the next deploy.
+
+To update from a new CV, drop its PDF into `content/cv/incoming/` and review the
+generated pull request. To preserve a bullet from automatic CV synchronization, mark
+it as manual:
+
+```yaml
+- value: "Engineered a Hierarchical RAG Pipeline in PGVector."
+  manual: true
+```
 
 ---
 

@@ -34,3 +34,8 @@ Ahmed_Moghazy.pdf
 .npmrc
 
 .vercel
+packages/shared/src/content/generated.ts
+apps/web/public/cv/
+.cv-sync/
+test-results/
+playwright-report/

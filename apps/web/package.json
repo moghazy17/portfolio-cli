@@ -3,9 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "predev": "npm run generate -w @ahmed-moghazy/shared && node scripts/copy-cv.mjs",
     "dev": "next dev",
+    "prebuild": "npm run generate -w @ahmed-moghazy/shared && node scripts/copy-cv.mjs",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test:e2e": "playwright test",
+    "pretypecheck": "npm run generate -w @ahmed-moghazy/shared && node scripts/copy-cv.mjs",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@ahmed-moghazy/shared": "*",

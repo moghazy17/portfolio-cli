@@ -29,14 +29,18 @@ npm run typecheck      # Type-check all workspaces
 ### Other
 ```bash
 npm run clean          # Remove build artifacts across workspaces
+npm run content:validate # Validate content files
+npm run content:generate # Validate and generate shared content
+npm test               # Run workspace tests
+npm run test:e2e       # Run Playwright smoke tests
+npm run cv:sync -- --pdf <file> [--dry-run] # Merge a CV into resume content
+npm run eval:cv        # Evaluate CV extraction fixtures (requires Google AI key)
 ```
-
-There are no test commands configured in this project.
 
 ## Architecture
 
 ### Monorepo Structure
-- `packages/shared/` — Core logic (`@ahmed-moghazy/shared`): command registry, CV data, types, theme, ASCII art, GitHub data fetching, AI prompt builder
+- `packages/shared/` — Core logic (`@ahmed-moghazy/shared`): command registry, generated content, types, theme, ASCII art, GitHub data fetching, AI prompt builder
 - `apps/web/` — Next.js app, deployed on Vercel
 - `tsconfig.base.json` — Shared TypeScript base config (strict mode, ES2022, bundler module resolution)
 
@@ -68,9 +72,11 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 - `hooks/useThemeApplier.ts` — Applies theme CSS custom properties
 - `lib/github-cache.ts` — Redis-cached GitHub data for AI prompt context
 - `app/api/chat/route.ts` — Streaming AI chat endpoint (Google Gemini via Vercel AI SDK)
+- `app/api/content/route.ts` — Versioned portfolio-content API with ETag caching
 
 ### Key Patterns
-- All CV data is in `packages/shared/src/data.ts` — edit here to update the website
+- Portfolio content lives in `content/resume.yaml`, `content/site.yaml`, and optional write-ups at `content/projects/<slug>/README.md`; it is generated into `packages/shared/src/content/generated.ts`
+- To update from a CV, add its PDF to `content/cv/incoming/` and review the pull request created by the CV-update workflow
 - Theme switching uses CSS custom properties applied to `document.documentElement`
 - `DEFAULT_THEME` and `themes` from `packages/shared/src/theme.ts` initialize and update the web terminal theme
 - The `openUrl` field on `CommandResult` causes the web terminal to open a URL with `window.open`
@@ -86,3 +92,16 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 | `UPSTASH_REDIS_REST_TOKEN` | No | Upstash Redis REST token. Falls back to `KV_REST_API_TOKEN` |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | Yes (for chat) | Google AI API key for Gemini |
 | `CHAT_STATS_TOKEN` | No | Bearer token for the private `/api/chat-stats` usage report (endpoint returns 404 when unset) |
+
+### GitHub Actions
+| Setting | Required | Description |
+|----------|----------|-------------|
+| `CV_BOT_TOKEN` secret | Yes (CV updates) | Fine-grained token for this repository with Contents and Pull requests read/write permissions |
+| `GOOGLE_GENERATIVE_AI_API_KEY` secret | Yes (CV updates and evaluation) | Google AI API key used for CV extraction |
+| `CV_SYNC_MODEL` variable | No | Model for CV synchronization; defaults to `gemini-2.5-flash` |
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan:
+`specs/001-content-pipeline/plan.md` (Spec 001 — Content pipeline)
+<!-- SPECKIT END -->

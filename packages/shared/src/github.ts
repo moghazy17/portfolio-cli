@@ -1,4 +1,4 @@
-import { cvData } from './data';
+import { cvData } from './content';
 
 export const GITHUB_USERNAME = cvData.contact.github.replace('https://github.com/', '');
 export const GITHUB_API_BASE = 'https://api.github.com';

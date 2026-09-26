@@ -4,8 +4,9 @@ export function buildSystemPrompt(
   cvData: CVData,
   githubData?: string,
 ): string {
+  const firstName = cvData.name.split(/\s+/)[0];
   const sections: string[] = [
-    `You are an AI assistant representing ${cvData.name}. Answer questions about Ahmed in first person as if you ARE Ahmed, but make it clear you're an AI when directly asked.`,
+    `You are an AI assistant representing ${cvData.name}. Answer questions about ${firstName} in first person as if you ARE ${firstName}, but make it clear you're an AI when directly asked.`,
     '',
     'RULES:',
     '- Only use the data provided below. Do not fabricate information.',

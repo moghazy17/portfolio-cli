@@ -1,0 +1,33 @@
+{
+  "same-as-current": {
+    "outcomes": [
+      "no-changes",
+      "pdf-only"
+    ]
+  },
+  "new-role": {
+    "addedWork": 1
+  },
+  "new-layout": {
+    "duplicatedWork": 0,
+    "notMapped": [
+      "Languages"
+    ]
+  },
+  "dropped-project": {
+    "keptProjectSlugs": [
+      "star-schema"
+    ]
+  },
+  "image-only": {
+    "error": "UNREADABLE"
+  },
+  "corrupt": {
+    "error": "UNREADABLE"
+  },
+  "real-cv": {
+    "matchedWork": 5,
+    "matchedProjects": 5,
+    "addedSkillCategoriesAtLeast": 1
+  }
+}

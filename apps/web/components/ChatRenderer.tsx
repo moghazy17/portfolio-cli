@@ -2,6 +2,7 @@
 
 import { useChat } from '@ai-sdk/react';
 import { useState, useRef, useEffect, KeyboardEvent } from 'react';
+import { profile } from '@ahmed-moghazy/shared';
 
 interface Props {
   onExit: () => void;
@@ -76,7 +77,7 @@ export default function ChatRenderer({ onExit }: Props) {
                 userSelect: 'none',
               }}
             >
-              {msg.role === 'user' ? 'You: ' : "Ahmed's AI: "}
+              {msg.role === 'user' ? 'You: ' : `${profile.firstName}'s AI: `}
             </span>
             <span style={{ color: 'var(--fg)', whiteSpace: 'pre-wrap' }}>{text}</span>
           </div>
@@ -86,7 +87,7 @@ export default function ChatRenderer({ onExit }: Props) {
       {status === 'submitted' && (
         <div style={{ marginBottom: '8px' }}>
           <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>
-            {"Ahmed's AI: "}
+            {`${profile.firstName}'s AI: `}
           </span>
           <span
             style={{
@@ -116,7 +117,7 @@ export default function ChatRenderer({ onExit }: Props) {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={onKeyDown}
           enterKeyHint="send"
-          placeholder="Ask about Ahmed... (type 'exit' to leave)"
+          placeholder={`Ask about ${profile.firstName}... (type 'exit' to leave)`}
           disabled={isLoading}
           spellCheck={false}
           autoComplete="off"

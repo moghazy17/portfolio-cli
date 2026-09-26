@@ -1,4 +1,5 @@
 import type { CommandDefinition, CommandResult } from '../types';
+import { profile } from '../content';
 import {
   aboutCommand,
   educationCommand,
@@ -144,7 +145,7 @@ export const commandRegistry: CommandDefinition[] = [
   },
   {
     name: 'chat',
-    description: 'Chat with AI about Ahmed',
+    description: `Chat with AI about ${profile.firstName}`,
     usage: 'chat',
     aliases: ['ask', 'ai'],
     execute: () => chatCommand(),

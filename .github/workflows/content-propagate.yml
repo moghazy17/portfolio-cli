@@ -1,0 +1,27 @@
+name: Content propagation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'content/**'
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  propagate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dispatch inventory workflow when available
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -f .github/workflows/inventory.yml ]; then
+            gh workflow run inventory.yml
+            echo "dispatched inventory.yml"
+          else
+            echo "inventory workflow not present (Spec 004) — skipped" >> "$GITHUB_STEP_SUMMARY"
+          fi

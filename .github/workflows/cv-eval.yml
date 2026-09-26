@@ -1,0 +1,41 @@
+name: CV extraction eval
+
+on:
+  pull_request:
+    paths:
+      - 'packages/shared/src/cv-sync/**'
+      - 'packages/shared/test/fixtures/cv/**'
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    steps:
+      - id: key
+        env:
+          KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+        run: echo "has_key=${{ env.KEY != '' }}" >> "$GITHUB_OUTPUT"
+      - if: steps.key.outputs.has_key == 'true'
+        uses: actions/checkout@v4
+      - if: steps.key.outputs.has_key == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - if: steps.key.outputs.has_key == 'true'
+        run: npm ci
+      - if: steps.key.outputs.has_key == 'true'
+        run: sudo apt-get install -y poppler-utils
+      - if: steps.key.outputs.has_key == 'true'
+        env:
+          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          CV_SYNC_MODEL: ${{ vars.CV_SYNC_MODEL }}
+        run: npm run eval:cv
+      - if: steps.key.outputs.has_key != 'true'
+        run: |
+          echo "CV eval skipped: no API key (fork PR)" >> "$GITHUB_STEP_SUMMARY"

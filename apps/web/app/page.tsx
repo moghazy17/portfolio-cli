@@ -1,4 +1,4 @@
-import { cvData } from '@ahmed-moghazy/shared';
+import { cvData, profile } from '@ahmed-moghazy/shared';
 import Terminal from '../components/Terminal';
 
 export default function Home() {
@@ -6,7 +6,7 @@ export default function Home() {
     <main className="full-height" style={{ display: 'flex', flexDirection: 'column' }}>
       {/* Hidden semantic HTML for SEO — crawlers see real content */}
       <article className="sr-only">
-        <h1>{cvData.name} — Data Science & ML Engineer</h1>
+        <h1>{`${cvData.name} — ${profile.label}`}</h1>
         <p>{cvData.professionalSummary}</p>
 
         <h2>Education</h2>

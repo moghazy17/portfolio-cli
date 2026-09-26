@@ -130,9 +130,20 @@ runtime is impossible in the browser.
      It never outputs slugs, links, `basics.profiles`, write-ups, `graduation` or manual
      flags; those are not in its schema. (`basics.profiles` is excluded because CVs print
      URLs without a scheme, which would fail validation on every run.)
-- **Model**: env `CV_SYNC_MODEL`, default `gemini-3.5-flash-lite`, the model `/api/chat`
-  already uses in production. Switch to a larger Flash model only if the CV eval (R11)
-  shows matching errors. I deliberately don't hard-code a model name I haven't seen working.
+- **Model**: env `CV_SYNC_MODEL`, default **`gemini-2.5-flash`**. The live eval (T048, 2026-09-26)
+  decided this:
+  - **`gemini-3.5-flash-lite`** (the chat model): `real-cv` failed with "response did not match
+    schema" in 3 out of 3 runs, and `new-layout` duplicated entries.
+  - **`gemini-3.5-flash`**: every run failed with "high demand" or quota errors on this API key.
+  - **`gemini-2.5-flash`**: 7/7 fixtures passed. In a second run, the only failures were quota
+    errors, never logic errors.
+
+  Other settings: `temperature: 0`. The prompt states the matching rules explicitly: an
+  abbreviation or acronym plus overlapping dates means the same entry, while different dates at
+  the same organisation mean different entries.
+
+  **Caveat**: this key is on a small free-tier quota. The weekly `cv-eval` workflow uses about
+  6 calls, and a CV update uses 1–2.
 - **Rationale**: the model does the part only a model can do (reading a CV and deciding
   "this bullet is the same fact as w0.h2"), and everything with a rule (R8) is code.
   Principle IV and FR-017: the CV is data, so even a prompt-injected CV can at most propose

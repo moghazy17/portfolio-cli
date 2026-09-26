@@ -23,7 +23,7 @@ overlap.
 - `content/resume.yaml` and `content/cv/latest.pdf` (may be missing on the first run).
 - Secrets: `GOOGLE_GENERATIVE_AI_API_KEY` (extraction), `CV_BOT_TOKEN` (a fine-grained PAT
   for this repo with Contents RW and Pull requests RW, used only to open or update the PR).
-- Variable (optional): `CV_SYNC_MODEL`, default `gemini-3.5-flash-lite`.
+- Variable (optional): `CV_SYNC_MODEL`, default `gemini-2.5-flash` (an empty value also falls back to the default).
 
 Permissions: `contents: read`. The PR is written using `CV_BOT_TOKEN`, not `GITHUB_TOKEN`.
 

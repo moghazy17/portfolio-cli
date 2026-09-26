@@ -1,0 +1,551 @@
+{
+  "basics": {
+    "_id": "b",
+    "name": "Ahmed Moghazy",
+    "label": "Data Science & ML Engineer",
+    "summary": "Data Science graduate specializing in machine learning, applied AI, and data-driven systems. Experienced in designing and deploying end-to-end ML solutions including AutoML pipelines, predictive modeling, and retrieval-augmented generation (RAG) applications using large language models. Strong background in data analysis, feature engineering, and model evaluation, with hands-on exposure to data engineering workflows, MLOps practices, and translating complex data into actionable business insights.",
+    "email": "akhaledmoghazy@gmail.com",
+    "phone": "(+20) 115 322 7992",
+    "location": {
+      "city": "Cairo",
+      "countryCode": "EG"
+    }
+  },
+  "education": [
+    {
+      "institution": "Cairo University",
+      "area": "Computer Science",
+      "studyType": "Bachelor of Science",
+      "faculty": "Faculty of Computers & AI",
+      "location": "Giza, Egypt",
+      "score": "3.33",
+      "startDate": "2021-10",
+      "endDate": "2025-06",
+      "_id": "e0",
+      "_match": "certain",
+      "courses": [
+        {
+          "_id": "e0.c0",
+          "value": "Machine Learning"
+        },
+        {
+          "_id": "e0.c1",
+          "value": "Introduction to Data Science"
+        },
+        {
+          "_id": "e0.c2",
+          "value": "Mathematical Optimization"
+        },
+        {
+          "_id": "e0.c3",
+          "value": "Operating Systems"
+        },
+        {
+          "_id": "e0.c4",
+          "value": "Database Systems"
+        },
+        {
+          "_id": "e0.c5",
+          "value": "Advanced Databases"
+        },
+        {
+          "_id": "e0.c6",
+          "value": "Software Engineering"
+        },
+        {
+          "_id": "e0.c7",
+          "value": "Algorithm Design & Analysis"
+        },
+        {
+          "_id": "e0.c8",
+          "value": "Object-Oriented Programming"
+        }
+      ]
+    }
+  ],
+  "work": [
+    {
+      "name": "Advanced Computer Technology (ACT)",
+      "position": "Software Developer (AI & Backend)",
+      "startDate": "2025-10",
+      "_id": "w0",
+      "_match": "certain",
+      "highlights": [
+        {
+          "_id": "w0.h0",
+          "value": "Architected a Multi-Agent Concierge System using LangGraph, orchestrating specialized agents with 95% intent classification accuracy."
+        },
+        {
+          "_id": "w0.h1",
+          "value": "Engineered a Hierarchical RAG Pipeline in PGVector, reducing hallucinations by 30% on long-form queries."
+        },
+        {
+          "_id": "w0.h2",
+          "value": "Integrated LLM Tool-Access with Oracle Opera PMS via REST APIs, reducing manual front-desk workload by 40%."
+        },
+        {
+          "_id": "w0.h3",
+          "value": "Containerized the entire multi-agent stack using Docker, streamlining CI/CD pipeline."
+        }
+      ]
+    },
+    {
+      "name": "Digital Egypt Pioneers Initiative (DEPI)",
+      "position": "Machine Learning Engineer Trainee",
+      "startDate": "2024-10",
+      "endDate": "2025-04",
+      "_id": "w1",
+      "_match": "certain",
+      "highlights": [
+        {
+          "_id": "w1.h0",
+          "value": "Completed the Microsoft ML Engineer track, focusing on scalable production-ready ML solutions."
+        },
+        {
+          "_id": "w1.h1",
+          "value": "Built foundations in statistics, linear algebra, Python, classical ML, deep learning, NLP, and computer vision."
+        },
+        {
+          "_id": "w1.h2",
+          "value": "Applied Azure AI Fundamentals and Azure AI Engineer Associate concepts with MLflow and Hugging Face."
+        }
+      ]
+    },
+    {
+      "name": "Orange Egypt",
+      "position": "Data Engineer Intern",
+      "startDate": "2024-08",
+      "endDate": "2024-09",
+      "_id": "w2",
+      "_match": "certain",
+      "highlights": [
+        {
+          "_id": "w2.h0",
+          "value": "Automated and optimized ETL workflows for company voucher data using Apache NiFi and dbt models."
+        },
+        {
+          "_id": "w2.h1",
+          "value": "Explored pipeline orchestration and scheduling using Apache Airflow."
+        }
+      ]
+    },
+    {
+      "name": "ValU",
+      "position": "Data Science Intern",
+      "startDate": "2024-07",
+      "endDate": "2024-07",
+      "_id": "w3",
+      "_match": "certain",
+      "highlights": [
+        {
+          "_id": "w3.h0",
+          "value": "Analyzed company growth metrics and customer behavior for data-driven strategic insights."
+        },
+        {
+          "_id": "w3.h1",
+          "value": "Designed interactive Power BI dashboards visualizing KPIs for executive decision-making."
+        },
+        {
+          "_id": "w3.h2",
+          "value": "Built ML models (Random Forest, XGBoost) for customer lifetime value prediction, achieving AUC of 0.70."
+        },
+        {
+          "_id": "w3.h3",
+          "value": "Contributed to a customer-facing chatbot using NER for accurate offer retrieval."
+        },
+        {
+          "_id": "w3.h4",
+          "value": "Optimized LLM prompts for intent extraction, reducing inference costs by ~30%."
+        }
+      ]
+    },
+    {
+      "name": "Advanced Computer Technology (ACT)",
+      "position": "Data Science Intern",
+      "startDate": "2023-08",
+      "endDate": "2023-09",
+      "_id": "w4",
+      "_match": "certain",
+      "highlights": [
+        {
+          "_id": "w4.h0",
+          "value": "Conducted EDA on large datasets and presented insights to stakeholders."
+        },
+        {
+          "_id": "w4.h1",
+          "value": "Automated web scraping pipelines using BeautifulSoup."
+        }
+      ]
+    },
+    {
+      "name": "Acme AI",
+      "position": "ML Engineer",
+      "startDate": "2026-08",
+      "highlights": [
+        {
+          "value": "Built reliable machine learning services for production workloads."
+        },
+        {
+          "value": "Improved model monitoring with automated drift detection."
+        }
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "AI-Powered Tech News Aggregator",
+      "stack": "n8n, LLMs",
+      "startDate": "2026-01",
+      "endDate": "2026-01",
+      "_id": "p0",
+      "_match": "certain",
+      "highlights": [
+        {
+          "_id": "p0.h0",
+          "value": "Built an automated news aggregation pipeline using n8n to ingest RSS feeds on a scheduled basis."
+        },
+        {
+          "_id": "p0.h1",
+          "value": "Implemented LLM-based classification and ranking to categorize articles and score importance."
+        },
+        {
+          "_id": "p0.h2",
+          "value": "Designed workflows to store results in Google Sheets and deliver curated HTML email summaries."
+        }
+      ]
+    },
+    {
+      "name": "AutoML Pipeline",
+      "stack": "scikit-learn",
+      "startDate": "2024-10",
+      "endDate": "2025-06",
+      "_id": "p1",
+      "_match": "certain",
+      "highlights": [
+        {
+          "_id": "p1.h0",
+          "value": "Engineered a modular AutoML pipeline with 4 stages: preprocessing, feature selection, model selection, and HPO."
+        },
+        {
+          "_id": "p1.h1",
+          "value": "Synthesized AutoML foundations into the system architecture and experiment plan."
+        },
+        {
+          "_id": "p1.h2",
+          "value": "Benchmarked Grid Search, Random Search, and Bayesian Optimization for HPO on tabular ML tasks."
+        }
+      ]
+    },
+    {
+      "name": "RAG Chatbot",
+      "stack": "LangChain + FAISS + Ollama",
+      "startDate": "2024-12",
+      "endDate": "2025-01",
+      "_id": "p2",
+      "_match": "certain",
+      "highlights": [
+        {
+          "_id": "p2.h0",
+          "value": "Built a retrieval-augmented chatbot with LangChain + Ollama Gemma-3 (12B) and Gradio UI."
+        },
+        {
+          "_id": "p2.h1",
+          "value": "Crawled 30 LangChain doc pages; chunked via RecursiveCharacterTextSplitter."
+        },
+        {
+          "_id": "p2.h2",
+          "value": "Embedded with all-MiniLM-L6-v2, indexed in FAISS; used MultiQueryRetriever + ContextualCompressionRetriever."
+        }
+      ]
+    },
+    {
+      "name": "ExpenSum — Smart Expense Tracker",
+      "stack": "React + Spring Boot + JWT + LLM",
+      "startDate": "2025-04",
+      "endDate": "2025-05",
+      "_id": "p3",
+      "_match": "certain",
+      "highlights": [
+        {
+          "_id": "p3.h0",
+          "value": "Developed a full-stack expense tracker: React frontend + Spring Boot backend secured with JWT."
+        },
+        {
+          "_id": "p3.h1",
+          "value": "Integrated Mistral (via Ollama) to convert natural-language inputs into structured expense entries."
+        }
+      ]
+    },
+    {
+      "name": "Star-Schema Data Warehouse",
+      "stack": "SQL, ETL",
+      "startDate": "2023-12",
+      "endDate": "2024-01",
+      "_id": "p4",
+      "_match": "certain",
+      "highlights": [
+        {
+          "_id": "p4.h0",
+          "value": "Designed a star schema (fact/dimension) for a recommendation dataset."
+        },
+        {
+          "_id": "p4.h1",
+          "value": "Automated daily CSV loads via scheduled SQL jobs (ETL)."
+        }
+      ]
+    }
+  ],
+  "certificates": [
+    {
+      "name": "Deep Learning Specialization",
+      "issuer": "DeepLearning.AI",
+      "startDate": "2024-10",
+      "endDate": "2024-12",
+      "_id": "c0",
+      "_match": "certain",
+      "highlights": []
+    },
+    {
+      "name": "ICT Global Competition — AI Section Lead (Cloud Track)",
+      "issuer": "Huawei",
+      "startDate": "2024-11",
+      "endDate": "2025-05",
+      "_id": "c1",
+      "_match": "certain",
+      "highlights": [
+        {
+          "_id": "c1.h0",
+          "value": "Won the Second Prize Globally in the Huawei ICT Global Competition (Cloud Track)."
+        },
+        {
+          "_id": "c1.h1",
+          "value": "Awarded the Grand Prize in the North Africa Region, representing Egypt in the global finals."
+        },
+        {
+          "_id": "c1.h2",
+          "value": "Led the AI Technologies section, covering Machine Learning & Deep Learning."
+        }
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "name": "Programming",
+      "_id": "s0",
+      "_match": "certain",
+      "keywords": [
+        {
+          "_id": "s0.k0",
+          "value": "Python (Advanced)"
+        },
+        {
+          "_id": "s0.k1",
+          "value": "SQL"
+        },
+        {
+          "_id": "s0.k2",
+          "value": "C++"
+        },
+        {
+          "_id": "s0.k3",
+          "value": "JavaScript"
+        },
+        {
+          "_id": "s0.k4",
+          "value": "HTML/CSS"
+        }
+      ]
+    },
+    {
+      "name": "Machine Learning & AI",
+      "_id": "s1",
+      "_match": "certain",
+      "keywords": [
+        {
+          "_id": "s1.k0",
+          "value": "Scikit-learn"
+        },
+        {
+          "_id": "s1.k1",
+          "value": "TensorFlow/Keras"
+        },
+        {
+          "_id": "s1.k2",
+          "value": "Classical ML"
+        },
+        {
+          "_id": "s1.k3",
+          "value": "Deep Learning"
+        },
+        {
+          "_id": "s1.k4",
+          "value": "NLP"
+        },
+        {
+          "_id": "s1.k5",
+          "value": "Computer Vision"
+        },
+        {
+          "_id": "s1.k6",
+          "value": "Feature Engineering"
+        },
+        {
+          "_id": "s1.k7",
+          "value": "Model Evaluation"
+        },
+        {
+          "_id": "s1.k8",
+          "value": "HPO"
+        }
+      ]
+    },
+    {
+      "name": "LLMs & Generative AI",
+      "_id": "s2",
+      "_match": "certain",
+      "keywords": [
+        {
+          "_id": "s2.k0",
+          "value": "LangChain"
+        },
+        {
+          "_id": "s2.k1",
+          "value": "RAG"
+        },
+        {
+          "_id": "s2.k2",
+          "value": "Prompt Engineering"
+        },
+        {
+          "_id": "s2.k3",
+          "value": "Hugging Face"
+        },
+        {
+          "_id": "s2.k4",
+          "value": "Ollama"
+        },
+        {
+          "_id": "s2.k5",
+          "value": "FAISS"
+        },
+        {
+          "_id": "s2.k6",
+          "value": "Vector Databases"
+        }
+      ]
+    },
+    {
+      "name": "Data Analysis & Visualization",
+      "_id": "s3",
+      "_match": "certain",
+      "keywords": [
+        {
+          "_id": "s3.k0",
+          "value": "Pandas"
+        },
+        {
+          "_id": "s3.k1",
+          "value": "NumPy"
+        },
+        {
+          "_id": "s3.k2",
+          "value": "Matplotlib"
+        },
+        {
+          "_id": "s3.k3",
+          "value": "Seaborn"
+        },
+        {
+          "_id": "s3.k4",
+          "value": "Power BI"
+        },
+        {
+          "_id": "s3.k5",
+          "value": "EDA"
+        }
+      ]
+    },
+    {
+      "name": "Data Engineering & MLOps",
+      "_id": "s4",
+      "_match": "certain",
+      "keywords": [
+        {
+          "_id": "s4.k0",
+          "value": "Apache Airflow"
+        },
+        {
+          "_id": "s4.k1",
+          "value": "Apache NiFi"
+        },
+        {
+          "_id": "s4.k2",
+          "value": "dbt"
+        },
+        {
+          "_id": "s4.k3",
+          "value": "ETL Pipelines"
+        },
+        {
+          "_id": "s4.k4",
+          "value": "MLflow"
+        },
+        {
+          "_id": "s4.k5",
+          "value": "HDFS"
+        }
+      ]
+    },
+    {
+      "name": "Databases",
+      "_id": "s5",
+      "_match": "certain",
+      "keywords": [
+        {
+          "_id": "s5.k0",
+          "value": "PostgreSQL"
+        },
+        {
+          "_id": "s5.k1",
+          "value": "MySQL"
+        },
+        {
+          "_id": "s5.k2",
+          "value": "Star Schema Design"
+        },
+        {
+          "_id": "s5.k3",
+          "value": "Data Warehousing"
+        }
+      ]
+    },
+    {
+      "name": "Cloud & Tools",
+      "_id": "s6",
+      "_match": "certain",
+      "keywords": [
+        {
+          "_id": "s6.k0",
+          "value": "Azure AI Fundamentals"
+        },
+        {
+          "_id": "s6.k1",
+          "value": "Huawei Cloud"
+        },
+        {
+          "_id": "s6.k2",
+          "value": "Git/GitHub"
+        },
+        {
+          "_id": "s6.k3",
+          "value": "Docker"
+        },
+        {
+          "_id": "s6.k4",
+          "value": "Linux"
+        }
+      ]
+    }
+  ],
+  "unmapped": []
+}

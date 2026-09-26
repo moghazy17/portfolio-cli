@@ -1,0 +1,52 @@
+name: CV update
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'content/cv/incoming/**.pdf'
+  workflow_dispatch:
+
+concurrency:
+  group: cv-update
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: sudo apt-get install -y poppler-utils
+      - id: sync
+        env:
+          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          CV_SYNC_MODEL: ${{ vars.CV_SYNC_MODEL }}
+        run: npm run cv:sync -- --event ${{ github.event_name }}
+      - id: metadata
+        if: steps.sync.outputs.outcome == 'changes' || steps.sync.outputs.outcome == 'pdf-only'
+        shell: bash
+        run: echo "title=$(cat .cv-sync/title.txt)" >> "$GITHUB_OUTPUT"
+      - name: Open or update pull request
+        if: steps.sync.outputs.outcome == 'changes' || steps.sync.outputs.outcome == 'pdf-only'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.CV_BOT_TOKEN }}
+          branch: cv-update
+          delete-branch: true
+          add-paths: |
+            content/resume.yaml
+            content/cv/**
+          title: ${{ steps.metadata.outputs.title }}
+          body-path: .cv-sync/pr-body.md
+          labels: cv-update,automated
+          commit-message: "cv: update resume from ${{ steps.sync.outputs.file_name }}"

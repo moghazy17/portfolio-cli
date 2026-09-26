@@ -222,7 +222,7 @@ freezes the legacy data **before** anything is changed.
   - **Fork PRs**: `secrets` can't be used in a job-level `if:`. Make the first step `id: key`, with `env: KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}` and `run: echo "has_key=${{ env.KEY != '' }}" >> "$GITHUB_OUTPUT"`. Gate every later step with `if: steps.key.outputs.has_key == 'true'`. When the key is missing, write "CV eval skipped: no API key (fork PR)" to the step summary.
 - [X] T048 [US2] Run `npm run eval:cv` locally with the key. If `real-cv` or `new-layout` mis-match, tune the prompt in `extract.ts` first, and only then consider setting `CV_SYNC_MODEL` to a larger Flash model (record the choice in research.md R7)
 - [X] T049 [US2] **Owner step**: in `content/resume.yaml`, mark with `{ value, manual: true }` any short, terminal-friendly bullets or skill names to keep. Then run `npm run cv:sync -- --pdf Ahmed_Moghazy.pdf --dry-run` and review the report against quickstart.md's "Expected result on the first real CV". In the same change, **retire the legacy assertions** in `packages/shared/test/legacy-equivalence.test.ts`: delete the two legacy fixtures and replace the test with a loader round-trip (load, then `toCVData`, which must not throw and must have the same entry counts as `resume.yaml`). The migration was already proven when US1 shipped, and the first CV PR changes content on purpose, so CI on that PR would otherwise fail
-- [ ] T050 [US2] **Owner step (needs repo settings from T055)**: `git mv Ahmed_Moghazy.pdf content/cv/incoming/Ahmed_Moghazy.pdf`, commit and push to `main`. Check that the `cv-update` run is green, that the `cv-update` PR opens, that CI runs on it, and that it matches spec US2 scenario 12. Record the time from push to PR opened in the PR description (**SC-004**: under 10 min). Review, then merge. After the merge, confirm the re-triggered `cv-update` run is **green with "Nothing to process"** and that no failure email arrives (H1)
+- [X] T050 [US2] **Owner step (needs repo settings from T055)**: `git mv Ahmed_Moghazy.pdf content/cv/incoming/Ahmed_Moghazy.pdf`, commit and push to `main`. Check that the `cv-update` run is green, that the `cv-update` PR opens, that CI runs on it, and that it matches spec US2 scenario 12. Record the time from push to PR opened in the PR description (**SC-004**: under 10 min). Review, then merge. After the merge, confirm the re-triggered `cv-update` run is **green with "Nothing to process"** and that no failure email arrives (H1)
 
 **Checkpoint**: US2 is shippable. The first real CV has gone through the pipeline, and `content/cv/latest.pdf` exists.
 
@@ -238,7 +238,7 @@ freezes the legacy data **before** anything is changed.
   - **Triggers**: `push` to `main` with paths `content/**`, and `permissions: actions: write, contents: read`.
   - **Step**: if `.github/workflows/inventory.yml` exists, run `gh workflow run inventory.yml` with `GH_TOKEN: ${{ github.token }}` and echo "dispatched inventory.yml". Otherwise, echo "inventory workflow not present (Spec 004) — skipped" to `$GITHUB_STEP_SUMMARY`.
 - [X] T052 [P] [US3] Extend `apps/web/e2e/smoke.spec.ts`: the `version` returned by `/api/content` equals the `ETag` without quotes, and `content.cv.available` is true exactly when `/cv/latest.pdf` returns 200 (FR-018)
-- [ ] T053 [US3] Verify US3 end to end per quickstart.md "US3: Propagation" on production after merging T050's PR. Record the observed time from merge to live in the PR description (SC-007: ≤10 min)
+- [X] T053 [US3] Verify US3 end to end per quickstart.md "US3: Propagation" on production after merging T050's PR. Record the observed time from merge to live in the PR description (SC-007: ≤10 min)
 
 **Checkpoint**: all three stories are done.
 
@@ -250,7 +250,7 @@ freezes the legacy data **before** anything is changed.
   - **Key Patterns**: "All CV data is in `packages/shared/src/data.ts`" becomes `content/resume.yaml` + `content/projects/<slug>/README.md`, generated into `packages/shared/src/content/generated.ts`.
   - **Commands**: document `content:validate`, `content:generate`, `test`, `test:e2e`, `cv:sync` and `eval:cv`, and remove "There are no test commands configured".
   - **Environment Variables**: add `CV_BOT_TOKEN` and `CV_SYNC_MODEL` (GitHub), and mention `/api/content`.
-- [ ] T055 **Owner step (repo settings)**:
+- [X] T055 **Owner step (repo settings)**:
   - **Secrets**: add `GOOGLE_GENERATIVE_AI_API_KEY` and `CV_BOT_TOKEN` to Actions secrets. `CV_BOT_TOKEN` is a fine-grained PAT for this repo only, with Contents RW and Pull requests RW, a 1-year expiry and a calendar reminder.
   - **Branch protection**: enable it on `main`, requiring the `ci` check. Do this before T050.
 - [X] T056 [P] Update the README section "Updating portfolio content": edit `content/resume.yaml`, or drop a new CV PDF into `content/cv/incoming/` and review the PR. Explain the `{ value, manual: true }` marker

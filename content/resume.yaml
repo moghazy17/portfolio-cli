@@ -3,13 +3,15 @@ basics:
   label:
     value: Data Science & ML Engineer
     manual: true
-  summary: Data Science graduate specializing in machine learning, applied AI, and
-    data-driven systems. Experienced in designing and deploying end-to-end ML
-    solutions including AutoML pipelines, predictive modeling, and
-    retrieval-augmented generation (RAG) applications using large language
-    models. Strong background in data analysis, feature engineering, and model
-    evaluation, with hands-on exposure to data engineering workflows, MLOps
-    practices, and translating complex data into actionable business insights.
+  summary:
+    value: Computer Science graduate specializing in machine learning, applied
+      AI, and data-driven systems. Experienced in designing and deploying
+      end-to-end ML solutions including AutoML pipelines, predictive modeling,
+      and retrieval-augmented generation (RAG) applications using large language
+      models. Strong background in data analysis, feature engineering, and model
+      evaluation, with hands-on exposure to data engineering workflows, MLOps
+      practices, and translating complex data into actionable business insights.
+    manual: true
   email: akhaledmoghazy@gmail.com
   phone: (+20) 115 322 7992
   location:

@@ -76,7 +76,7 @@ describe('content validation', () => {
 
   it.each([
     ['missing position', (source: string) => source.replace('    position: Software Developer (AI & Backend)\n', '')],
-    ['missing label', (source: string) => source.replace('  label: Data Science & ML Engineer\n', '')],
+    ['missing label', (source: string) => source.replace(/^  label:.*\n(?:    .*\n)*/m, '')],
     ['human date', (source: string) => source.replace('    startDate: 2025-10', '    startDate: Oct 2025')],
     ['unknown entry key', (source: string) => source.replace('    position: Software Developer', '    positon: Software Developer')],
     ['manual typo', (source: string) => source.replace('  name: Ahmed Moghazy', '  name: { value: Ahmed Moghazy, manul: true }')],

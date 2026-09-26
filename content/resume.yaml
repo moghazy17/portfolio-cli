@@ -1,6 +1,8 @@
 basics:
   name: Ahmed Moghazy
-  label: Data Science & ML Engineer
+  label:
+    value: Data Science & ML Engineer
+    manual: true
   summary: Data Science graduate specializing in machine learning, applied AI, and
     data-driven systems. Experienced in designing and deploying end-to-end ML
     solutions including AutoML pipelines, predictive modeling, and
@@ -49,10 +51,11 @@ work:
       - Architected a Multi-Agent Concierge System using LangGraph,
         orchestrating specialized agents to handle autonomous guest fulfillment
         and complex policy inquiries with a 95% intent classification accuracy.
-      - Engineered a Hierarchical RAG Pipeline in PGVector to navigate
-        high-density hotel policy documents; implemented recursive retrieval
-        strategies that improved context retention and reduced ”hallucinations”
-        by 30% on long-form queries.
+      - value: Engineered a Hierarchical RAG Pipeline in PGVector to navigate
+          high-density hotel policy documents; implemented recursive retrieval
+          strategies that improved context retention and reduced "hallucinations"
+          by 30% on long-form queries.
+        manual: true
       - Integrated LLM Tool-Access with Oracle Opera PMS via REST APIs, enabling
         autonomous creation and tracking of guest service requests, reducing
         manual front-desk entry workload by an estimated 40%.
@@ -150,9 +153,10 @@ projects:
         (12B) and a Gradio UI for real-time Q&A.
       - Crawled up to 30 LangChain doc pages (BeautifulSoup); chunked via
         RecursiveCharacterTextSplitter.
-      - Embedded with all-MiniLM-L6-v2 and indexed in FAISS; boosted relevance
-        using MultiQueryRetriever + Contextual-CompressionRetriever; added
-        SerpAPI + Python REPL tools.
+      - value: Embedded with all-MiniLM-L6-v2 and indexed in FAISS; boosted
+          relevance using MultiQueryRetriever + ContextualCompressionRetriever;
+          added SerpAPI + Python REPL tools.
+        manual: true
   - slug: expensum
     name: ExpenSum — Smart Expense Tracker
     stack: React + Spring Boot + JWT + LLM
@@ -248,7 +252,8 @@ skills:
       - Azure AI Fundamentals
       - Huawei Cloud
       - Git/GitHub
-      - Docker (Basic)
+      - value: Docker
+        manual: true
       - Linux
       - Azure Machine Learning Concepts
   - name: Core Computer Science

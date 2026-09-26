@@ -75,7 +75,10 @@ export type CommandOutput =
   | TableOutput
   | AsciiOutput
   | LinkOutput
-  | DividerOutput;
+  | DividerOutput
+  | ErrorOutput
+  | ProgressOutput
+  | LinesOutput;
 
 export interface TextOutput {
   type: 'text';
@@ -87,6 +90,7 @@ export interface SectionOutput {
   type: 'section';
   title: string;
   children: CommandOutput[];
+  item?: string;
 }
 
 export interface ListOutput {
@@ -118,6 +122,29 @@ export interface DividerOutput {
   type: 'divider';
 }
 
+export interface ErrorOutput {
+  type: 'error';
+  content: string;
+}
+
+export interface ProgressOutput {
+  type: 'progress';
+  label: string;
+  value: number;
+}
+
+export interface LinesOutput {
+  type: 'lines';
+  lines: Line[];
+  showItems?: boolean;
+}
+
+export interface Line {
+  text: string;
+  style?: OutputStyle;
+  item?: string;
+}
+
 export interface OutputStyle {
   color?: string;
   bold?: boolean;
@@ -129,20 +156,117 @@ export interface OutputStyle {
 // COMMAND REGISTRY TYPES
 // ============================================================
 
+export type Surface = 'web' | 'ssh' | 'curl';
+
+export type CompletionSource =
+  | 'projects' | 'experience' | 'skills' | 'themes' | 'open-targets'
+  | 'commands' | 'path' | 'dir';
+
+export interface ArgSpec {
+  positional?: Array<{ name: string; required?: boolean; variadic?: boolean; complete?: CompletionSource }>;
+  flags?: FlagSpec[];
+}
+
+export interface FlagSpec {
+  short?: string;
+  long?: string;
+  value?: 'number' | 'string';
+  description: string;
+}
+
+export interface ManPage {
+  summary?: string;
+  description: string;
+  examples: string[];
+  seeAlso?: string[];
+}
+
 export interface CommandDefinition {
   name: string;
   description: string;
   usage: string;
   aliases: string[];
+  kind?: 'command' | 'filter';
   hidden?: boolean;
-  execute: (args: string[]) => CommandResult | Promise<CommandResult>;
+  menu?: boolean;
+  surfaces?: Surface[];
+  args?: ArgSpec;
+  man?: ManPage;
+  execute: (ctx: CommandContext) => CommandResult | Promise<CommandResult>;
+}
+
+export interface CommandContext {
+  args: string[];
+  flags: Record<string, string | boolean>;
+  argv: string[];
+  session: ShellSession;
+  surface: Surface;
+  origin: string;
+  signal: AbortSignal;
+  fs: FileSystem;
 }
 
 export interface CommandResult {
   output: CommandOutput[];
+  status?: 'ok' | 'error';
   clear?: boolean;
   mode?: 'chat';
   openUrl?: string;
+  theme?: string;
+  welcome?: boolean;
+  download?: { url: string; filename: string };
+  sequence?: SequenceStep[];
+}
+
+export interface SequenceStep {
+  delayMs: number;
+  output: CommandOutput[];
+}
+
+export interface ShellResult extends CommandResult {
+  cancelled?: boolean;
+}
+
+export type VfsPath = string;
+
+export interface ShellSession {
+  cwd: VfsPath;
+  lastStatus: 'ok' | 'error';
+}
+
+export interface UnknownInput {
+  raw: string;
+  word: string;
+  suggestion?: string;
+}
+
+export type UnknownCommandHandler = (
+  input: UnknownInput,
+  ctx: Omit<CommandContext, 'args' | 'flags' | 'argv'>,
+) => CommandResult | Promise<CommandResult>;
+
+export type VfsNode = VfsDir | VfsFile;
+
+export interface VfsDir {
+  kind: 'dir';
+  name: string;
+  path: VfsPath;
+  children: VfsNode[];
+}
+
+export interface VfsFile {
+  kind: 'file';
+  name: string;
+  path: VfsPath;
+  size: number;
+  binary?: boolean;
+  render: () => CommandOutput[];
+}
+
+export interface FileSystem {
+  root: VfsDir;
+  resolve(cwd: VfsPath, input: string): { node?: VfsNode; path: VfsPath; error?: 'ENOENT' | 'ENOTDIR' };
+  display(path: VfsPath): string;
 }
 
 export interface ChatMessage {

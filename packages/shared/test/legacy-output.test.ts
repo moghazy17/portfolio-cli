@@ -11,6 +11,9 @@ import {
 
 function normalize<T>(value: T): T {
   const clone = structuredClone(value);
+  const result = clone as Record<string, unknown>;
+  delete result.theme;
+  delete result.welcome;
 
   function visit(node: unknown): void {
     if (Array.isArray(node)) {
@@ -85,6 +88,16 @@ describe('legacy command output', () => {
   }
 
   it('snapshots menu items', () => {
+    expect(getMenuItems().map((item) => item.value)).toEqual([
+      'help', 'about', 'education', 'experience', 'projects', 'skills',
+      'certifications', 'contact', 'timeline', 'github', 'chat',
+    ]);
     expect(getMenuItems()).toMatchSnapshot();
+  });
+
+  it('returns theme and welcome effects', async () => {
+    expect((await executeCommand('theme dracula')).theme).toBe('dracula');
+    expect((await executeCommand('theme zzz')).theme).toBeUndefined();
+    expect((await executeCommand('home')).welcome).toBe(true);
   });
 });

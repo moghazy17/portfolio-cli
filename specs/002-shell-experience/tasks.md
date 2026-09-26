@@ -42,14 +42,14 @@ tested and merged on its own (Principle IX).
 
 **⚠️ CRITICAL**: No user story work can start until this phase is complete.
 
-- [ ] T003 Extend `packages/shared/src/types.ts` exactly as `data-model.md` specifies. Add:
+- [X] T003 Extend `packages/shared/src/types.ts` exactly as `data-model.md` specifies. Add:
   - `ErrorOutput`, `ProgressOutput`, `LinesOutput` and `Line` in the `CommandOutput` union, and optional `item?: string` on `SectionOutput`.
   - `Surface`, `ArgSpec`, `FlagSpec`, `CompletionSource` and `ManPage`.
   - `CommandDefinition` fields `kind`, `menu`, `surfaces`, `args` and `man`, and change `execute` to `execute(ctx: CommandContext)`.
   - `CommandContext`, and the `CommandResult` fields `status`, `theme`, `welcome`, `download` and `sequence`.
   - `SequenceStep`, `ShellResult`, `ShellSession`, `UnknownInput`, `UnknownCommandHandler` and `VfsPath`.
   - Add placeholder `case` branches for `error`, `progress` and `lines` in `apps/web/components/OutputRenderer.tsx` (render `content`, `label` or line text as plain text) so the web keeps type-checking.
-- [ ] T004 [P] Write `packages/shared/test/item-ids.test.ts`. Cover:
+- [X] T004 [P] Write `packages/shared/test/item-ids.test.ts`. Cover:
   - Project ids equal the slugs.
   - Experience ids are `<work.slug>-<slugify(position)>`.
   - `slugify` strips diacritics and punctuation, caps at 60 characters, and falls back to `<kind>-<n>` when the result is empty.
@@ -58,15 +58,15 @@ tested and merged on its own (Principle IX).
   - Arrays are parallel to the content arrays.
 
   Use hand-built `Content` fixtures, not the real content.
-- [ ] T005 [P] Write `packages/shared/test/lines.test.ts` covering every row of the R8 table in `research.md`:
+- [X] T005 [P] Write `packages/shared/test/lines.test.ts` covering every row of the R8 table in `research.md`:
   - `text` with `\n`; `error`.
   - `section` title line with bold and accent, and `item` inherited by children, including nested sections.
   - `list` ordered and unordered (`▸ `, `1. `).
   - `table` padded columns joined by two spaces.
   - `ascii`; `link` → `text: url`; `divider` dropped; `progress` → `label  NN%`; `lines` passthrough.
-- [ ] T006 Implement `packages/shared/src/content/items.ts` with `slugify()` and `itemIds(content)` returning `Record<'project'|'experience'|'certification'|'skill', string[]>`, as specified in data-model "Item identity". Export it from `packages/shared/src/content/index.ts`. T004 should now pass.
-- [ ] T007 Implement `packages/shared/src/shell/lines.ts` with `toLines(output: CommandOutput[]): Line[]` per R8, and export it from the shell barrel. T005 should now pass.
-- [ ] T008 Convert `packages/shared/src/commands/registry.ts` to the new `CommandDefinition` shape:
+- [X] T006 Implement `packages/shared/src/content/items.ts` with `slugify()` and `itemIds(content)` returning `Record<'project'|'experience'|'certification'|'skill', string[]>`, as specified in data-model "Item identity". Export it from `packages/shared/src/content/index.ts`. T004 should now pass.
+- [X] T007 Implement `packages/shared/src/shell/lines.ts` with `toLines(output: CommandOutput[]): Line[]` per R8, and export it from the shell barrel. T005 should now pass.
+- [X] T008 Convert `packages/shared/src/commands/registry.ts` to the new `CommandDefinition` shape:
   - Every `execute` becomes `(ctx) => existingFn(ctx.args)` (or `() => existingFn()`).
   - Add `menu: true` to exactly `help`, `about`, `education`, `experience`, `projects`, `skills`, `certifications`, `contact`, `timeline`, `github` and `chat`.
   - Remove the `'rm -rf /'` alias.
@@ -77,12 +77,12 @@ tested and merged on its own (Principle IX).
   - `getMenuItems()` filters on `c.menu && !c.hidden`. Its output must be unchanged, so assert this with an inline test in `legacy-output.test.ts`.
 
   T001 must stay green.
-- [ ] T009 Add item ids to the per-item sections in `packages/shared/src/commands/cv.ts` using `itemIds(content)`:
+- [X] T009 Add item ids to the per-item sections in `packages/shared/src/commands/cv.ts` using `itemIds(content)`:
   - `experienceCommand`, `projectsCommand`, `certificationsCommand` and `skillsCommand` set `item` on each `SectionOutput`.
   - Map entries back to their content index so filtered output keeps the correct id.
 
   T001 must stay green, since its serializer strips `item`.
-- [ ] T010 Move side effects out of input parsing:
+- [X] T010 Move side effects out of input parsing:
   - `themeCommand` in `packages/shared/src/commands/utility.ts` returns `theme: themeName` on success.
   - `welcomeCommand` returns `welcome: true`.
   - `clear` in `registry.ts` keeps `clear: true`.

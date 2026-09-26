@@ -105,11 +105,13 @@ export function themeCommand(args: string[]): CommandResult {
     output: [
       { type: 'text', content: `Theme switched to "${themeName}".`, style: { color: 'success' } },
     ],
+    theme: themeName,
   };
 }
 
 export function welcomeCommand(): CommandResult {
   return {
+    welcome: true,
     output: [
       { type: 'ascii', content: ASCII_BANNER, style: { color: 'primary' } },
       { type: 'text', content: WELCOME_SUBTITLE, style: { bold: true } },

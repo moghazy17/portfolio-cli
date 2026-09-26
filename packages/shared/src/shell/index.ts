@@ -1,1 +1,1 @@
-export {};
+export { toLines } from './lines';

@@ -1,5 +1,5 @@
 import type { CommandResult, SectionOutput } from '../types';
-import { cvData } from '../content';
+import { content, cvData, itemIds } from '../content';
 
 export function aboutCommand(): CommandResult {
   return {
@@ -60,8 +60,10 @@ export function experienceCommand(args: string[]): CommandResult {
     }
   }
 
+  const ids = itemIds(content);
   const sections: SectionOutput[] = entries.map((exp) => ({
     type: 'section',
+    item: ids.experience[cvData.experience.indexOf(exp)],
     title: `${exp.company} — ${exp.role}`,
     children: [
       { type: 'text', content: `${exp.startDate} — ${exp.endDate}`, style: { dim: true } },
@@ -100,8 +102,10 @@ export function projectsCommand(args: string[]): CommandResult {
     }
   }
 
+  const ids = itemIds(content);
   const sections: SectionOutput[] = entries.map((proj) => ({
     type: 'section',
+    item: ids.project[cvData.projects.indexOf(proj)],
     title: `${proj.isGraduation ? '[Graduation] ' : ''}${proj.name} (${proj.techStack})`,
     children: [
       { type: 'text', content: `${proj.startDate} — ${proj.endDate}`, style: { dim: true } },
@@ -136,8 +140,10 @@ export function skillsCommand(args: string[]): CommandResult {
     }
   }
 
+  const ids = itemIds(content);
   const sections: SectionOutput[] = categories.map((cat) => ({
     type: 'section',
+    item: ids.skill[cvData.skills.indexOf(cat)],
     title: cat.name,
     children: [{ type: 'list', items: cat.skills }],
   }));
@@ -151,8 +157,10 @@ export function skillsCommand(args: string[]): CommandResult {
 }
 
 export function certificationsCommand(): CommandResult {
-  const sections: SectionOutput[] = cvData.certifications.map((cert) => ({
+  const ids = itemIds(content);
+  const sections: SectionOutput[] = cvData.certifications.map((cert, index) => ({
     type: 'section',
+    item: ids.certification[index],
     title: `${cert.issuer} — ${cert.title}`,
     children: [
       { type: 'text', content: `${cert.startDate} — ${cert.endDate}`, style: { dim: true } },

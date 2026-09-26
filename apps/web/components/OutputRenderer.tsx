@@ -163,6 +163,15 @@ export default function OutputRenderer({ output, theme }: Props) {
           />
         );
 
+      case 'error':
+        return <div key={index} style={{ color: theme.error }}>{block.content}</div>;
+
+      case 'progress':
+        return <div key={index}>{`${block.label} ${Math.round(block.value * 100)}%`}</div>;
+
+      case 'lines':
+        return <div key={index}>{block.lines.map((line, i) => <div key={i}>{line.text}</div>)}</div>;
+
       default:
         return null;
     }

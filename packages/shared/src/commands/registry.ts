@@ -50,6 +50,7 @@ export const commandRegistry: CommandDefinition[] = [
     description: 'List all available commands',
     usage: 'help',
     aliases: ['h', '?'],
+    menu: true,
     execute: () => helpCommand(),
   },
   {
@@ -57,6 +58,7 @@ export const commandRegistry: CommandDefinition[] = [
     description: 'Professional summary',
     usage: 'about',
     aliases: ['summary', 'bio'],
+    menu: true,
     execute: () => aboutCommand(),
   },
   {
@@ -64,6 +66,7 @@ export const commandRegistry: CommandDefinition[] = [
     description: 'Education details and coursework',
     usage: 'education',
     aliases: ['edu'],
+    menu: true,
     execute: () => educationCommand(),
   },
   {
@@ -71,27 +74,31 @@ export const commandRegistry: CommandDefinition[] = [
     description: 'Work experience (filter by company)',
     usage: 'experience [company]',
     aliases: ['exp', 'work'],
-    execute: (args) => experienceCommand(args),
+    menu: true,
+    execute: (ctx) => experienceCommand(ctx.args),
   },
   {
     name: 'projects',
     description: 'Technical projects (filter by name)',
     usage: 'projects [name]',
     aliases: ['proj'],
-    execute: (args) => projectsCommand(args),
+    menu: true,
+    execute: (ctx) => projectsCommand(ctx.args),
   },
   {
     name: 'skills',
     description: 'Technical skills by category',
     usage: 'skills [category]',
     aliases: ['sk'],
-    execute: (args) => skillsCommand(args),
+    menu: true,
+    execute: (ctx) => skillsCommand(ctx.args),
   },
   {
     name: 'certifications',
     description: 'Certifications and achievements',
     usage: 'certifications',
     aliases: ['certs', 'awards'],
+    menu: true,
     execute: () => certificationsCommand(),
   },
   {
@@ -99,6 +106,7 @@ export const commandRegistry: CommandDefinition[] = [
     description: 'Contact information and links',
     usage: 'contact',
     aliases: ['email', 'links'],
+    menu: true,
     execute: () => contactCommand(),
   },
   {
@@ -106,13 +114,14 @@ export const commandRegistry: CommandDefinition[] = [
     description: 'Open a profile link in your browser',
     usage: 'open [target]',
     aliases: [],
-    execute: (args) => openCommand(args),
+    execute: (ctx) => openCommand(ctx.args),
   },
   {
     name: 'timeline',
     description: 'Reverse-chronological career overview',
     usage: 'timeline',
     aliases: ['tl'],
+    menu: true,
     execute: () => timelineCommand(),
   },
   {
@@ -120,7 +129,7 @@ export const commandRegistry: CommandDefinition[] = [
     description: 'Switch color theme',
     usage: 'theme [name]',
     aliases: [],
-    execute: (args) => themeCommand(args),
+    execute: (ctx) => themeCommand(ctx.args),
   },
   {
     name: 'welcome',
@@ -141,6 +150,7 @@ export const commandRegistry: CommandDefinition[] = [
     description: 'Live GitHub profile stats',
     usage: 'github',
     aliases: ['gh'],
+    menu: true,
     execute: () => githubCommand(),
   },
   {
@@ -148,6 +158,7 @@ export const commandRegistry: CommandDefinition[] = [
     description: `Chat with AI about ${profile.firstName}`,
     usage: 'chat',
     aliases: ['ask', 'ai'],
+    menu: true,
     execute: () => chatCommand(),
   },
   {
@@ -164,13 +175,13 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'sudo [command]',
     aliases: [],
     hidden: true,
-    execute: (args) => sudoCommand(args),
+    execute: (ctx) => sudoCommand(ctx.args),
   },
   {
     name: 'rm',
     description: '???',
     usage: 'rm',
-    aliases: ['rm -rf /'],
+    aliases: [],
     hidden: true,
     execute: () => rmCommand(),
   },

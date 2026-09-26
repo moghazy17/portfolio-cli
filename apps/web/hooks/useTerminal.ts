@@ -19,27 +19,24 @@ export function useTerminal() {
 
   const handleCommand = useCallback(
     async (input: string) => {
-      const trimmed = input.trim().toLowerCase();
+      setShowWelcome(false);
 
-      if (trimmed === 'welcome' || trimmed === 'home' || trimmed === 'banner') {
+      const result = await executeCommand(input);
+
+      if (result.welcome) {
         setShowWelcome(true);
         setHistory([]);
         setCommandHistoryList((prev) => [...prev, input]);
         return;
       }
 
-      setShowWelcome(false);
-
-      const result = await executeCommand(input);
-
       if (result.clear) {
         setHistory([]);
         return;
       }
 
-      const parts = input.trim().split(/\s+/);
-      if (parts[0]?.toLowerCase() === 'theme' && parts[1]) {
-        const t = themes[parts[1].toLowerCase()];
+      if (result.theme) {
+        const t = themes[result.theme];
         if (t) setTheme(t);
       }
 

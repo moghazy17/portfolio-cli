@@ -1,5 +1,11 @@
-import type { CommandResult } from '../types';
+import type { CommandResult, FileSystem } from '../types';
 import { commandRegistry } from './registry';
+
+const placeholderFs: FileSystem = {
+  root: { kind: 'dir', name: '/', path: '/', children: [] },
+  resolve: () => ({ path: '/', error: 'ENOENT' }),
+  display: () => '~',
+};
 
 export async function executeCommand(input: string): Promise<CommandResult> {
   const trimmed = input.trim();
@@ -27,7 +33,16 @@ export async function executeCommand(input: string): Promise<CommandResult> {
     };
   }
 
-  return command.execute(args);
+  return command.execute({
+    args,
+    flags: {},
+    argv: args,
+    session: { cwd: '/', lastStatus: 'ok' },
+    surface: 'web',
+    origin: '',
+    signal: new AbortController().signal,
+    fs: placeholderFs,
+  });
 }
 
 export function getCompletions(partial: string): string[] {
@@ -42,7 +57,7 @@ export function getCompletions(partial: string): string[] {
 
 export function getMenuItems(): Array<{ label: string; value: string }> {
   return commandRegistry
-    .filter((c) => !c.hidden && !['clear', 'welcome', 'whoami', 'theme', 'open'].includes(c.name))
+    .filter((c) => c.menu && !c.hidden)
     .map((c) => ({
       label: `${c.name.padEnd(16)} ${c.description}`,
       value: c.name,

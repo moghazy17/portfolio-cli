@@ -1,5 +1,5 @@
 import type { CommandResult } from '../types';
-import { cvData } from '../data';
+import { cvData, profile } from '../content';
 import { themes, DEFAULT_THEME } from '../theme';
 import { ASCII_BANNER, WELCOME_SUBTITLE, WELCOME_HINT } from '../ascii';
 import { parseTimelineDate } from './helpers';
@@ -125,7 +125,7 @@ export function whoamiCommand(): CommandResult {
       {
         type: 'text',
         content:
-          "You are a curious visitor exploring Ahmed's portfolio. Nice taste in CLI tools, by the way.",
+          `You are a curious visitor exploring ${profile.firstName}'s portfolio. Nice taste in CLI tools, by the way.`,
       },
       {
         type: 'text',

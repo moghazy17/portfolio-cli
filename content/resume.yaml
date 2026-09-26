@@ -1,0 +1,205 @@
+basics:
+  name: Ahmed Moghazy
+  label: Data Science & ML Engineer
+  summary: Data Science graduate specializing in machine learning, applied AI, and data-driven systems. Experienced in designing and deploying end-to-end ML solutions including AutoML pipelines, predictive modeling, and retrieval-augmented generation (RAG) applications using large language models. Strong background in data analysis, feature engineering, and model evaluation, with hands-on exposure to data engineering workflows, MLOps practices, and translating complex data into actionable business insights.
+  email: akhaledmoghazy@gmail.com
+  phone: (+20) 115 322 7992
+  location:
+    city: Cairo
+    countryCode: EG
+  profiles:
+    - network: LinkedIn
+      url: https://linkedin.com/in/ahmed-khaled-17s
+    - network: GitHub
+      url: https://github.com/moghazy17
+      username: moghazy17
+
+education:
+  - institution: Cairo University
+    area: Computer Science
+    studyType: Bachelor of Science
+    faculty: Faculty of Computers & AI
+    location: Giza, Egypt
+    score: '3.33'
+    startDate: 2021-10
+    endDate: 2025-06
+    courses:
+      - Machine Learning
+      - Introduction to Data Science
+      - Mathematical Optimization
+      - Operating Systems
+      - Database Systems
+      - Advanced Databases
+      - Software Engineering
+      - Algorithm Design & Analysis
+      - Object-Oriented Programming
+
+work:
+  - slug: act
+    name: Advanced Computer Technology (ACT)
+    position: Software Developer (AI & Backend)
+    startDate: 2025-10
+    highlights:
+      - Architected a Multi-Agent Concierge System using LangGraph, orchestrating specialized agents with 95% intent classification accuracy.
+      - Engineered a Hierarchical RAG Pipeline in PGVector, reducing hallucinations by 30% on long-form queries.
+      - Integrated LLM Tool-Access with Oracle Opera PMS via REST APIs, reducing manual front-desk workload by 40%.
+      - Containerized the entire multi-agent stack using Docker, streamlining CI/CD pipeline.
+  - slug: depi
+    name: Digital Egypt Pioneers Initiative (DEPI)
+    position: Machine Learning Engineer Trainee
+    startDate: 2024-10
+    endDate: 2025-04
+    highlights:
+      - Completed the Microsoft ML Engineer track, focusing on scalable production-ready ML solutions.
+      - Built foundations in statistics, linear algebra, Python, classical ML, deep learning, NLP, and computer vision.
+      - Applied Azure AI Fundamentals and Azure AI Engineer Associate concepts with MLflow and Hugging Face.
+  - slug: orange
+    name: Orange Egypt
+    position: Data Engineer Intern
+    startDate: 2024-08
+    endDate: 2024-09
+    highlights:
+      - Automated and optimized ETL workflows for company voucher data using Apache NiFi and dbt models.
+      - Explored pipeline orchestration and scheduling using Apache Airflow.
+  - slug: valu
+    name: ValU
+    position: Data Science Intern
+    startDate: 2024-07
+    endDate: 2024-07
+    highlights:
+      - Analyzed company growth metrics and customer behavior for data-driven strategic insights.
+      - Designed interactive Power BI dashboards visualizing KPIs for executive decision-making.
+      - Built ML models (Random Forest, XGBoost) for customer lifetime value prediction, achieving AUC of 0.70.
+      - Contributed to a customer-facing chatbot using NER for accurate offer retrieval.
+      - Optimized LLM prompts for intent extraction, reducing inference costs by ~30%.
+  - slug: act-intern
+    name: Advanced Computer Technology (ACT)
+    position: Data Science Intern
+    startDate: 2023-08
+    endDate: 2023-09
+    highlights:
+      - Conducted EDA on large datasets and presented insights to stakeholders.
+      - Automated web scraping pipelines using BeautifulSoup.
+
+projects:
+  - slug: news-aggregator
+    name: AI-Powered Tech News Aggregator
+    stack: n8n, LLMs
+    graduation: false
+    startDate: 2026-01
+    endDate: 2026-01
+    highlights:
+      - Built an automated news aggregation pipeline using n8n to ingest RSS feeds on a scheduled basis.
+      - Implemented LLM-based classification and ranking to categorize articles and score importance.
+      - Designed workflows to store results in Google Sheets and deliver curated HTML email summaries.
+  - slug: automl
+    name: AutoML Pipeline
+    stack: scikit-learn
+    graduation: true
+    startDate: 2024-10
+    endDate: 2025-06
+    highlights:
+      - "Engineered a modular AutoML pipeline with 4 stages: preprocessing, feature selection, model selection, and HPO."
+      - Synthesized AutoML foundations into the system architecture and experiment plan.
+      - Benchmarked Grid Search, Random Search, and Bayesian Optimization for HPO on tabular ML tasks.
+  - slug: rag-chatbot
+    name: RAG Chatbot
+    stack: LangChain + FAISS + Ollama
+    graduation: false
+    startDate: 2024-12
+    endDate: 2025-01
+    highlights:
+      - Built a retrieval-augmented chatbot with LangChain + Ollama Gemma-3 (12B) and Gradio UI.
+      - Crawled 30 LangChain doc pages; chunked via RecursiveCharacterTextSplitter.
+      - Embedded with all-MiniLM-L6-v2, indexed in FAISS; used MultiQueryRetriever + ContextualCompressionRetriever.
+  - slug: expensum
+    name: ExpenSum — Smart Expense Tracker
+    stack: React + Spring Boot + JWT + LLM
+    graduation: false
+    startDate: 2025-04
+    endDate: 2025-05
+    highlights:
+      - "Developed a full-stack expense tracker: React frontend + Spring Boot backend secured with JWT."
+      - Integrated Mistral (via Ollama) to convert natural-language inputs into structured expense entries.
+  - slug: star-schema
+    name: Star-Schema Data Warehouse
+    stack: SQL, ETL
+    graduation: false
+    startDate: 2023-12
+    endDate: 2024-01
+    highlights:
+      - Designed a star schema (fact/dimension) for a recommendation dataset.
+      - Automated daily CSV loads via scheduled SQL jobs (ETL).
+
+certificates:
+  - name: Deep Learning Specialization
+    issuer: DeepLearning.AI
+    startDate: 2024-10
+    endDate: 2024-12
+    highlights: []
+  - name: ICT Global Competition — AI Section Lead (Cloud Track)
+    issuer: Huawei
+    startDate: 2024-11
+    endDate: 2025-05
+    highlights:
+      - Won the Second Prize Globally in the Huawei ICT Global Competition (Cloud Track).
+      - Awarded the Grand Prize in the North Africa Region, representing Egypt in the global finals.
+      - Led the AI Technologies section, covering Machine Learning & Deep Learning.
+
+skills:
+  - name: Programming
+    keywords:
+      - Python (Advanced)
+      - SQL
+      - C++
+      - JavaScript
+      - HTML/CSS
+  - name: Machine Learning & AI
+    keywords:
+      - Scikit-learn
+      - TensorFlow/Keras
+      - Classical ML
+      - Deep Learning
+      - NLP
+      - Computer Vision
+      - Feature Engineering
+      - Model Evaluation
+      - HPO
+  - name: LLMs & Generative AI
+    keywords:
+      - LangChain
+      - RAG
+      - Prompt Engineering
+      - Hugging Face
+      - Ollama
+      - FAISS
+      - Vector Databases
+  - name: Data Analysis & Visualization
+    keywords:
+      - Pandas
+      - NumPy
+      - Matplotlib
+      - Seaborn
+      - Power BI
+      - EDA
+  - name: Data Engineering & MLOps
+    keywords:
+      - Apache Airflow
+      - Apache NiFi
+      - dbt
+      - ETL Pipelines
+      - MLflow
+      - HDFS
+  - name: Databases
+    keywords:
+      - PostgreSQL
+      - MySQL
+      - Star Schema Design
+      - Data Warehousing
+  - name: Cloud & Tools
+    keywords:
+      - Azure AI Fundamentals
+      - Huawei Cloud
+      - Git/GitHub
+      - Docker
+      - Linux

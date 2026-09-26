@@ -1,5 +1,5 @@
 import type { CommandResult } from '../types';
-import { cvData } from '../data';
+import { cvData, profile } from '../content';
 
 export function sudoCommand(args: string[]): CommandResult {
   const fullCmd = args.join(' ').toLowerCase();
@@ -10,7 +10,7 @@ export function sudoCommand(args: string[]): CommandResult {
         { type: 'text', content: 'Processing hire request...', style: { color: 'success' } },
         { type: 'text', content: '█████████████████████████████████ 100%', style: { color: 'success' } },
         { type: 'divider' },
-        { type: 'text', content: 'Request approved! Ahmed would love to hear from you.', style: { bold: true } },
+        { type: 'text', content: `Request approved! ${profile.firstName} would love to hear from you.`, style: { bold: true } },
         { type: 'link', text: 'Send an email', url: `mailto:${cvData.contact.email}` },
         { type: 'link', text: 'Connect on LinkedIn', url: cvData.contact.linkedin },
       ],
@@ -44,7 +44,7 @@ export function neofetchCommand(): CommandResult {
     `visitor@ahmed-portfolio`,
     `──────────────────────`,
     `Name:      ${cvData.name}`,
-    `Role:      Data Science & ML Engineer`,
+    `Role:      ${profile.label}`,
     `Location:  ${cvData.contact.location}`,
     `Education: ${cvData.education.institution}`,
     `Shell:     portfolio-cli v1.0.0`,
@@ -64,7 +64,7 @@ export function neofetchCommand(): CommandResult {
 
 export function helloCommand(): CommandResult {
   const greetings = [
-    'Hello there! Welcome to Ahmed\'s portfolio.',
+    `Hello there! Welcome to ${profile.firstName}'s portfolio.`,
     'Hey! Glad you stopped by.',
     'Hi! Curious minds are always welcome here.',
     'Ahlan! (That\'s "hello" in Arabic.)',
@@ -74,7 +74,7 @@ export function helloCommand(): CommandResult {
   return {
     output: [
       { type: 'text', content: greeting, style: { bold: true } },
-      { type: 'text', content: 'Type "help" to see what you can explore, or try "about" to learn about Ahmed.', style: { dim: true } },
+      { type: 'text', content: `Type "help" to see what you can explore, or try "about" to learn about ${profile.firstName}.`, style: { dim: true } },
     ],
   };
 }

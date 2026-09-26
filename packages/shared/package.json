@@ -6,12 +6,27 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./content": "./src/content/node.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "pretypecheck": "npm run generate",
+    "typecheck": "tsc --noEmit",
+    "pretest": "npm run generate",
+    "test": "vitest run",
+    "generate": "tsx scripts/generate-content.ts",
+    "validate": "tsx scripts/validate-content.ts",
+    "cv:sync": "tsx scripts/cv-sync.ts",
+    "eval:cv": "tsx scripts/eval-cv.ts"
   },
   "devDependencies": {
-    "typescript": "^5.7.0"
+    "@types/node": "^22.19.11",
+    "tsx": "^4.23.15",
+    "typescript": "^5.7.0",
+    "vitest": "^5.0.2"
+  },
+  "dependencies": {
+    "yaml": "^2.9.1",
+    "zod": "^4.6.5"
   }
 }

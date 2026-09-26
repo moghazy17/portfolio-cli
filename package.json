@@ -10,9 +10,16 @@
     "build": "npm run build --workspaces --if-present",
     "build:web": "npm run build --workspace=apps/web",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "clean": "npm run clean --workspaces --if-present"
+    "clean": "npm run clean --workspaces --if-present",
+    "content:validate": "npm run validate -w @ahmed-moghazy/shared",
+    "content:generate": "npm run generate -w @ahmed-moghazy/shared",
+    "cv:sync": "npm run cv:sync -w @ahmed-moghazy/shared --",
+    "eval:cv": "npm run eval:cv -w @ahmed-moghazy/shared",
+    "test": "npm run test --workspaces --if-present",
+    "test:e2e": "npm run test:e2e -w ahmed-moghazy-web"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "typescript": "^5.7.0"
   },
   "version": ""

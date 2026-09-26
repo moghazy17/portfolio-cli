@@ -1,5 +1,5 @@
 export * from './types';
-export * from './data';
+export { cvData, content, contentVersion, generatedAt, profile, site } from './content';
 export * from './commands/index';
 export * from './theme';
 export * from './ascii';

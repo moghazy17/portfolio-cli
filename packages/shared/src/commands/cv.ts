@@ -1,5 +1,5 @@
 import type { CommandResult, SectionOutput } from '../types';
-import { cvData } from '../data';
+import { cvData } from '../content';
 
 export function aboutCommand(): CommandResult {
   return {

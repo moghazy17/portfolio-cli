@@ -134,6 +134,8 @@ It stays hand-drawn (see plan Complexity Tracking). The no-hardcoded-content tes
 title: Text            # "Ahmed Moghazy | Data Science & ML Engineer"   (<title>)
 ogTitle: Text          # "Ahmed Moghazy | Terminal Portfolio"            (OpenGraph + Twitter)
 description: Text      # current layout.tsx meta description, verbatim
+ogDescription: Text    # "Interactive terminal-style portfolio. Explore experience, projects, and skills."
+twitterDescription: Text  # "Interactive terminal-style portfolio"
 keywords: [Text]       # current layout.tsx keywords, verbatim, same order
 ```
 

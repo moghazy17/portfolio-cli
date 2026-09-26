@@ -1,0 +1,31 @@
+name: Content link check
+
+on:
+  pull_request:
+    paths:
+      - 'content/**'
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --accept '200..=299,999' --exclude '^tel:'
+            'content/**/*.yaml' 'content/**/*.md'
+          fail: false
+          output: ./lychee/out.md
+      - if: always()
+        run: |
+          echo '## Content link check' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f lychee/out.md ]; then
+            cat lychee/out.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'No link-check report was produced.' >> "$GITHUB_STEP_SUMMARY"
+          fi

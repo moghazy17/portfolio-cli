@@ -9,7 +9,7 @@
 | `npm run cv:sync -- --pdf <file> [--dry-run]` | CV → resume merge (see `cv-update-workflow.md`) | 1 on failure |
 | `npm test` | Vitest (unit, recorded-fixture merge tests) | |
 | `npm run test:e2e` | Playwright smoke against `next build && next start` | |
-| `npm run eval:cv` | Live CV eval over the fixture PDFs (needs `GOOGLE_GENERATIVE_AI_API_KEY`) | 1 if any expectation fails |
+| `npm run eval:cv` | Live CV eval over the fixture PDFs (needs `OPENAI_API_KEY`) | 1 if any expectation fails |
 | `npm run typecheck` | All workspaces (generation runs first via `pretypecheck`) | |
 
 `apps/web` hooks: `predev` and `prebuild` run `content:generate` and copy

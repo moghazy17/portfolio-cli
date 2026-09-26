@@ -144,6 +144,30 @@ runtime is impossible in the browser.
 
   **Caveat**: this key is on a small free-tier quota. The weekly `cv-eval` workflow uses about
   6 calls, and a CV update uses 1–2.
+
+  **Amendment (2026-09-26): provider switched to OpenAI.** The Gemini free-tier quota blocked the
+  first real CV run, so the owner chose a paid OpenAI API key and removed Gemini entirely,
+  including the chat. The default model is now **`gpt-6-luna`** ($0.10 / $0.50 per 1M tokens,
+  roughly $0.0035 per CV run), used through `@ai-sdk/openai` on the same Vercel AI SDK.
+  - **Strict schema**: OpenAI structured outputs run in strict JSON-schema mode, which rejects
+    optional properties (verified live: "'required' … Missing '_id'"). The model-facing
+    extraction schema therefore uses required-but-nullable fields, and the output is normalized
+    (null → absent) before the merge. Strict mode is kept on so the output is guaranteed to fit
+    the schema.
+  - **Smoke test**: `gpt-6-luna` read the two-column `new-layout.pdf` and kept "ACT" and
+    "Advanced Computer Technology (ACT)" as separate jobs by date.
+  - **Live eval, CV extraction**:
+    - `gpt-6-luna` scored 6/7 on each of two runs, with a different failure each time: one run
+      added no skill categories, the other duplicated a work entry. It is too flaky, the same
+      pattern as Gemini Flash-Lite.
+    - `gpt-6-sol` passed the real CV and `new-layout` consistently, but it copied the start date
+      into `endDate` for "2025-10 to Present" and reported contact links as unmapped. The fix was
+      to prompt that "Present" means `endDate: null` and that contact links are out of scope, and
+      to add eval checks for both.
+    - After that fix, `gpt-6-sol` passed **7/7 on both runs**.
+  - **Decision**: CV extraction uses **`gpt-6-sol`** ($2 / $10 per 1M tokens, about $0.07 per CV
+    run, and about $0.40 per weekly eval). The chat stays on **`gpt-6-luna`**, which gives
+    grounded answers in a live check. `temperature` was dropped because reasoning models ignore it.
 - **Rationale**: the model does the part only a model can do (reading a CV and deciding
   "this bullet is the same fact as w0.h2"), and everything with a rule (R8) is code.
   Principle IV and FR-017: the CV is data, so even a prompt-injected CV can at most propose

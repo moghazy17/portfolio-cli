@@ -86,7 +86,7 @@ skills llm
 
 Type `chat` (or `ask` / `ai`) to enter AI chat mode. The AI knows about Ahmed's experience, projects, skills, and live GitHub activity. Ask anything — it responds as Ahmed in a terminal-friendly format.
 
-- **Web:** Powered by Google Gemini via Vercel AI SDK
+- **Web:** Powered by OpenAI (gpt-6-luna) via Vercel AI SDK
 - **CLI:** Streams responses from the web app's `/api/chat` endpoint
 
 ---
@@ -114,7 +114,7 @@ theme matrix
 | CLI UI | React 18 + [Ink](https://github.com/vadimdemedes/ink) |
 | Web UI | Next.js 15 + React 18 |
 | Shared logic | TypeScript (monorepo package) |
-| AI Chat | Google Gemini + [Vercel AI SDK](https://sdk.vercel.ai) |
+| AI Chat | OpenAI (gpt-6-luna) + [Vercel AI SDK](https://sdk.vercel.ai) |
 | Caching | [Upstash Redis](https://upstash.com) |
 | Bundler (CLI) | tsup (ESM) |
 | Monorepo | npm workspaces |
@@ -127,7 +127,7 @@ theme matrix
 ```
 UPSTASH_REDIS_REST_URL=   # Upstash Redis REST URL (optional, for GitHub data caching)
 UPSTASH_REDIS_REST_TOKEN= # Upstash Redis REST token
-GOOGLE_GENERATIVE_AI_API_KEY=  # Google AI key (required for chat)
+OPENAI_API_KEY=            # OpenAI API key (required for chat)
 ```
 
 ### CLI (`apps/cli/.env.example`)

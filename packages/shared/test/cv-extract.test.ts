@@ -17,9 +17,9 @@ import {
 
 describe('CV sync model resolution', () => {
   it.each([
-    ['', 'gpt-6-sol'],
-    ['  ', 'gpt-6-sol'],
-    [undefined, 'gpt-6-sol'],
+    ['', 'gpt-6-luna'],
+    ['  ', 'gpt-6-luna'],
+    [undefined, 'gpt-6-luna'],
     ['gpt-custom', 'gpt-custom'],
   ])('resolves %j as %s', (value, expected) => {
     expect(resolveCvSyncModel(value)).toBe(expected);

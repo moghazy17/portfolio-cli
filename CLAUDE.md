@@ -98,7 +98,7 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 |----------|----------|-------------|
 | `CV_BOT_TOKEN` secret | Yes (CV updates) | Fine-grained token for this repository with Contents and Pull requests read/write permissions |
 | `OPENAI_API_KEY` secret | Yes (CV updates and evaluation) | OpenAI API key used for CV extraction |
-| `CV_SYNC_MODEL` variable | No | Model for CV synchronization; defaults to `gpt-6-sol` |
+| `CV_SYNC_MODEL` variable | No | Model for CV synchronization; defaults to `gpt-6-luna` |
 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,

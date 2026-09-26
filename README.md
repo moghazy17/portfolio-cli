@@ -1,4 +1,4 @@
-# Ahmed Moghazy — Portfolio CLI
+# Ahmed Moghazy — Terminal Portfolio
 
 ```
    █████╗ ██╗  ██╗███╗   ███╗███████╗██████╗
@@ -11,44 +11,30 @@
 
 An interactive terminal portfolio for **Ahmed Moghazy**, Data Science & ML Engineer — Cairo, EG.
 
-Available as a **runnable CLI** and a **live web app** built from the same shared codebase.
+A browser-based terminal emulator with AI chat, built on a shared command engine.
 
-[![npm version](https://img.shields.io/npm/v/moghazy?color=2c84db&label=npm)](https://www.npmjs.com/package/moghazy)
 [![License: MIT](https://img.shields.io/badge/License-MIT-2c84db.svg)](LICENSE)
 
 ---
 
 ## Live Demo
 
-> **Web:** [moghazy.vercel.app](https://moghazy.vercel.app)
+> **Web:** [moghazy.me](https://moghazy.me)
 
-## Run via CLI
+## Terminal access
 
-```bash
-npx moghazy
-```
-
-Or install globally:
-
-```bash
-npm install -g moghazy
-moghazy
-```
-
-Requires **Node.js 18+**.
+**Coming soon:** `ssh term.moghazy.me` — the same portfolio in your own terminal, with nothing to install.
 
 ---
 
 ## Navigation
 
-The CLI has two modes, switchable with **Tab**:
+The terminal has two modes, switchable with **Tab**:
 
 | Mode | How to use |
 |------|-----------|
 | **Menu** | Arrow keys `↑ ↓` to highlight, `Enter` to run |
 | **Command** | Type a command, press `Enter` |
-
-Press `q` or type `exit` to quit.
 
 ---
 
@@ -86,8 +72,7 @@ skills llm
 
 Type `chat` (or `ask` / `ai`) to enter AI chat mode. The AI knows about Ahmed's experience, projects, skills, and live GitHub activity. Ask anything — it responds as Ahmed in a terminal-friendly format.
 
-- **Web:** Powered by OpenAI (gpt-6-luna) via Vercel AI SDK
-- **CLI:** Streams responses from the web app's `/api/chat` endpoint
+Powered by OpenAI (gpt-6-luna) via the Vercel AI SDK.
 
 ---
 
@@ -111,12 +96,10 @@ theme matrix
 
 | Layer | Technology |
 |-------|-----------|
-| CLI UI | React 18 + [Ink](https://github.com/vadimdemedes/ink) |
 | Web UI | Next.js 15 + React 18 |
 | Shared logic | TypeScript (monorepo package) |
 | AI Chat | OpenAI (gpt-6-luna) + [Vercel AI SDK](https://sdk.vercel.ai) |
 | Caching | [Upstash Redis](https://upstash.com) |
-| Bundler (CLI) | tsup (ESM) |
 | Monorepo | npm workspaces |
 
 ---
@@ -130,11 +113,6 @@ UPSTASH_REDIS_REST_TOKEN= # Upstash Redis REST token
 OPENAI_API_KEY=            # OpenAI API key (required for chat)
 ```
 
-### CLI (`apps/cli/.env.example`)
-```
-PORTFOLIO_API_URL=       # Your deployed web app URL + /api/chat (required for chat)
-```
-
 ---
 
 ## Local Development
@@ -142,9 +120,6 @@ PORTFOLIO_API_URL=       # Your deployed web app URL + /api/chat (required for c
 ```bash
 # Install dependencies
 npm install
-
-# Start CLI in watch mode
-npm run dev:cli
 
 # Start web dev server
 npm run dev:web
@@ -178,7 +153,6 @@ it as manual:
 ```
 portfolio-cli/
 ├── apps/
-│   ├── cli/          # Ink-based terminal app (published as `moghazy`)
 │   └── web/          # Next.js web app (deployed on Vercel)
 └── packages/
     └── shared/       # Commands, data, types, themes, GitHub fetch, AI prompt

@@ -1,6 +1,3 @@
-import { access } from 'node:fs/promises';
-import { constants } from 'node:fs';
-import { resolve } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { content, cvData, site } from '@ahmed-moghazy/shared';
 
@@ -33,6 +30,7 @@ test('content API supports caching and conditional requests', async ({ request }
   expect(body.content.schemaVersion).toBe(1);
   expect(body.content.site).toBeTruthy();
   expect(body.content.writeups).toBeTruthy();
+  expect(body.version).toBe(response.headers().etag?.replaceAll('"', ''));
 
   const conditional = await request.get('/api/content', {
     headers: { 'If-None-Match': response.headers().etag },
@@ -40,15 +38,10 @@ test('content API supports caching and conditional requests', async ({ request }
   expect(conditional.status()).toBe(304);
 });
 
-test('serves the current CV when one exists', async ({ request }) => {
-  const cvPath = resolve(process.cwd(), '../../content/cv/latest.pdf');
-  try {
-    await access(cvPath, constants.R_OK);
-  } catch {
-    test.skip();
-  }
-  expect(content.cv.available).toBe(true);
+test('reports CV availability accurately', async ({ request }) => {
   const response = await request.get('/cv/latest.pdf');
-  expect(response.status()).toBe(200);
-  expect(response.headers()['content-type']).toContain('application/pdf');
+  expect(content.cv.available).toBe(response.status() === 200);
+  if (response.status() === 200) {
+    expect(response.headers()['content-type']).toContain('application/pdf');
+  }
 });

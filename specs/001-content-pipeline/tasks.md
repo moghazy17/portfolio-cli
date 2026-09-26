@@ -234,10 +234,10 @@ freezes the legacy data **before** anything is changed.
 
 **Independent Test**: merge a one-word skill change, then run quickstart.md's US3 steps: the site, HTML fallback, `/cv/latest.pdf`, chat and `/api/content` all show it, and `content-propagate` ran.
 
-- [ ] T051 [US3] Create `.github/workflows/content-propagate.yml`.
+- [X] T051 [US3] Create `.github/workflows/content-propagate.yml`.
   - **Triggers**: `push` to `main` with paths `content/**`, and `permissions: actions: write, contents: read`.
   - **Step**: if `.github/workflows/inventory.yml` exists, run `gh workflow run inventory.yml` with `GH_TOKEN: ${{ github.token }}` and echo "dispatched inventory.yml". Otherwise, echo "inventory workflow not present (Spec 004) — skipped" to `$GITHUB_STEP_SUMMARY`.
-- [ ] T052 [P] [US3] Extend `apps/web/e2e/smoke.spec.ts`: the `version` returned by `/api/content` equals the `ETag` without quotes, and `content.cv.available` is true exactly when `/cv/latest.pdf` returns 200 (FR-018)
+- [X] T052 [P] [US3] Extend `apps/web/e2e/smoke.spec.ts`: the `version` returned by `/api/content` equals the `ETag` without quotes, and `content.cv.available` is true exactly when `/cv/latest.pdf` returns 200 (FR-018)
 - [ ] T053 [US3] Verify US3 end to end per quickstart.md "US3: Propagation" on production after merging T050's PR. Record the observed time from merge to live in the PR description (SC-007: ≤10 min)
 
 **Checkpoint**: all three stories are done.
@@ -246,14 +246,14 @@ freezes the legacy data **before** anything is changed.
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T054 [P] Update `CLAUDE.md`:
+- [X] T054 [P] Update `CLAUDE.md`:
   - **Key Patterns**: "All CV data is in `packages/shared/src/data.ts`" becomes `content/resume.yaml` + `content/projects/<slug>/README.md`, generated into `packages/shared/src/content/generated.ts`.
   - **Commands**: document `content:validate`, `content:generate`, `test`, `test:e2e`, `cv:sync` and `eval:cv`, and remove "There are no test commands configured".
   - **Environment Variables**: add `CV_BOT_TOKEN` and `CV_SYNC_MODEL` (GitHub), and mention `/api/content`.
 - [ ] T055 **Owner step (repo settings)**:
   - **Secrets**: add `GOOGLE_GENERATIVE_AI_API_KEY` and `CV_BOT_TOKEN` to Actions secrets. `CV_BOT_TOKEN` is a fine-grained PAT for this repo only, with Contents RW and Pull requests RW, a 1-year expiry and a calendar reminder.
   - **Branch protection**: enable it on `main`, requiring the `ci` check. Do this before T050.
-- [ ] T056 [P] Update the README section "Updating portfolio content": edit `content/resume.yaml`, or drop a new CV PDF into `content/cv/incoming/` and review the PR. Explain the `{ value, manual: true }` marker
+- [X] T056 [P] Update the README section "Updating portfolio content": edit `content/resume.yaml`, or drop a new CV PDF into `content/cv/incoming/` and review the PR. Explain the `{ value, manual: true }` marker
 - [ ] T057 Run the whole of quickstart.md from a fresh clone (`git clone` → `npm ci` → `npm test` → `npm run build:web`) to confirm `generated.ts` is created by the pre-hooks and that nothing depends on local state
 
 ---

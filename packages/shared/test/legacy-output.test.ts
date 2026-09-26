@@ -34,6 +34,7 @@ function normalize<T>(value: T): T {
 
 describe('legacy command output', () => {
   for (const command of commandRegistry) {
+    if (command.kind === 'filter') continue;
     const inputs = [command.name, ...command.aliases].filter(
       (input) => input !== 'rm -rf /',
     );

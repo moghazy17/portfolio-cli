@@ -204,6 +204,7 @@ export interface CommandContext {
   origin: string;
   signal: AbortSignal;
   fs: FileSystem;
+  stdin?: Line[];
 }
 
 export interface CommandResult {

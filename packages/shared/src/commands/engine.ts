@@ -1,11 +1,6 @@
-import type { CommandResult, FileSystem } from '../types';
+import type { CommandResult } from '../types';
 import { commandRegistry } from './registry';
-
-const placeholderFs: FileSystem = {
-  root: { kind: 'dir', name: '/', path: '/', children: [] },
-  resolve: () => ({ path: '/', error: 'ENOENT' }),
-  display: () => '~',
-};
+import { placeholderFs } from '../vfs/placeholder';
 
 export async function executeCommand(input: string): Promise<CommandResult> {
   const trimmed = input.trim();

@@ -105,37 +105,37 @@ and `npm run test:e2e -- shell.spec.ts -g "US1"`.
 
 ### Tests for User Story 1 (write first, confirm they fail)
 
-- [ ] T011 [P] [US1] Write `packages/shared/test/shell-tokenizer.test.ts`. Cover:
+- [X] T011 [P] [US1] Write `packages/shared/test/shell-tokenizer.test.ts`. Cover:
   - Bare words; single quotes (literal); double quotes with `\"` and `\\`; a backslash escape outside quotes; adjacent pieces (`a"b c"d` → `ab cd`).
   - `*` and `?` stay literal.
   - Operators `|` and `&&` recognized outside quotes; `grep "a|b"` stays literal.
   - Every rejected operator and message in the `contracts/shell-grammar.md` "Rejected operators" table, and unterminated `'` and `"`.
-- [ ] T012 [P] [US1] Write `packages/shared/test/shell-parser.test.ts`. Cover:
+- [X] T012 [P] [US1] Write `packages/shared/test/shell-parser.test.ts`. Cover:
   - Chain, pipeline and stage structure for every row of the shell-grammar "Examples" table.
   - Empty stage around `|` and `&&`.
   - More than 8 stages → error; a line over 1,000 characters → `error: input too long (max 1000 characters)`.
   - A filter in the first position → `grep: expects piped input`.
   - A non-filter after `|` → `about: cannot receive piped input (try grep, head, tail, wc, sort)`.
-- [ ] T013 [P] [US1] Write `packages/shared/test/args.test.ts` for flag parsing against `ArgSpec`, per the shell-grammar "Flags" section. Cover:
+- [X] T013 [P] [US1] Write `packages/shared/test/args.test.ts` for flag parsing against `ArgSpec`, per the shell-grammar "Flags" section. Cover:
   - `-n 3`, `-n3`, `--lines=3` and `--lines 3`.
   - Grouped `-iv`; `--` ends flags; `head -5` shorthand.
   - Unknown flag → `<cmd>: unknown option '<flag>'` plus `usage: <synopsis>`.
   - `--help` → usage plus `See 'man <cmd>' for details.`
   - A command with no `flags` declared receives every token as `args` (for example `projects -x` → args `['-x']`).
   - `renderSynopsis()` output for `grep`, `head` and `ls`.
-- [ ] T014 [P] [US1] Write `packages/shared/test/suggest.test.ts`. Cover:
+- [X] T014 [P] [US1] Write `packages/shared/test/suggest.test.ts`. Cover:
   - The OSA distance, where a swap counts as 1.
   - Short names (≤ 4 characters) accept only distance 1: `hepl` → `help`, `hlp` → `help`, `hx` → none.
   - Long names accept distance 2: `projcts` → `projects`, `experiance` → `experience`, `certs` alias match reported as `certifications`.
   - A tie resolves to the earlier `help` order.
   - Hidden commands are never suggested (`sudp` → none, `neofech` → none).
   - Multi-word input is never suggested.
-- [ ] T015 [P] [US1] Write `packages/shared/test/filters.test.ts` for each filter over `Line[]`:
+- [X] T015 [P] [US1] Write `packages/shared/test/filters.test.ts` for each filter over `Line[]`:
   - `grep`: `-i`, `-v`, `-c` and `-h`; the `item: ` prefix appears only when an item is set; a literal pattern such as `grep "a.b"` does not match `axb`; no match → status `error`; a missing pattern → usage.
   - `head` and `tail`: default 10, `-n N`, `-N`, and an invalid number message.
   - `wc`: `-l`, `-w`, `-c`, and the no-flag format of 7-wide right-aligned columns.
   - `sort`: code-point order, `-r`, `-u`, with styles travelling with their lines.
-- [ ] T016 [P] [US1] Write `packages/shared/test/pipes.test.ts` using `createShell({ surface: 'web', origin: 'https://example.test' })`. Cover:
+- [X] T016 [P] [US1] Write `packages/shared/test/pipes.test.ts` using `createShell({ surface: 'web', origin: 'https://example.test' })`. Cover:
   - `skills | grep -i <a keyword from content>` returns a `lines` node whose lines are prefixed with the skill's item id.
   - `projects | grep <word from a project's stack>` prefixes with the project slug.
   - `projects | head -n 3`, `projects | tail -n 2`, `projects | wc -l` (equals `toLines(projects).length`), and `skills | sort`.
@@ -144,7 +144,7 @@ and `npm run test:e2e -- shell.spec.ts -g "US1"`.
   - `a && b`: `b` is skipped when `a` fails, outputs are concatenated, and effects are merged.
   - An aborted signal returns `{ output: [], cancelled: true }`, including when aborted during an async handler (use a fake async command registered in the test).
   - A throwing handler → `<cmd>: something went wrong`.
-- [ ] T017 [P] [US1] Write `packages/shared/test/unknown.test.ts`. Cover:
+- [X] T017 [P] [US1] Write `packages/shared/test/unknown.test.ts`. Cover:
   - `projcts` → `command not found: projcts`, ``did you mean `projects`?``, and ``Type `help` for commands or `chat` to ask the AI.``, with status `error`.
   - `who are you` and `what's his stack?` never produce a parse error and never get a suggestion.
   - A custom `onUnknownCommand` passed to `createShell` receives `{ raw, word, suggestion }` and its result is returned, with no change to any command (SC-009).
@@ -178,18 +178,18 @@ and `npm run test:e2e -- shell.spec.ts -g "US1"`.
 
 ### Implementation for User Story 1
 
-- [ ] T022 [P] [US1] Implement `packages/shared/src/shell/tokenizer.ts` per `contracts/shell-grammar.md`. It is a character scanner producing `WORD`, `PIPE` and `AND` tokens with source spans, and returns typed `ParseError`s with the exact contract messages. T011 should now pass.
-- [ ] T023 [US1] Implement `packages/shared/src/shell/parser.ts`, which turns tokens into `Chain → Pipeline[] → Stage[]` (data-model "Pipeline"). Enforce the 1,000-character and 8-stage caps and the filter-position rules, resolving `kind` through a registry lookup function passed in. T012 should now pass. Depends on T022.
-- [ ] T024 [P] [US1] Implement `packages/shared/src/shell/args.ts` with:
+- [X] T022 [P] [US1] Implement `packages/shared/src/shell/tokenizer.ts` per `contracts/shell-grammar.md`. It is a character scanner producing `WORD`, `PIPE` and `AND` tokens with source spans, and returns typed `ParseError`s with the exact contract messages. T011 should now pass.
+- [X] T023 [US1] Implement `packages/shared/src/shell/parser.ts`, which turns tokens into `Chain → Pipeline[] → Stage[]` (data-model "Pipeline"). Enforce the 1,000-character and 8-stage caps and the filter-position rules, resolving `kind` through a registry lookup function passed in. T012 should now pass. Depends on T022.
+- [X] T024 [P] [US1] Implement `packages/shared/src/shell/args.ts` with:
   - `parseArgs(def, argv)` → `{ args, flags } | { error }`, per the shell-grammar "Flags" section, including the passthrough when `def.args?.flags` is undefined.
   - `renderSynopsis(def)`: `<name> [-x] [--long N] <positional> [optional…]`.
   - `helpUsage(def)` for `--help`.
 
   T013 should now pass.
-- [ ] T025 [P] [US1] Implement `packages/shared/src/shell/suggest.ts`: OSA distance, `suggestCommand(word)` over visible names and aliases (alias → canonical), the ≤ 4 characters → 1 / else → 2 limits, and tie-break by registry order. T014 should now pass.
-- [ ] T026 [US1] Implement `packages/shared/src/shell/filters.ts` (the `grep`, `head`, `tail`, `wc` and `sort` functions over `Line[]`, per `contracts/commands.md`, with literal `includes`, never `RegExp`). Register the five filters in `packages/shared/src/commands/registry.ts` with `kind: 'filter'`, full `args.flags`, `description` and `man` (description plus two examples each). T015 should now pass. Depends on T024.
-- [ ] T027 [P] [US1] Implement `packages/shared/src/shell/unknown.ts` with `defaultUnknownCommandHandler`, using the exact messages in `contracts/commands.md` "Changed messages" and status `error`.
-- [ ] T028 [US1] Implement `packages/shared/src/shell/shell.ts` with `createShell(options)` per `contracts/engine-api.md`:
+- [X] T025 [P] [US1] Implement `packages/shared/src/shell/suggest.ts`: OSA distance, `suggestCommand(word)` over visible names and aliases (alias → canonical), the ≤ 4 characters → 1 / else → 2 limits, and tie-break by registry order. T014 should now pass.
+- [X] T026 [US1] Implement `packages/shared/src/shell/filters.ts` (the `grep`, `head`, `tail`, `wc` and `sort` functions over `Line[]`, per `contracts/commands.md`, with literal `includes`, never `RegExp`). Register the five filters in `packages/shared/src/commands/registry.ts` with `kind: 'filter'`, full `args.flags`, `description` and `man` (description plus two examples each). T015 should now pass. Depends on T024.
+- [X] T027 [P] [US1] Implement `packages/shared/src/shell/unknown.ts` with `defaultUnknownCommandHandler`, using the exact messages in `contracts/commands.md` "Changed messages" and status `error`.
+- [X] T028 [US1] Implement `packages/shared/src/shell/shell.ts` with `createShell(options)` per `contracts/engine-api.md`:
   - The first-word route to `onUnknownCommand`, then tokenize and parse, then run each pipeline.
   - Surface check, then `parseArgs`, then `execute(ctx)`.
   - Filter stages via `toLines`, with side effects dropped for piped producers.

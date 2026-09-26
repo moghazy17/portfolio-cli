@@ -254,7 +254,7 @@ freezes the legacy data **before** anything is changed.
   - **Secrets**: add `GOOGLE_GENERATIVE_AI_API_KEY` and `CV_BOT_TOKEN` to Actions secrets. `CV_BOT_TOKEN` is a fine-grained PAT for this repo only, with Contents RW and Pull requests RW, a 1-year expiry and a calendar reminder.
   - **Branch protection**: enable it on `main`, requiring the `ci` check. Do this before T050.
 - [X] T056 [P] Update the README section "Updating portfolio content": edit `content/resume.yaml`, or drop a new CV PDF into `content/cv/incoming/` and review the PR. Explain the `{ value, manual: true }` marker
-- [ ] T057 Run the whole of quickstart.md from a fresh clone (`git clone` → `npm ci` → `npm test` → `npm run build:web`) to confirm `generated.ts` is created by the pre-hooks and that nothing depends on local state
+- [X] T057 Run the whole of quickstart.md from a fresh clone (`git clone` → `npm ci` → `npm test` → `npm run build:web`) to confirm `generated.ts` is created by the pre-hooks and that nothing depends on local state
 
 ---
 

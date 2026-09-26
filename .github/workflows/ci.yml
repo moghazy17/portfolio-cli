@@ -18,9 +18,9 @@ jobs:
       - run: sudo apt-get install -y poppler-utils
       - run: npm run content:validate
       - run: npm run typecheck
+      - run: npx playwright install --with-deps chromium
       - run: npm test
       - run: npm run build:web
-      - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - if: failure()
         uses: actions/upload-artifact@v4

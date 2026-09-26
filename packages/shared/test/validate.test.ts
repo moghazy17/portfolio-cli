@@ -18,7 +18,8 @@ async function fixtureRoot() {
 
 async function editResume(root: string, transform: (source: string) => string) {
   const file = join(root, 'content', 'resume.yaml');
-  await writeFile(file, transform(await readFile(file, 'utf8')));
+  const source = (await readFile(file, 'utf8')).replace(/\r\n/g, '\n');
+  await writeFile(file, transform(source));
 }
 
 async function errors(root: string) {
@@ -161,6 +162,14 @@ describe('content validation', () => {
 
   it('allows projects without write-ups', async () => {
     const root = await fixtureRoot();
+    expect(await errors(root)).toEqual([]);
+  });
+
+  it('validates a resume with CRLF line endings', async () => {
+    const root = await fixtureRoot();
+    const file = join(root, 'content', 'resume.yaml');
+    const source = (await readFile(file, 'utf8')).replace(/\r\n/g, '\n');
+    await writeFile(file, source.replace(/\n/g, '\r\n'));
     expect(await errors(root)).toEqual([]);
   });
 });

@@ -2,9 +2,10 @@ import { streamText, convertToModelMessages } from 'ai';
 import { google } from '@ai-sdk/google';
 import { NextResponse } from 'next/server';
 import { Ratelimit } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis';
 import { buildSystemPrompt, cvData } from '@ahmed-moghazy/shared';
 import { getGitHubData } from '../../../lib/github-cache';
+import { redis } from '../../../lib/redis';
+import { classifyError, logChatEvent } from '../../../lib/chat-log';
 
 const ALLOWED_ORIGINS = [
   'https://moghazy.vercel.app',
@@ -16,9 +17,9 @@ const ALLOWED_ORIGINS = [
 const MAX_MESSAGE_LENGTH = 1000;
 const MAX_MESSAGES = 20;
 
-const ratelimit = (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
+const ratelimit = redis
   ? new Ratelimit({
-      redis: new Redis({ url: process.env.UPSTASH_REDIS_REST_URL, token: process.env.UPSTASH_REDIS_REST_TOKEN }),
+      redis,
       limiter: Ratelimit.slidingWindow(15, '10 m'),
       prefix: 'ratelimit:chat',
     })
@@ -38,6 +39,7 @@ export async function POST(req: Request) {
     try {
       const { success } = await ratelimit.limit(ip);
       if (!success) {
+        await logChatEvent('rate_limited');
         return NextResponse.json(
           { error: 'Too many requests. Please try again later.' },
           { status: 429 },
@@ -71,6 +73,8 @@ export async function POST(req: Request) {
     }
   }
 
+  await logChatEvent('requests');
+
   const githubData = await getGitHubData();
 
   const systemPrompt = buildSystemPrompt(
@@ -81,10 +85,20 @@ export async function POST(req: Request) {
   const modelMessages = await convertToModelMessages(messages);
 
   const result = streamText({
-    model: google('gemini-3.1-flash-lite'),
+    model: google('gemini-3.5-flash-lite'),
     system: systemPrompt,
     messages: modelMessages,
+    onError: async ({ error }) => {
+      const { kind, status, message } = classifyError(error);
+      await logChatEvent(kind, { status, message });
+    },
   });
 
-  return result.toUIMessageStreamResponse();
+  return result.toUIMessageStreamResponse({
+    // Shown to the visitor; details stay in the server log
+    onError: (error) =>
+      classifyError(error).kind === 'quota_exceeded'
+        ? "The AI has hit its free usage limit for now. Try again later, or explore with commands like 'projects' and 'experience'."
+        : 'Something went wrong while generating a reply. Please try again.',
+  });
 }

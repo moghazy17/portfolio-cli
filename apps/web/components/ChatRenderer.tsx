@@ -14,8 +14,20 @@ function getMessageText(parts: Array<{ type: string; text?: string }>): string {
     .join('');
 }
 
+// Errors arrive either as a stream error message or as a raw JSON response body
+// (e.g. our 429 rate-limit response), so unwrap the JSON case.
+function getErrorText(error: Error): string {
+  try {
+    const parsed = JSON.parse(error.message);
+    if (typeof parsed?.error === 'string') return parsed.error;
+  } catch {
+    // not JSON — use the message as-is
+  }
+  return error.message || 'Something went wrong. Please try again.';
+}
+
 export default function ChatRenderer({ onExit }: Props) {
-  const { messages, sendMessage, status } = useChat();
+  const { messages, sendMessage, status, error } = useChat();
   const [input, setInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -84,6 +96,12 @@ export default function ChatRenderer({ onExit }: Props) {
           >
             thinking...
           </span>
+        </div>
+      )}
+
+      {error && status === 'error' && (
+        <div style={{ marginBottom: '8px', color: 'var(--error)', whiteSpace: 'pre-wrap' }}>
+          {getErrorText(error)}
         </div>
       )}
 

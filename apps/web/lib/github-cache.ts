@@ -1,9 +1,5 @@
-import { Redis } from '@upstash/redis';
+import { redis } from './redis';
 import { fetchGitHubData } from '@ahmed-moghazy/shared';
-
-const redis = (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
-  ? new Redis({ url: process.env.UPSTASH_REDIS_REST_URL, token: process.env.UPSTASH_REDIS_REST_TOKEN })
-  : null;
 
 const CACHE_KEY = 'github:profile';
 const CACHE_TTL = 86400; // 24 hours

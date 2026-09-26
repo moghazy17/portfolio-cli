@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { mkdtemp, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -8,6 +9,7 @@ import { runCvSync } from '../src/cv-sync/index';
 
 const repoRoot = resolve(import.meta.dirname, '..', '..', '..');
 const fixtureDir = resolve(import.meta.dirname, 'fixtures', 'cv');
+const hasPdftotext = spawnSync('pdftotext', ['-v'], { stdio: 'ignore' }).error === undefined;
 
 describe('CV sync input outcomes', () => {
   it('treats an empty incoming directory on push as a successful no-op', async () => {
@@ -24,7 +26,7 @@ describe('CV sync input outcomes', () => {
       .rejects.toMatchObject({ code: 'NO_INPUT' });
   });
 
-  it('returns YAML that agrees with the merged resume model', async () => {
+  it.skipIf(!hasPdftotext)('returns YAML that agrees with the merged resume model', async () => {
     const extraction = ExtractionSchema.parse(JSON.parse(
       await readFile(join(fixtureDir, 'new-layout.extraction.json'), 'utf8'),
     ));

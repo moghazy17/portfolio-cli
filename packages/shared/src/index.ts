@@ -5,3 +5,6 @@ export * from './theme';
 export * from './ascii';
 export * from './prompt';
 export * from './github';
+export * from './shell';
+export * from './vfs';
+export * from './render';

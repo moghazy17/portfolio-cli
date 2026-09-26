@@ -165,9 +165,15 @@ runtime is impossible in the browser.
       to prompt that "Present" means `endDate: null` and that contact links are out of scope, and
       to add eval checks for both.
     - After that fix, `gpt-6-sol` passed **7/7 on both runs**.
-  - **Decision**: CV extraction uses **`gpt-6-sol`** ($2 / $10 per 1M tokens, about $0.07 per CV
-    run, and about $0.40 per weekly eval). The chat stays on **`gpt-6-luna`**, which gives
-    grounded answers in a live check. `temperature` was dropped because reasoning models ignore it.
+  - **Decision (superseded, see below)**: CV extraction uses **`gpt-6-sol`** ($2 / $10 per 1M tokens,
+    about $0.07 per CV run, and about $0.40 per weekly eval). The chat stays on **`gpt-6-luna`**,
+    which gives grounded answers in a live check. `temperature` was dropped because reasoning
+    models ignore it.
+  - **Final decision (owner, 2026-09-26)**: CV extraction also uses **`gpt-6-luna`**. Its earlier
+    6/7 results predate the prompt fixes (the "Present" and contact-link rules). With the current
+    prompt it passed **7/7 on three consecutive runs**. It costs about $0.0035 per CV run, roughly
+    20× cheaper than `gpt-6-sol`. `CV_SYNC_MODEL=gpt-6-sol` remains the escape hatch if a future
+    eval regresses.
 - **Rationale**: the model does the part only a model can do (reading a CV and deciding
   "this bullet is the same fact as w0.h2"), and everything with a rule (R8) is code.
   Principle IV and FR-017: the CV is data, so even a prompt-injected CV can at most propose

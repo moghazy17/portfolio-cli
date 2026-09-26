@@ -261,7 +261,7 @@ export interface ExtractCvOptions {
 }
 
 export function resolveCvSyncModel(value = process.env.CV_SYNC_MODEL) {
-  return value?.trim() || 'gpt-6-sol';
+  return value?.trim() || 'gpt-6-luna';
 }
 
 export async function extractCv(options: ExtractCvOptions): Promise<CvExtraction> {

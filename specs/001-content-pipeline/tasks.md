@@ -174,7 +174,7 @@ freezes the legacy data **before** anything is changed.
 
 - [ ] T037 [P] [US2] Implement `packages/shared/src/cv-sync/pdf.ts`.
   - **`readPdfText(path)`**:
-    - **Size gate**: a file over 10 MB (`fs.stat`), or over 10 pages (`pdfinfo` "Pages:"), throws `CvSyncError('UNREADABLE', 'too large: …')`.
+    - **Size gate**: a file over 10 MB (`fs.stat`), or over 10 pages (count the form-feed `\f` page separators in `pdftotext` output — no `pdfinfo` dependency, since it is not installed everywhere), throws `CvSyncError('UNREADABLE', 'too large: …')`.
     - **Text gate**: then it runs `pdftotext -layout <path> -` via `execFile`, and throws `CvSyncError('UNREADABLE', …)` on a non-zero exit or when there are fewer than 200 non-whitespace characters.
   - **`normalizeText(s)`**: the shared normalizer used by `ground.ts`.
 - [ ] T038 [P] [US2] Implement `packages/shared/src/cv-sync/ground.ts`. `findUngrounded(changes, pdfText)` returns a `not-grounded` change for each added or updated text value not found in `normalizeText(pdfText)`. Month values count as grounded if the month and year appear in any common format

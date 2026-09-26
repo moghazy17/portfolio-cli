@@ -114,7 +114,7 @@ runtime is impossible in the browser.
 ## R7. CV → structured data extraction
 
 - **Decision**:
-  1. **Gate (deterministic)**: a file over 10 MB, or over 10 pages per `pdfinfo`, fails as
+  1. **Gate (deterministic)**: a file over 10 MB, or over 10 pages (counted from the form-feed page breaks in `pdftotext` output), fails as
      "unreadable: too large". `pdftotext -layout` then fails the run as "unreadable" on a
      non-zero exit (corrupt or password-protected file) or on fewer than 200 non-whitespace
      characters (image-only). All of this happens **before any LLM call**. This implements the spec rule

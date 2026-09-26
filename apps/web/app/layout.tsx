@@ -25,14 +25,14 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Ahmed Moghazy | Terminal Portfolio',
     description:
-      'Interactive CLI-style portfolio. Explore experience, projects, and skills. Try: npx ahmed-moghazy',
+      'Interactive terminal-style portfolio. Explore experience, projects, and skills.',
     type: 'website',
     images: ['/og-image.png'],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Ahmed Moghazy | Terminal Portfolio',
-    description: 'Interactive CLI-style portfolio',
+    description: 'Interactive terminal-style portfolio',
   },
 };
 

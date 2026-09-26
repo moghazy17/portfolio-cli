@@ -4,8 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-An interactive portfolio CLI for Ahmed Moghazy (Data Science & ML Engineer), implemented as a monorepo with two platforms sharing a common logic package:
-- **CLI app** — Node.js terminal app using React + Ink
+An interactive portfolio website for Ahmed Moghazy (Data Science & ML Engineer), implemented as a monorepo with a web app and a shared logic package:
 - **Web app** — Next.js browser-based terminal emulator with AI chat
 - **Shared package** — All command logic, CV data, types, theme definitions, and GitHub data fetching
 
@@ -13,14 +12,12 @@ An interactive portfolio CLI for Ahmed Moghazy (Data Science & ML Engineer), imp
 
 ### Development
 ```bash
-npm run dev:cli        # CLI in watch mode (tsup)
 npm run dev:web        # Next.js dev server
 ```
 
 ### Build
 ```bash
 npm run build          # Build all workspaces
-npm run build:cli      # Build CLI only
 npm run build:web      # Build web only
 ```
 
@@ -40,7 +37,6 @@ There are no test commands configured in this project.
 
 ### Monorepo Structure
 - `packages/shared/` — Core logic (`@ahmed-moghazy/shared`): command registry, CV data, types, theme, ASCII art, GitHub data fetching, AI prompt builder
-- `apps/cli/` — Ink-based terminal UI, published as `moghazy` npm package
 - `apps/web/` — Next.js app, deployed on Vercel
 - `tsconfig.base.json` — Shared TypeScript base config (strict mode, ES2022, bundler module resolution)
 
@@ -60,15 +56,7 @@ Each `CommandDefinition` has a name, aliases, description, and `execute()` funct
 `CommandOutput` is a discriminated union with 7 variants: `text`, `section`, `list`, `table`, `ascii`, `link`, `divider`.
 
 ### Shared GitHub Module (`packages/shared/src/github.ts`)
-Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BASE`, and shared types (`GitHubUser`, `GitHubRepo`, `GitHubStats`). Used by both the CLI `github` command (formats into `CommandOutput[]`) and the web `github-cache.ts` (formats into a flat string for AI prompt context, with Redis caching).
-
-### CLI App Flow (apps/cli/src/)
-- `index.tsx` → `App.tsx` manages three modes via React state
-- `MenuMode.tsx` — Arrow-key navigation using Ink's `useInput`
-- `CommandMode.tsx` — REPL-style text input with command history
-- `ChatMode.tsx` — AI chat mode, streams responses from the web API
-- `OutputRenderer.tsx` — Renders `CommandOutput[]` via Ink components
-- Colors use `defaultTheme` from shared package (no hardcoded hex values)
+Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BASE`, and shared types (`GitHubUser`, `GitHubRepo`, `GitHubStats`). Used by the shared `github` command (which formats data into `CommandOutput[]`) and the web `github-cache.ts` (which formats a flat string for AI prompt context and caches it with Redis).
 
 ### Web App Flow (apps/web/)
 - `app/page.tsx` — Next.js page with hidden semantic HTML for SEO
@@ -82,11 +70,10 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 - `app/api/chat/route.ts` — Streaming AI chat endpoint (Google Gemini via Vercel AI SDK)
 
 ### Key Patterns
-- All CV data is in `packages/shared/src/data.ts` — edit here to update both platforms simultaneously
+- All CV data is in `packages/shared/src/data.ts` — edit here to update the website
 - Theme switching uses CSS custom properties applied to `document.documentElement`
-- `defaultTheme` export from `packages/shared/src/theme.ts` provides the default theme object for CLI color references
-- The `openUrl` field on `CommandResult` signals platforms to open a URL (CLI uses `exec`, web uses `window.open`)
-- The CLI uses tsup with `noExternal: ['@ahmed-moghazy/shared']` to bundle the shared package inline
+- `DEFAULT_THEME` and `themes` from `packages/shared/src/theme.ts` initialize and update the web terminal theme
+- The `openUrl` field on `CommandResult` causes the web terminal to open a URL with `window.open`
 - The web app uses `transpilePackages: ['@ahmed-moghazy/shared']` in `next.config.js`
 - Redis caching in web app is conditional — works without env vars (graceful degradation)
 
@@ -98,8 +85,3 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 | `UPSTASH_REDIS_REST_URL` | No | Upstash Redis REST URL for GitHub data caching |
 | `UPSTASH_REDIS_REST_TOKEN` | No | Upstash Redis REST token |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | Yes (for chat) | Google AI API key for Gemini |
-
-### CLI App (`apps/cli/`)
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `PORTFOLIO_API_URL` | Yes (for chat) | URL to the deployed web app's `/api/chat` endpoint |

@@ -1,5 +1,5 @@
 import { streamText, convertToModelMessages } from 'ai';
-import { google } from '@ai-sdk/google';
+import { openai } from '@ai-sdk/openai';
 import { NextResponse } from 'next/server';
 import { Ratelimit } from '@upstash/ratelimit';
 import { buildSystemPrompt, cvData } from '@ahmed-moghazy/shared';
@@ -85,7 +85,7 @@ export async function POST(req: Request) {
   const modelMessages = await convertToModelMessages(messages);
 
   const result = streamText({
-    model: google('gemini-3.5-flash-lite'),
+    model: openai('gpt-6-luna'),
     system: systemPrompt,
     messages: modelMessages,
     onError: async ({ error }) => {

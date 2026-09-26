@@ -18,7 +18,7 @@ jobs:
     steps:
       - id: key
         env:
-          KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          KEY: ${{ secrets.OPENAI_API_KEY }}
         run: echo "has_key=${{ env.KEY != '' }}" >> "$GITHUB_OUTPUT"
       - if: steps.key.outputs.has_key == 'true'
         uses: actions/checkout@v4
@@ -33,7 +33,7 @@ jobs:
         run: sudo apt-get install -y poppler-utils
       - if: steps.key.outputs.has_key == 'true'
         env:
-          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           CV_SYNC_MODEL: ${{ vars.CV_SYNC_MODEL }}
         run: npm run eval:cv
       - if: steps.key.outputs.has_key != 'true'

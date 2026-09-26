@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@ahmed-moghazy/shared": "*",
-    "@ai-sdk/google": "^3.0.43",
+    "@ai-sdk/openai": "^3.0.118",
     "@ai-sdk/react": "^3.0.118",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.36.4",

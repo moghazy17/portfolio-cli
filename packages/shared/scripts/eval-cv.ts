@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
+import type { ResumeInput } from '../src/content/schema';
 import { CvSyncError } from '../src/cv-sync/error';
 import { runCvSync } from '../src/cv-sync/index';
 
@@ -9,11 +10,16 @@ const packageRoot = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const repoRoot = resolve(packageRoot, '..', '..');
 const fixtureDir = resolve(packageRoot, 'test', 'fixtures', 'cv');
 const expectations = JSON.parse(await readFile(resolve(fixtureDir, 'expectations.json'), 'utf8'));
-const current = parse(await readFile(resolve(repoRoot, 'content', 'resume.yaml'), 'utf8')) as { work: unknown[] };
+const current = parse(await readFile(resolve(repoRoot, 'content', 'resume.yaml'), 'utf8')) as ResumeInput;
 const rows: Array<{ fixture: string; result: 'PASS' | 'FAIL'; detail: string }> = [];
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
+}
+
+function isContactOrProfileLinkText(text: string) {
+  const values = text.split(/[\n|,;]+/).map((value) => value.trim()).filter(Boolean);
+  return values.length > 0 && values.every((value) => /^(?:https?:\/\/\S+|www\.\S+|\S+@\S+|\+?[\d\s().-]{7,}|(?:linkedin|github|portfolio)(?::\s*\S+)?)$/i.test(value));
 }
 
 async function evaluate(name: string) {
@@ -26,6 +32,15 @@ async function evaluate(name: string) {
     });
     const expected = expectations[name];
     if (expected.outcomes) assert(expected.outcomes.includes(result.outcome), `unexpected outcome ${result.outcome}`);
+    const contactLinksReportedAsUnmapped = result.changes.some((change) => change.kind === 'not-mapped'
+      && (/links|contact|profiles?/i.test(change.heading) || isContactOrProfileLinkText(change.text)));
+    assert(!contactLinksReportedAsUnmapped, 'contact links reported as unmapped');
+    if (name === 'same-as-current' || name === 'real-cv') {
+      for (const { slug } of current.work.filter((entry) => entry.endDate === undefined)) {
+        const nextWork = result.next?.work.find((entry) => entry.slug === slug);
+        assert(nextWork?.endDate === undefined, `ongoing role ${slug} got an endDate`);
+      }
+    }
     if (expected.addedWork) {
       const count = result.changes.filter((change) => change.kind === 'added' && /^work\[\d+\]$/.test('path' in change ? change.path : '')).length;
       assert(count === expected.addedWork, `expected ${expected.addedWork} added work entry, received ${count}`);

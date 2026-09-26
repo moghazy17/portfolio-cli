@@ -8,7 +8,7 @@ How to check that each user story works. The commands run from the repo root.
 2. Local CV tooling: `pdftotext -v` must work. On Windows, poppler 4.x on PATH is already
    installed here. On Ubuntu CI, `sudo apt-get install -y poppler-utils`.
 3. GitHub repo settings (manual, once):
-   - **Secret** `GOOGLE_GENERATIVE_AI_API_KEY` (you already have this key for Vercel).
+   - **Secret** `OPENAI_API_KEY` (the OpenAI API key, also used by the chat on Vercel).
    - **Secret** `CV_BOT_TOKEN`: a fine-grained PAT, *only this repository*, with
      permissions *Contents: Read and write* and *Pull requests: Read and write*. Set a
      1-year expiry and a calendar reminder to renew it.
@@ -44,7 +44,7 @@ should return nothing.
 Dry run locally (no PR, no file changes):
 
 ```bash
-GOOGLE_GENERATIVE_AI_API_KEY=… npm run cv:sync -- --pdf Ahmed_Moghazy.pdf --dry-run
+OPENAI_API_KEY=… npm run cv:sync -- --pdf Ahmed_Moghazy.pdf --dry-run
 ```
 
 Expected result on the first real CV (spec US2 scenario 12):

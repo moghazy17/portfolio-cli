@@ -3,7 +3,7 @@ import { APICallError, RetryError } from 'ai';
 
 // requests       — every chat message that reached the model call
 // rate_limited   — blocked by our own per-IP limiter (Upstash)
-// quota_exceeded — Gemini returned 429 (free-tier RPM/RPD limit hit)
+// quota_exceeded — the model provider rejected the request for quota or rate limits
 // error          — any other model/provider failure
 export type ChatEventKind = 'requests' | 'rate_limited' | 'quota_exceeded' | 'error';
 
@@ -20,8 +20,16 @@ export function classifyError(error: unknown): { kind: ChatEventKind; status?: n
   // streamText retries retryable failures (like 429) and wraps them in RetryError
   const cause = RetryError.isInstance(error) ? error.lastError : error;
   const status = APICallError.isInstance(cause) ? cause.statusCode : undefined;
+  const data = APICallError.isInstance(cause) ? cause.data : undefined;
+  const providerCode = typeof data === 'object' && data !== null && 'error' in data
+    && typeof data.error === 'object' && data.error !== null && 'code' in data.error
+    ? data.error.code
+    : undefined;
+  const isQuotaError = status === 429
+    || providerCode === 'insufficient_quota'
+    || providerCode === 'rate_limit_exceeded';
   const message = cause instanceof Error ? cause.message : String(cause);
-  return { kind: status === 429 ? 'quota_exceeded' : 'error', status, message: message.slice(0, 300) };
+  return { kind: isQuotaError ? 'quota_exceeded' : 'error', status, message: message.slice(0, 300) };
 }
 
 export async function logChatEvent(

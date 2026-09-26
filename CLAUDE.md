@@ -34,7 +34,7 @@ npm run content:generate # Validate and generate shared content
 npm test               # Run workspace tests
 npm run test:e2e       # Run Playwright smoke tests
 npm run cv:sync -- --pdf <file> [--dry-run] # Merge a CV into resume content
-npm run eval:cv        # Evaluate CV extraction fixtures (requires Google AI key)
+npm run eval:cv        # Evaluate CV extraction fixtures (requires OpenAI API key)
 ```
 
 ## Architecture
@@ -71,7 +71,7 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 - `hooks/useTerminal.ts` — Terminal state management (history, theme, mode switching)
 - `hooks/useThemeApplier.ts` — Applies theme CSS custom properties
 - `lib/github-cache.ts` — Redis-cached GitHub data for AI prompt context
-- `app/api/chat/route.ts` — Streaming AI chat endpoint (Google Gemini via Vercel AI SDK)
+- `app/api/chat/route.ts` — Streaming AI chat endpoint (OpenAI gpt-6-luna via Vercel AI SDK)
 - `app/api/content/route.ts` — Versioned portfolio-content API with ETag caching
 
 ### Key Patterns
@@ -90,15 +90,15 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 |----------|----------|-------------|
 | `UPSTASH_REDIS_REST_URL` | No | Upstash Redis REST URL (GitHub cache, chat rate limit, chat stats). Falls back to `KV_REST_API_URL`, the name Vercel's Upstash integration creates |
 | `UPSTASH_REDIS_REST_TOKEN` | No | Upstash Redis REST token. Falls back to `KV_REST_API_TOKEN` |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | Yes (for chat) | Google AI API key for Gemini |
+| `OPENAI_API_KEY` | Yes (for chat) | OpenAI API key |
 | `CHAT_STATS_TOKEN` | No | Bearer token for the private `/api/chat-stats` usage report (endpoint returns 404 when unset) |
 
 ### GitHub Actions
 | Setting | Required | Description |
 |----------|----------|-------------|
 | `CV_BOT_TOKEN` secret | Yes (CV updates) | Fine-grained token for this repository with Contents and Pull requests read/write permissions |
-| `GOOGLE_GENERATIVE_AI_API_KEY` secret | Yes (CV updates and evaluation) | Google AI API key used for CV extraction |
-| `CV_SYNC_MODEL` variable | No | Model for CV synchronization; defaults to `gemini-2.5-flash` |
+| `OPENAI_API_KEY` secret | Yes (CV updates and evaluation) | OpenAI API key used for CV extraction |
+| `CV_SYNC_MODEL` variable | No | Model for CV synchronization; defaults to `gpt-6-sol` |
 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,

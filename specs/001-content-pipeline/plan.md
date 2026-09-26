@@ -14,7 +14,7 @@ unchanged and are proven byte-identical by a test. `GET /api/content` publishes 
 content (ETag, CDN cached, rate-limited) for SSH and curl.
 
 A GitHub Action watches `content/cv/incoming/`. It gates the PDF with `pdftotext`, has
-Gemini map the CV onto the **current** resume through transient ids, and then applies
+the model (OpenAI `gpt-6-luna`) map the CV onto the **current** resume through transient ids, and then applies
 every rule in code: keep entries missing from the CV, protect `manual` fields, never touch
 slugs, links or write-ups, flag uncertain matches, unmapped sections and ungrounded text.
 It writes YAML node by node for a minimal diff and opens or updates one reviewable PR
@@ -24,7 +24,7 @@ propagation workflow dispatches the Spec 004 inventory refresh if it exists.
 ## Technical Context
 
 **Language/Version**: TypeScript 5.7 (strict), Node 20 (CI and scripts), Next.js 15 / React 18 (web)
-**Primary Dependencies**: `zod` 4, `yaml` (eemeli), `ai` 6 + `@ai-sdk/google` 3 (CV extraction; already used by chat), `@upstash/ratelimit` (already used), `tsx` (scripts); CI: `poppler-utils`, `peter-evans/create-pull-request@v7`, `lycheeverse/lychee-action`
+**Primary Dependencies**: `zod` 4, `yaml` (eemeli), `ai` 6 + `@ai-sdk/openai` 3 (CV extraction and chat), `@upstash/ratelimit` (already used), `tsx` (scripts); CI: `poppler-utils`, `peter-evans/create-pull-request@v7`, `lycheeverse/lychee-action`
 **Storage**: Files in git (`/content`). Redis is used only for the `/api/content` rate limit (optional).
 **Testing**: Vitest (new), Playwright (new), live CV eval script over committed fixture PDFs
 **Target Platform**: Vercel (web), GitHub Actions `ubuntu-latest` (automation); later Fly.io SSH (consumer of `/api/content`)

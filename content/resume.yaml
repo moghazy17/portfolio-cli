@@ -1,7 +1,15 @@
 basics:
   name: Ahmed Moghazy
-  label: Data Science & ML Engineer
-  summary: Data Science graduate specializing in machine learning, applied AI, and data-driven systems. Experienced in designing and deploying end-to-end ML solutions including AutoML pipelines, predictive modeling, and retrieval-augmented generation (RAG) applications using large language models. Strong background in data analysis, feature engineering, and model evaluation, with hands-on exposure to data engineering workflows, MLOps practices, and translating complex data into actionable business insights.
+  label:
+    value: Data Science & ML Engineer
+    manual: true
+  summary: Data Science graduate specializing in machine learning, applied AI, and
+    data-driven systems. Experienced in designing and deploying end-to-end ML
+    solutions including AutoML pipelines, predictive modeling, and
+    retrieval-augmented generation (RAG) applications using large language
+    models. Strong background in data analysis, feature engineering, and model
+    evaluation, with hands-on exposure to data engineering workflows, MLOps
+    practices, and translating complex data into actionable business insights.
   email: akhaledmoghazy@gmail.com
   phone: (+20) 115 322 7992
   location:
@@ -40,38 +48,62 @@ work:
     position: Software Developer (AI & Backend)
     startDate: 2025-10
     highlights:
-      - Architected a Multi-Agent Concierge System using LangGraph, orchestrating specialized agents with 95% intent classification accuracy.
-      - Engineered a Hierarchical RAG Pipeline in PGVector, reducing hallucinations by 30% on long-form queries.
-      - Integrated LLM Tool-Access with Oracle Opera PMS via REST APIs, reducing manual front-desk workload by 40%.
-      - Containerized the entire multi-agent stack using Docker, streamlining CI/CD pipeline.
+      - Architected a Multi-Agent Concierge System using LangGraph,
+        orchestrating specialized agents to handle autonomous guest fulfillment
+        and complex policy inquiries with a 95% intent classification accuracy.
+      - value: Engineered a Hierarchical RAG Pipeline in PGVector to navigate
+          high-density hotel policy documents; implemented recursive retrieval
+          strategies that improved context retention and reduced "hallucinations"
+          by 30% on long-form queries.
+        manual: true
+      - Integrated LLM Tool-Access with Oracle Opera PMS via REST APIs, enabling
+        autonomous creation and tracking of guest service requests, reducing
+        manual front-desk entry workload by an estimated 40%.
+      - Containerized the entire multi-agent stack using Docker, streamlining
+        the CI/CD pipeline and reducing deployment downtime across internal
+        testing environments.
   - slug: depi
     name: Digital Egypt Pioneers Initiative (DEPI)
     position: Machine Learning Engineer Trainee
     startDate: 2024-10
     endDate: 2025-04
     highlights:
-      - Completed the Microsoft ML Engineer track, focusing on scalable production-ready ML solutions.
-      - Built foundations in statistics, linear algebra, Python, classical ML, deep learning, NLP, and computer vision.
-      - Applied Azure AI Fundamentals and Azure AI Engineer Associate concepts with MLflow and Hugging Face.
+      - Completed the Microsoft Machine Learning Engineer track, focusing on
+        designing scalable and production-ready machine learning solutions using
+        Microsoft technologies.
+      - Built strong foundations in statistics, linear algebra, Python, data
+        preprocessing, visualization, classical ML, deep learning, NLP with
+        attention mechanisms, and computer vision using transfer learning.
+      - Applied Azure AI Fundamentals and Azure AI Engineer Associate concepts,
+        with hands-on exposure to MLOps tools including MLflow and Hugging Face.
   - slug: orange
     name: Orange Egypt
     position: Data Engineer Intern
     startDate: 2024-08
     endDate: 2024-09
     highlights:
-      - Automated and optimized ETL workflows for company voucher data using Apache NiFi and dbt models.
-      - Explored pipeline orchestration and scheduling using Apache Airflow.
+      - Automated and optimized ETL workflows for company voucher data using
+        Apache NiFi and dbt models.
+      - Explored pipeline orchestration and scheduling using Apache Airflow to
+        improve data reliability and automation.
   - slug: valu
     name: ValU
     position: Data Science Intern
     startDate: 2024-07
     endDate: 2024-07
     highlights:
-      - Analyzed company growth metrics and customer behavior for data-driven strategic insights.
-      - Designed interactive Power BI dashboards visualizing KPIs for executive decision-making.
-      - Built ML models (Random Forest, XGBoost) for customer lifetime value prediction, achieving AUC of 0.70.
-      - Contributed to a customer-facing chatbot using NER for accurate offer retrieval.
-      - Optimized LLM prompts for intent extraction, reducing inference costs by ~30%.
+      - Analyzed company growth metrics and customer behavior to generate
+        data-driven strategic insights.
+      - Designed and delivered interactive Power BI dashboards visualizing KPIs,
+        improving executive decision-making.
+      - Built and evaluated ML models (Random Forest, XGBoost) for customer
+        lifetime value prediction, achieving an AUC of 0.70.
+      - Contributed to a customer-facing chatbot by unifying vendors and
+        geographic regions using Named Entity Recognition (NER) for accurate
+        offer retrieval.
+      - Optimized LLM prompts for intent extraction (offers, vendors, regions)
+        and analyzed OpenAI API usage, reducing inference costs by approximately
+        30% while maintaining response quality.
   - slug: act-intern
     name: Advanced Computer Technology (ACT)
     position: Data Science Intern
@@ -89,9 +121,13 @@ projects:
     startDate: 2026-01
     endDate: 2026-01
     highlights:
-      - Built an automated news aggregation pipeline using n8n to ingest RSS feeds on a scheduled basis.
-      - Implemented LLM-based classification and ranking to categorize articles and score importance.
-      - Designed workflows to store results in Google Sheets and deliver curated HTML email summaries.
+      - Built an automated news aggregation pipeline using n8n to ingest RSS
+        feeds from multiple tech sources on a scheduled basis.
+      - Implemented an LLM-based classification and ranking system to categorize
+        articles, generate why-it-matters insights, and score news importance.
+      - Designed daily and weekly workflows to store structured results in
+        Google Sheets and deliver curated HTML email summaries of top-ranked
+        articles.
   - slug: automl
     name: AutoML Pipeline
     stack: scikit-learn
@@ -99,9 +135,13 @@ projects:
     startDate: 2024-10
     endDate: 2025-06
     highlights:
-      - "Engineered a modular AutoML pipeline with 4 stages: preprocessing, feature selection, model selection, and HPO."
-      - Synthesized AutoML foundations into the system architecture and experiment plan.
-      - Benchmarked Grid Search, Random Search, and Bayesian Optimization for HPO on tabular ML tasks.
+      - "Engineered a modular AutoML pipeline in Python (scikit-learn) with 4
+        stages: preprocessing, feature selection, model selection, and
+        hyperparameter optimization."
+      - Synthesized AutoML foundations (model selection, HPO, evaluation) into
+        the system architecture and experiment plan.
+      - Implemented and benchmarked Grid Search, Random Search, and Bayesian
+        Optimization for HPO on tabular ML tasks.
   - slug: rag-chatbot
     name: RAG Chatbot
     stack: LangChain + FAISS + Ollama
@@ -109,9 +149,14 @@ projects:
     startDate: 2024-12
     endDate: 2025-01
     highlights:
-      - Built a retrieval-augmented chatbot with LangChain + Ollama Gemma-3 (12B) and Gradio UI.
-      - Crawled 30 LangChain doc pages; chunked via RecursiveCharacterTextSplitter.
-      - Embedded with all-MiniLM-L6-v2, indexed in FAISS; used MultiQueryRetriever + ContextualCompressionRetriever.
+      - Built a retrieval-augmented chatbot with LangChain + Ollama Gemma-3
+        (12B) and a Gradio UI for real-time Q&A.
+      - Crawled up to 30 LangChain doc pages (BeautifulSoup); chunked via
+        RecursiveCharacterTextSplitter.
+      - value: Embedded with all-MiniLM-L6-v2 and indexed in FAISS; boosted
+          relevance using MultiQueryRetriever + ContextualCompressionRetriever;
+          added SerpAPI + Python REPL tools.
+        manual: true
   - slug: expensum
     name: ExpenSum — Smart Expense Tracker
     stack: React + Spring Boot + JWT + LLM
@@ -119,8 +164,10 @@ projects:
     startDate: 2025-04
     endDate: 2025-05
     highlights:
-      - "Developed a full-stack expense tracker: React frontend + Spring Boot backend secured with JWT."
-      - Integrated Mistral (via Ollama) to convert natural-language inputs into structured expense entries.
+      - "Developed a full-stack expense tracker: React frontend + Spring Boot
+        backend secured with JWT."
+      - Integrated Mistral (via Ollama) to convert natural-language inputs into
+        structured expense entries for single-step data capture.
   - slug: star-schema
     name: Star-Schema Data Warehouse
     stack: SQL, ETL
@@ -137,14 +184,17 @@ certificates:
     startDate: 2024-10
     endDate: 2024-12
     highlights: []
-  - name: ICT Global Competition — AI Section Lead (Cloud Track)
+  - name: Huawei ICT Global Competition — AI Section Lead - Cloud Track
     issuer: Huawei
     startDate: 2024-11
     endDate: 2025-05
     highlights:
-      - Won the Second Prize Globally in the Huawei ICT Global Competition (Cloud Track).
-      - Awarded the Grand Prize in the North Africa Region, representing Egypt in the global finals.
-      - Led the AI Technologies section, covering Machine Learning & Deep Learning.
+      - Won the Second Prize Globally in the Huawei ICT Global Competition
+        (Cloud Track).
+      - Awarded the Grand Prize in the North Africa Region, representing Egypt
+        in the global finals.
+      - Led the AI Technologies section, covering Machine Learning & Deep
+        Learning in the Cloud Track.
 
 skills:
   - name: Programming
@@ -158,17 +208,17 @@ skills:
     keywords:
       - Scikit-learn
       - TensorFlow/Keras
-      - Classical ML
+      - Classical Machine Learning
       - Deep Learning
       - NLP
       - Computer Vision
       - Feature Engineering
       - Model Evaluation
-      - HPO
+      - Hyperparameter Optimization
   - name: LLMs & Generative AI
     keywords:
       - LangChain
-      - RAG
+      - Retrieval-Augmented Generation (RAG)
       - Prompt Engineering
       - Hugging Face
       - Ollama
@@ -181,7 +231,7 @@ skills:
       - Matplotlib
       - Seaborn
       - Power BI
-      - EDA
+      - Exploratory Data Analysis (EDA)
   - name: Data Engineering & MLOps
     keywords:
       - Apache Airflow
@@ -190,6 +240,7 @@ skills:
       - ETL Pipelines
       - MLflow
       - HDFS
+      - Workflow Orchestration
   - name: Databases
     keywords:
       - PostgreSQL
@@ -201,5 +252,20 @@ skills:
       - Azure AI Fundamentals
       - Huawei Cloud
       - Git/GitHub
-      - Docker
+      - value: Docker
+        manual: true
       - Linux
+      - Azure Machine Learning Concepts
+  - name: Core Computer Science
+    keywords:
+      - Data Structures & Algorithms
+      - Operating Systems
+      - Distributed Systems
+      - Database Management Systems
+  - name: Soft Skills
+    keywords:
+      - Technical Communication
+      - Problem Solving
+      - Leadership
+      - Analytical Thinking
+      - Adaptability

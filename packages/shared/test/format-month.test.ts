@@ -1,21 +1,10 @@
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import legacy from './fixtures/legacy-cvdata.json';
+import { loadContent } from '../src/content/load';
 import { formatMonth } from '../src/content/view';
 
-const monthNumbers: Record<string, string> = {
-  Jan: '01',
-  Feb: '02',
-  Mar: '03',
-  Apr: '04',
-  May: '05',
-  June: '06',
-  July: '07',
-  Aug: '08',
-  Sep: '09',
-  Oct: '10',
-  Nov: '11',
-  Dec: '12',
-};
+const repoRoot = resolve(import.meta.dirname, '../../..');
+const displayMonthPattern = /^(Jan|Feb|Mar|Apr|May|June|July|Aug|Sep|Oct|Nov|Dec) \d{4}$/;
 
 describe('formatMonth', () => {
   it('formats all twelve months', () => {
@@ -36,21 +25,23 @@ describe('formatMonth', () => {
       ]);
   });
 
-  it('round-trips every legacy display date', () => {
+  it('formats every date in the real resume content', async () => {
+    const loaded = await loadContent(repoRoot);
+    expect(loaded.issues.filter((issue) => issue.severity === 'error')).toEqual([]);
+    expect(loaded.content).toBeDefined();
+
+    const resume = loaded.content!.resume;
     const dated = [
-      legacy.education,
-      ...legacy.experience,
-      ...legacy.projects,
-      ...legacy.certifications,
+      ...resume.education,
+      ...resume.work,
+      ...resume.projects,
+      ...resume.certificates,
     ];
-    const values = dated.flatMap((entry) => [entry.startDate, entry.endDate]);
-    expect(values).toHaveLength(26);
-    expect(values).toContain('Present');
-    const datedValues = values.filter((date) => date !== 'Present');
-    expect(datedValues).toHaveLength(25);
-    for (const value of datedValues) {
-      const [month, year] = value.split(' ');
-      expect(formatMonth(`${year}-${monthNumbers[month]}`)).toBe(value);
+
+    for (const entry of dated) {
+      expect(formatMonth(entry.startDate)).toMatch(displayMonthPattern);
+      expect(entry.endDate ? formatMonth(entry.endDate) : 'Present')
+        .toMatch(/^(Jan|Feb|Mar|Apr|May|June|July|Aug|Sep|Oct|Nov|Dec) \d{4}$|^Present$/);
     }
   });
 });

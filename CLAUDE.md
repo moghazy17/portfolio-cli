@@ -103,5 +103,5 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-`specs/001-content-pipeline/plan.md` (Spec 001 — Content pipeline)
+`specs/002-shell-experience/plan.md` (Spec 002 — Shell experience)
 <!-- SPECKIT END -->

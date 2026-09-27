@@ -85,6 +85,9 @@ export default function Terminal() {
       {/* Scrollable output area */}
       <div
         ref={scrollRef}
+        role="log"
+        aria-label="Terminal output"
+        aria-live="polite"
         style={{
           flex: 1,
           overflow: 'auto',

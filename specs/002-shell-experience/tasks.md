@@ -403,14 +403,14 @@ an unchanged `whoami`. Easter eggs never block input.
 
 ## Phase 6: Polish & cross-cutting concerns
 
-- [ ] T069 [P] Update `CLAUDE.md` "Command System" and "Web App Flow" sections:
+- [X] T069 [P] Update `CLAUDE.md` "Command System" and "Web App Flow" sections:
   - `createShell`, the `shell/`, `vfs/` and `render/` folders, and the registry metadata (`kind`, `menu`, `args`, `man`, `surfaces`).
   - The effect fields and the `onUnknownCommand` hook.
   - The new web files (`SequencePlayer.tsx`, `useHistory.ts`).
   - Remove the note that the output union has "7 variants".
-- [ ] T070 [P] Update `README.md` with a short "Try it" list of shell features: Tab, history, pipes, `ls`/`cd`/`cat`/`tree`, `man`, `resume`, and a hint that there are easter eggs.
+- [X] T070 [P] Update `README.md` with a short "Try it" list of shell features: Tab, history, pipes, `ls`/`cd`/`cat`/`tree`, `man`, `resume`, and a hint that there are easter eggs.
 - [ ] T071 [P] Check the bundle impact. Run `npm run build:web` and compare the First Load JS for `/` against `main` (Next build output). The shared engine should add â‰¤ 15 kB gzipped. Record the numbers in the PR description (Principle VII).
-- [ ] T072 Accessibility pass on `apps/web/components/OutputRenderer.tsx`, `apps/web/components/CommandLine.tsx` and `apps/web/components/SequencePlayer.tsx`:
+- [X] T072 Accessibility pass on `apps/web/components/OutputRenderer.tsx`, `apps/web/components/CommandLine.tsx` and `apps/web/components/SequencePlayer.tsx`:
   - New output is inside the existing output region.
   - The candidate list and `^C` echoes are plain text.
   - The prompt label is associated with the input (`aria-label` includes the cwd).

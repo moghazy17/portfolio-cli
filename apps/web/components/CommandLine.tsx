@@ -103,7 +103,7 @@ export default function CommandLine({
 
   return (
     <div style={{ display: 'flex', alignItems: 'center' }}>
-      <span style={{ color: 'var(--accent)', marginRight: '8px', userSelect: 'none' }}>
+      <span aria-hidden="true" style={{ color: 'var(--accent)', marginRight: '8px', userSelect: 'none' }}>
         {prompt}
       </span>
       <input
@@ -116,7 +116,7 @@ export default function CommandLine({
         spellCheck={false}
         autoComplete="off"
         autoCapitalize="off"
-        aria-label="Terminal command input"
+        aria-label={`Terminal command input, current directory ${prompt.replace(/^visitor@portfolio:/, '').replace(/\$$/, '')}`}
         style={{
           flex: 1,
           background: 'transparent',

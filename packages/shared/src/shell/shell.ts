@@ -9,6 +9,7 @@ import { toLines } from './lines';
 import { parseShell, type Pipeline, type Stage } from './parser';
 import { suggestCommand } from './suggest';
 import { defaultUnknownCommandHandler } from './unknown';
+import { complete, type Completion } from './completion';
 
 export interface ShellOptions {
   surface: Surface;
@@ -20,6 +21,7 @@ export interface ShellOptions {
 
 export interface Shell {
   run(line: string, opts?: { signal?: AbortSignal }): Promise<ShellResult>;
+  complete(line: string, cursor?: number): Completion;
   prompt(): { user: 'visitor'; host: 'portfolio'; cwd: string };
   readonly session: Readonly<ShellSession>;
 }
@@ -150,6 +152,7 @@ export function createShell(options: ShellOptions): Shell {
 
   return {
     run,
+    complete: (line, cursor = line.length) => complete(line, cursor, registry),
     prompt: () => ({ user: 'visitor', host: 'portfolio', cwd: placeholderFs.display(session.cwd) }),
     get session() { return session; },
   };

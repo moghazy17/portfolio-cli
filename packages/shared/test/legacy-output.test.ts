@@ -12,8 +12,9 @@ import {
 function normalize<T>(value: T): T {
   const clone = structuredClone(value);
   const result = clone as Record<string, unknown>;
-  delete result.theme;
-  delete result.welcome;
+  for (const key of Object.keys(result)) {
+    if (!['output', 'clear', 'mode', 'openUrl'].includes(key)) delete result[key];
+  }
 
   function visit(node: unknown): void {
     if (Array.isArray(node)) {

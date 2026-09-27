@@ -48,7 +48,7 @@ export function toLines(output: CommandOutput[]): Line[] {
           break;
         }
         case 'link':
-          lines.push({ text: `${node.text}: ${node.url}`, ...(item && { item }) });
+          lines.push({ text: `${node.text}: ${node.url}`, href: node.url, ...(item && { item }) });
           break;
         case 'progress':
           lines.push({ text: `${node.label}  ${Math.round(node.value * 100)}%`, ...(item && { item }) });

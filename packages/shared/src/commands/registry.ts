@@ -51,6 +51,7 @@ function helpCommand(): CommandResult {
   const rows = commandRegistry
     .filter((cmd) => !cmd.hidden && cmd.kind !== 'filter')
     .map((cmd) => [cmd.usage, cmd.description]);
+  rows.push(['<cmd> | grep, head, tail, wc, sort', 'Pipes: filter any command output']);
   return {
     output: [
       { type: 'text', content: 'Available Commands:', style: { bold: true } },
@@ -58,7 +59,7 @@ function helpCommand(): CommandResult {
       { type: 'divider' },
       {
         type: 'text',
-        content: 'Tip: Use arrow keys in menu mode, or type commands directly.',
+        content: 'Tip: Tab completes, ↑/↓ browse history, pipes work: projects | grep rag',
         style: { dim: true },
       },
     ],
@@ -96,6 +97,7 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'experience [company]',
     aliases: ['exp', 'work'],
     menu: true,
+    args: { positional: [{ name: 'company', complete: 'experience' }] },
     execute: (ctx) => experienceCommand(ctx.args),
   },
   {
@@ -104,6 +106,7 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'projects [name]',
     aliases: ['proj'],
     menu: true,
+    args: { positional: [{ name: 'name', complete: 'projects' }] },
     execute: (ctx) => projectsCommand(ctx.args),
   },
   {
@@ -112,6 +115,7 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'skills [category]',
     aliases: ['sk'],
     menu: true,
+    args: { positional: [{ name: 'category', complete: 'skills' }] },
     execute: (ctx) => skillsCommand(ctx.args),
   },
   {
@@ -135,6 +139,7 @@ export const commandRegistry: CommandDefinition[] = [
     description: 'Open a profile link in your browser',
     usage: 'open [target]',
     aliases: [],
+    args: { positional: [{ name: 'target', complete: 'open-targets' }] },
     execute: (ctx) => openCommand(ctx.args),
   },
   {
@@ -150,6 +155,7 @@ export const commandRegistry: CommandDefinition[] = [
     description: 'Switch color theme',
     usage: 'theme [name]',
     aliases: [],
+    args: { positional: [{ name: 'name', complete: 'themes' }] },
     execute: (ctx) => themeCommand(ctx.args),
   },
   {
@@ -172,7 +178,7 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'github',
     aliases: ['gh'],
     menu: true,
-    execute: () => githubCommand(),
+    execute: (ctx) => githubCommand(ctx.signal),
   },
   {
     name: 'chat',

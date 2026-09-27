@@ -143,6 +143,7 @@ export interface Line {
   text: string;
   style?: OutputStyle;
   item?: string;
+  href?: string;
 }
 
 export interface OutputStyle {

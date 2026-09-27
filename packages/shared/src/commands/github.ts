@@ -2,9 +2,9 @@ import type { CommandResult, CommandOutput } from '../types';
 import { cvData } from '../content';
 import { fetchGitHubData, GITHUB_USERNAME } from '../github';
 
-export async function githubCommand(): Promise<CommandResult> {
+export async function githubCommand(signal?: AbortSignal): Promise<CommandResult> {
   try {
-    const stats = await fetchGitHubData();
+    const stats = await fetchGitHubData(signal);
 
     const output: CommandOutput[] = [
       {

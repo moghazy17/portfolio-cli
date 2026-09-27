@@ -65,7 +65,7 @@ describe('toLines', () => {
     expect(toLines(output)).toEqual([
       { text: 'a', style: { color: 'primary' } },
       { text: 'b', style: { color: 'primary' } },
-      { text: 'Site: https://example.test' },
+      { text: 'Site: https://example.test', href: 'https://example.test' },
       { text: 'Loading  46%' },
       { text: 'ready', item: 'x', style: { bold: true } },
     ]);

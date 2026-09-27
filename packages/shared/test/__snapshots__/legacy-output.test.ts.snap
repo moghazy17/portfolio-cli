@@ -80,6 +80,10 @@ exports[`legacy command output > snapshots ? 1`] = `
           "clear",
           "Clear the terminal",
         ],
+        [
+          "<cmd> | grep, head, tail, wc, sort",
+          "Pipes: filter any command output",
+        ],
       ],
       "type": "table",
     },
@@ -87,7 +91,7 @@ exports[`legacy command output > snapshots ? 1`] = `
       "type": "divider",
     },
     {
-      "content": "Tip: Use arrow keys in menu mode, or type commands directly.",
+      "content": "Tip: Tab completes, ↑/↓ browse history, pipes work: projects | grep rag",
       "style": {
         "dim": true,
       },
@@ -1005,6 +1009,10 @@ exports[`legacy command output > snapshots h 1`] = `
           "clear",
           "Clear the terminal",
         ],
+        [
+          "<cmd> | grep, head, tail, wc, sort",
+          "Pipes: filter any command output",
+        ],
       ],
       "type": "table",
     },
@@ -1012,7 +1020,7 @@ exports[`legacy command output > snapshots h 1`] = `
       "type": "divider",
     },
     {
-      "content": "Tip: Use arrow keys in menu mode, or type commands directly.",
+      "content": "Tip: Tab completes, ↑/↓ browse history, pipes work: projects | grep rag",
       "style": {
         "dim": true,
       },
@@ -1109,6 +1117,10 @@ exports[`legacy command output > snapshots help 1`] = `
           "clear",
           "Clear the terminal",
         ],
+        [
+          "<cmd> | grep, head, tail, wc, sort",
+          "Pipes: filter any command output",
+        ],
       ],
       "type": "table",
     },
@@ -1116,7 +1128,7 @@ exports[`legacy command output > snapshots help 1`] = `
       "type": "divider",
     },
     {
-      "content": "Tip: Use arrow keys in menu mode, or type commands directly.",
+      "content": "Tip: Tab completes, ↑/↓ browse history, pipes work: projects | grep rag",
       "style": {
         "dim": true,
       },
@@ -1511,9 +1523,17 @@ exports[`legacy command output > snapshots projcts 1`] = `
 {
   "output": [
     {
-      "content": "Command not found: "projcts". Type "help" for available commands.",
+      "content": "command not found: projcts",
+      "type": "error",
+    },
+    {
+      "content": "did you mean \`projects\`?",
+      "type": "text",
+    },
+    {
+      "content": "Type \`help\` for commands or \`chat\` to ask the AI.",
       "style": {
-        "color": "error",
+        "dim": true,
       },
       "type": "text",
     },

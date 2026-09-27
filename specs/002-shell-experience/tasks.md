@@ -340,27 +340,27 @@ an unchanged `whoami`. Easter eggs never block input.
 
 ### Tests for User Story 3 (write first, confirm they fail)
 
-- [ ] T056 [P] [US3] Write `packages/shared/test/man.test.ts`. Cover:
+- [X] T056 [P] [US3] Write `packages/shared/test/man.test.ts`. Cover:
   - `man projects` has the sections NAME, SYNOPSIS, DESCRIPTION, EXAMPLES and ALIASES (with `proj`).
   - `man grep` has OPTIONS listing `-i`, `-v`, `-c` and `-h`.
   - `man exp` equals `man experience`; `man man` works.
   - `man` with no argument â†’ `What manual page do you want?` and `For example, try 'man projects'.`
   - `man sudo`, `man mkdir` and `man nope` â†’ `No manual entry for <name>`.
   - `man pro<Tab>` completes command names.
-- [ ] T057 [P] [US3] Write `packages/shared/test/resume.test.ts`:
+- [X] T057 [P] [US3] Write `packages/shared/test/resume.test.ts`:
   - On the `web` surface: the `download` effect url is `/cv/latest.pdf`, the filename is built from `basics.name` (for example `First-Last-CV.pdf`), and there is a confirmation line and a link.
   - On `curl` and `ssh` with origin `https://example.test`: output `Resume (PDF): https://example.test/cv/latest.pdf` and no `download`.
   - With `cv.available = false`, using a content fixture: `resume: CV not published yet` with status `error`.
   - The `cv` alias works.
   - `renderAnsi(..., { color: false })` for curl matches the quickstart example.
-- [ ] T058 [P] [US3] Write `packages/shared/test/sudo-hire-me.test.ts`:
+- [X] T058 [P] [US3] Write `packages/shared/test/sudo-hire-me.test.ts`:
   - `sudo hire-me` returns a `sequence` whose `delayMs` sum is â‰¤ 3500 and whose frames include the masked password line, three `progress` steps and `ACCESS GRANTED`.
   - The final `output` contains the owner's name, email, a LinkedIn link and a `mailto:` link whose `subject` decodes to `Hiring inquiry via example.test` (origin host) and whose body starts with `Hi <firstName>,`.
   - `sudo hire`, `sudo hire ahmed`-style (build the word from `profile.firstName.toLowerCase()`) and `sudo hire-x` give the same final output.
   - `sudo ls` keeps the permission-denied joke, and the hint is `Hint: try "sudo hire-me"`.
   - `sudo hire-me | wc -l` has no `sequence`.
   - `whoami` is unchanged against the T001 snapshot.
-- [ ] T059 [P] [US3] Add to `packages/shared/test/registry-coverage.test.ts` (the SC-005 part): every non-hidden registry entry has a non-empty `man.description` and at least one example, and `renderManPage` output for each is non-empty.
+- [X] T059 [P] [US3] Add to `packages/shared/test/registry-coverage.test.ts` (the SC-005 part): every non-hidden registry entry has a non-empty `man.description` and at least one example, and `renderManPage` output for each is non-empty.
 - [ ] T060 [P] [US3] Add a `describe('US3')` block to `apps/web/e2e/shell.spec.ts`. Cover:
   - `man projects` shows `SYNOPSIS`.
   - `resume` triggers `page.waitForEvent('download')` with a suggested filename ending in `-CV.pdf`.
@@ -372,14 +372,14 @@ an unchanged `whoami`. Easter eggs never block input.
 
 ### Implementation for User Story 3
 
-- [ ] T061 [US3] Add `man` metadata (a `description` of 1â€“3 sentences and 1â€“3 `examples`) to every existing visible command in `packages/shared/src/commands/registry.ts`: help, about, education, experience, projects, skills, certifications, contact, open, timeline, theme, welcome, whoami, github, chat and clear. Build any owner-specific wording from `profile` or `cvData` inside a function, not from string literals, to keep `no-hardcoded-content` green.
-- [ ] T062 [US3] Implement `packages/shared/src/commands/man.ts`:
+- [X] T061 [US3] Add `man` metadata (a `description` of 1â€“3 sentences and 1â€“3 `examples`) to every existing visible command in `packages/shared/src/commands/registry.ts`: help, about, education, experience, projects, skills, certifications, contact, open, timeline, theme, welcome, whoami, github, chat and clear. Build any owner-specific wording from `profile` or `cvData` inside a function, not from string literals, to keep `no-hardcoded-content` green.
+- [X] T062 [US3] Implement `packages/shared/src/commands/man.ts`:
   - `renderManPage(def)`: sections as `SectionOutput`s titled `NAME` (`name â€” description`), `SYNOPSIS` (`renderSynopsis`), `DESCRIPTION`, `OPTIONS` (a table of flag and description, omitted if empty), `EXAMPLES` (a list) and `ALIASES` (omitted if empty).
   - `manCommand(ctx)`: resolve the name or alias; hidden or unknown names â†’ `No manual entry for <name>`; no argument gives the hint.
 
   Register `man` in `registry.ts` with `args` positional `command` (`complete: 'commands'`) and its own `man` metadata. Implement the `commands` completion source in `packages/shared/src/shell/completion.ts`. Export `renderManPage` from `packages/shared/src/index.ts`. T056 and T059 should now pass. Depends on T061.
-- [ ] T063 [P] [US3] Implement `packages/shared/src/commands/resume.ts` per research R10 and `contracts/commands.md`, reading `content.cv`, `ctx.surface` and `ctx.origin`. Register `resume` (alias `cv`, not in the menu) with `man`. T057 should now pass.
-- [ ] T064 [US3] Implement `sudo hire-me` in `packages/shared/src/commands/easter-eggs.ts`:
+- [X] T063 [P] [US3] Implement `packages/shared/src/commands/resume.ts` per research R10 and `contracts/commands.md`, reading `content.cv`, `ctx.surface` and `ctx.origin`. Register `resume` (alias `cv`, not in the menu) with `man`. T057 should now pass.
+- [X] T064 [US3] Implement `sudo hire-me` in `packages/shared/src/commands/easter-eggs.ts`:
   - `sudoCommand(args, ctx)` routes any first argument starting with `hire` to `hireMeCommand(ctx)`, which returns the `sequence` frames and final `output` per `contracts/commands.md`. The `mailto:` is built with `encodeURIComponent`, and the host comes from `new URL(ctx.origin).host`, falling back to `site.title` when the origin is empty.
   - The permission-denied branch hint changes to `Hint: try "sudo hire-me"`.
 

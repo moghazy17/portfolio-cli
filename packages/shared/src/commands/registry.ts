@@ -29,6 +29,8 @@ import { grepLines, headLines, tailLines, wcLines, sortLines } from '../shell/fi
 import { renderSynopsis } from '../shell/args';
 import { catCommand, cdCommand, lsCommand, pwdCommand, readOnlyCommand, treeCommand } from './fs';
 import type { CommandContext } from '../types';
+import { manCommand } from './man';
+import { resumeCommand } from './resume';
 
 function lineCount(ctx: CommandContext, name: 'head' | 'tail'): CommandResult {
   const raw = ctx.flags.lines ?? '10';
@@ -74,6 +76,7 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'help',
     aliases: ['h', '?'],
     menu: true,
+    man: { description: 'List the available portfolio commands and their summaries.', examples: ['help', 'help | grep projects'] },
     execute: () => helpCommand(),
   },
   {
@@ -82,6 +85,7 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'about',
     aliases: ['summary', 'bio'],
     menu: true,
+    man: { description: 'Show a concise professional summary.', examples: ['about', 'about | grep -i machine'] },
     execute: () => aboutCommand(),
   },
   {
@@ -90,6 +94,7 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'education',
     aliases: ['edu'],
     menu: true,
+    man: { description: 'Show education details and relevant coursework.', examples: ['education', 'education | grep coursework'] },
     execute: () => educationCommand(),
   },
   {
@@ -99,6 +104,7 @@ export const commandRegistry: CommandDefinition[] = [
     aliases: ['exp', 'work'],
     menu: true,
     args: { positional: [{ name: 'company', complete: 'experience' }] },
+    man: { description: 'List work experience or filter it by company.', examples: ['experience', 'experience company'] },
     execute: (ctx) => experienceCommand(ctx.args),
   },
   {
@@ -108,6 +114,7 @@ export const commandRegistry: CommandDefinition[] = [
     aliases: ['proj'],
     menu: true,
     args: { positional: [{ name: 'name', complete: 'projects' }] },
+    man: { description: 'List technical projects or filter them by name.', examples: ['projects', 'projects name'] },
     execute: (ctx) => projectsCommand(ctx.args),
   },
   {
@@ -117,6 +124,7 @@ export const commandRegistry: CommandDefinition[] = [
     aliases: ['sk'],
     menu: true,
     args: { positional: [{ name: 'category', complete: 'skills' }] },
+    man: { description: 'Show skill categories or filter by category.', examples: ['skills', 'skills data'] },
     execute: (ctx) => skillsCommand(ctx.args),
   },
   {
@@ -125,6 +133,7 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'certifications',
     aliases: ['certs', 'awards'],
     menu: true,
+    man: { description: 'Show certifications and achievements.', examples: ['certifications', 'certifications | head -n 5'] },
     execute: () => certificationsCommand(),
   },
   {
@@ -133,6 +142,7 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'contact',
     aliases: ['email', 'links'],
     menu: true,
+    man: { description: 'Show contact details and professional links.', examples: ['contact', 'contact | grep Email'] },
     execute: () => contactCommand(),
   },
   {
@@ -141,6 +151,7 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'open [target]',
     aliases: [],
     args: { positional: [{ name: 'target', complete: 'open-targets' }] },
+    man: { description: 'Open a supported profile link in the browser.', examples: ['open github', 'open linkedin'] },
     execute: (ctx) => openCommand(ctx.args),
   },
   {
@@ -149,6 +160,7 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'timeline',
     aliases: ['tl'],
     menu: true,
+    man: { description: 'Show a reverse-chronological career overview.', examples: ['timeline', 'timeline | head -n 10'] },
     execute: () => timelineCommand(),
   },
   {
@@ -157,6 +169,7 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'theme [name]',
     aliases: [],
     args: { positional: [{ name: 'name', complete: 'themes' }] },
+    man: { description: 'Show or switch the terminal color theme.', examples: ['theme', 'theme dracula'] },
     execute: (ctx) => themeCommand(ctx.args),
   },
   {
@@ -164,6 +177,7 @@ export const commandRegistry: CommandDefinition[] = [
     description: 'Show the welcome screen',
     usage: 'welcome',
     aliases: ['home', 'banner'],
+    man: { description: 'Return to the terminal welcome screen.', examples: ['welcome', 'home'] },
     execute: () => welcomeCommand(),
   },
   {
@@ -171,6 +185,7 @@ export const commandRegistry: CommandDefinition[] = [
     description: '???',
     usage: 'whoami',
     aliases: [],
+    man: { description: 'Print the current terminal visitor identity.', examples: ['whoami'] },
     execute: () => whoamiCommand(),
   },
   {
@@ -179,6 +194,7 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'github',
     aliases: ['gh'],
     menu: true,
+    man: { description: 'Fetch live GitHub profile statistics.', examples: ['github', 'gh'] },
     execute: (ctx) => githubCommand(ctx.signal),
   },
   {
@@ -187,6 +203,7 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'chat',
     aliases: ['ask', 'ai'],
     menu: true,
+    man: { description: `Start a conversation about ${profile.firstName}'s portfolio.`, examples: ['chat', 'ask'] },
     execute: () => chatCommand(),
   },
   {
@@ -194,7 +211,19 @@ export const commandRegistry: CommandDefinition[] = [
     description: 'Clear the terminal',
     usage: 'clear',
     aliases: ['cls'],
+    man: { description: 'Clear the terminal output.', examples: ['clear', 'cls'] },
     execute: () => ({ output: [], clear: true }),
+  },
+  {
+    name: 'man', description: 'Show a command manual page', usage: 'man <command>', aliases: [],
+    args: { positional: [{ name: 'command', required: true, complete: 'commands' }] },
+    man: { description: 'Show detailed usage, options, examples, and aliases for a command.', examples: ['man projects', 'man grep'] },
+    execute: (ctx) => manCommand(ctx, commandRegistry),
+  },
+  {
+    name: 'resume', description: 'Download or link to the PDF resume', usage: 'resume', aliases: ['cv'],
+    man: { description: 'Download the PDF resume in the browser or print its URL on text surfaces.', examples: ['resume', 'cv'] },
+    execute: resumeCommand,
   },
   {
     name: 'ls', description: 'List files and folders', usage: 'ls [-a] [-l] [path…]', aliases: [],
@@ -238,7 +267,7 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'sudo [command]',
     aliases: [],
     hidden: true,
-    execute: (ctx) => sudoCommand(ctx.args),
+    execute: (ctx) => sudoCommand(ctx.args, ctx),
   },
   {
     name: 'rm',

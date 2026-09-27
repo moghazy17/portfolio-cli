@@ -3,6 +3,7 @@ import { content, itemIds } from '../src/content';
 import { commandRegistry } from '../src/commands/registry';
 import { createShell } from '../src/shell/shell';
 import { toLines } from '../src/shell/lines';
+import { renderManPage } from '../src/commands/man';
 
 describe('registry and content coverage', () => {
   it('makes every content item discoverable and readable', async () => {
@@ -28,6 +29,14 @@ describe('registry and content coverage', () => {
     for (const name of names) {
       expect(name).toBe(name.toLowerCase());
       expect(name).not.toMatch(/\s/);
+    }
+  });
+
+  it('provides a substantial manual page for every visible command', () => {
+    for (const def of commandRegistry.filter((entry) => !entry.hidden)) {
+      expect(def.man?.description.trim()).not.toBe('');
+      expect(def.man?.examples.length).toBeGreaterThanOrEqual(1);
+      expect(renderManPage(def).length).toBeGreaterThanOrEqual(3);
     }
   });
 });

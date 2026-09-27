@@ -2185,7 +2185,7 @@ exports[`legacy command output > snapshots sudo 1`] = `
       "type": "text",
     },
     {
-      "content": "Hint: try "sudo hire ahmed"",
+      "content": "Hint: try "sudo hire-me"",
       "style": {
         "dim": true,
       },
@@ -2210,7 +2210,7 @@ exports[`legacy command output > snapshots sudo 2`] = `
       "type": "text",
     },
     {
-      "content": "Hint: try "sudo hire ahmed"",
+      "content": "Hint: try "sudo hire-me"",
       "style": {
         "dim": true,
       },
@@ -2224,38 +2224,29 @@ exports[`legacy command output > snapshots sudo hire ahmed 1`] = `
 {
   "output": [
     {
-      "content": "Processing hire request...",
-      "style": {
-        "color": "success",
-      },
-      "type": "text",
-    },
-    {
-      "content": "█████████████████████████████████ 100%",
-      "style": {
-        "color": "success",
-      },
-      "type": "text",
-    },
-    {
-      "type": "divider",
-    },
-    {
-      "content": "Request approved! Ahmed would love to hear from you.",
+      "content": "Welcome aboard. Here's how to reach Ahmed:",
       "style": {
         "bold": true,
       },
       "type": "text",
     },
     {
-      "text": "Send an email",
-      "type": "link",
-      "url": "mailto:akhaledmoghazy@gmail.com",
+      "content": "Ahmed Moghazy",
+      "type": "text",
     },
     {
-      "text": "Connect on LinkedIn",
+      "content": "Email:    akhaledmoghazy@gmail.com",
+      "type": "text",
+    },
+    {
+      "text": "LinkedIn",
       "type": "link",
       "url": "https://linkedin.com/in/ahmed-khaled-17s",
+    },
+    {
+      "text": "Send an email",
+      "type": "link",
+      "url": "mailto:akhaledmoghazy@gmail.com?subject=Hiring%20inquiry%20via%20Ahmed%20Moghazy%20%7C%20Data%20Science%20%26%20ML%20Engineer&body=Hi%20Ahmed%2C%0A%0AI%20came%20across%20your%20portfolio%20and%20would%20love%20to%20talk%20about%20an%20opportunity.%0A%0A",
     },
   ],
 }

@@ -28,7 +28,7 @@ function normalize<T>(value: T): T {
     if (record.type === 'section') delete record.item;
     if (record.type === 'table' && Array.isArray(record.rows)) {
       record.rows = record.rows.filter((row) =>
-        !Array.isArray(row) || !/^(ls|cd|pwd|cat|tree)(\s|$)/.test(String(row[0])));
+        !Array.isArray(row) || !/^(ls|cd|pwd|cat|tree|man|resume)(\s|$)/.test(String(row[0])));
     }
     Object.values(record).forEach(visit);
   }

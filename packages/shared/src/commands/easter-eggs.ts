@@ -1,27 +1,61 @@
-import type { CommandResult } from '../types';
-import { cvData, profile } from '../content';
+import type { CommandContext, CommandOutput, CommandResult, ProgressOutput } from '../types';
+import { cvData, profile, site } from '../content';
 
-export function sudoCommand(args: string[]): CommandResult {
-  const fullCmd = args.join(' ').toLowerCase();
-
-  if (fullCmd.includes('hire')) {
-    return {
-      output: [
-        { type: 'text', content: 'Processing hire request...', style: { color: 'success' } },
-        { type: 'text', content: '█████████████████████████████████ 100%', style: { color: 'success' } },
-        { type: 'divider' },
-        { type: 'text', content: `Request approved! ${profile.firstName} would love to hear from you.`, style: { bold: true } },
-        { type: 'link', text: 'Send an email', url: `mailto:${cvData.contact.email}` },
-        { type: 'link', text: 'Connect on LinkedIn', url: cvData.contact.linkedin },
-      ],
-    };
+function host(origin: string): string {
+  try {
+    return origin ? new URL(origin).host : site.title;
+  } catch {
+    return site.title;
   }
+}
 
+export function hireMe(ctx: CommandContext): CommandResult {
+  const email = cvData.contact.email;
+  const mailto = `mailto:${email}?subject=${encodeURIComponent(`Hiring inquiry via ${host(ctx.origin)}`)}&body=${encodeURIComponent(`Hi ${profile.firstName},\n\nI came across your portfolio and would love to talk about an opportunity.\n\n`)}`;
+  const prompt = '[sudo] password for visitor: ';
+  const frames: Array<{ delayMs: number; output: CommandOutput[] }> = [
+    { delayMs: 150, output: [{ type: 'text', content: prompt, style: { bold: true } }] },
+    { delayMs: 300, output: [{ type: 'text', content: `${prompt}****`, style: { bold: true } }] },
+    { delayMs: 300, output: [{ type: 'text', content: `${prompt}********`, style: { bold: true } }] },
+  ];
+  const progress: ProgressOutput[] = [];
+  for (const label of ['verifying credentials', 'checking coffee supply', 'granting access']) {
+    for (const value of [0, 0.5, 1]) {
+      const next = value === 0 ? [...progress, { type: 'progress' as const, label, value }] : progress.map((item) => item.label === label ? { ...item, value } : item);
+      progress.splice(0, progress.length, ...next);
+      frames.push({
+        delayMs: 200,
+        output: [{ type: 'text', content: `${prompt}********`, style: { bold: true } }, ...progress.map((item) => ({ ...item }))],
+      });
+    }
+  }
+  frames.push({
+    delayMs: 450,
+    output: [
+      { type: 'text', content: `${prompt}********`, style: { bold: true } },
+      ...progress.map((item) => ({ ...item })),
+      { type: 'text', content: 'ACCESS GRANTED', style: { bold: true, color: 'success' } },
+    ],
+  });
+  return {
+    sequence: frames,
+    output: [
+      { type: 'text', content: `Welcome aboard. Here's how to reach ${profile.firstName}:`, style: { bold: true } },
+      { type: 'text', content: cvData.name },
+      { type: 'text', content: `Email:    ${email}` },
+      { type: 'link', text: 'LinkedIn', url: cvData.contact.linkedin },
+      { type: 'link', text: 'Send an email', url: mailto },
+    ],
+  };
+}
+
+export function sudoCommand(args: string[], ctx: CommandContext): CommandResult {
+  if (args[0]?.toLowerCase().startsWith('hire')) return hireMe(ctx);
   return {
     output: [
       { type: 'text', content: `[sudo] password for visitor: `, style: { bold: true } },
       { type: 'text', content: 'Permission denied. Nice try though.' },
-      { type: 'text', content: 'Hint: try "sudo hire ahmed"', style: { dim: true } },
+      { type: 'text', content: 'Hint: try "sudo hire-me"', style: { dim: true } },
     ],
   };
 }

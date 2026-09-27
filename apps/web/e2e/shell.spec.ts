@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { content, cvData, itemIds, themes } from '@ahmed-moghazy/shared';
+import { content, cvData, executeCommand, itemIds, profile, themes } from '@ahmed-moghazy/shared';
 
 test.describe('US1', () => {
   test.beforeEach(async ({ page }) => {
@@ -214,5 +214,104 @@ test.describe('US2', () => {
     await expect(page.getByText('visitor@portfolio:~$', { exact: true }).last()).toBeVisible();
     await page.reload();
     await expect(page.getByText('visitor@portfolio:~$', { exact: true }).last()).toBeVisible();
+  });
+});
+
+test.describe('US3', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+  });
+
+  test('shows manual pages, aliases, and missing-page hints', async ({ page }) => {
+    const input = page.getByLabel('Terminal command input');
+    for (const command of ['man projects', 'man ls', 'man grep', 'man man', 'man exp']) {
+      await input.fill(command);
+      await input.press('Enter');
+      await expect(page.getByText('SYNOPSIS', { exact: true }).last()).toBeVisible();
+    }
+    for (const command of ['man sudo', 'man nope']) {
+      await input.fill(command);
+      await input.press('Enter');
+      await expect(page.getByText(`No manual entry for ${command.slice(4)}`, { exact: true })).toBeVisible();
+    }
+    await input.fill('man');
+    await input.press('Enter');
+    await expect(page.getByText('What manual page do you want?', { exact: true })).toBeVisible();
+  });
+
+  test('downloads the resume', async ({ page }) => {
+    test.skip(!content.cv.available, 'The CV is not published in this repo');
+    const input = page.getByLabel('Terminal command input');
+    const downloadPromise = page.waitForEvent('download');
+    await input.fill('resume');
+    await input.press('Enter');
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toMatch(/-CV\.pdf$/);
+    await expect(page.getByText('Downloading resume…')).toBeVisible();
+  });
+
+  test('plays the hire sequence and shows an email link', async ({ page }) => {
+    const input = page.getByLabel('Terminal command input');
+    await input.fill('sudo hire-me');
+    await input.press('Enter');
+    const progress = page.getByRole('progressbar').first();
+    await expect(progress).toHaveText(/^verifying credentials [█░]{20} \d+%$/);
+    await expect(progress).toHaveAttribute('aria-valuemin', '0');
+    await expect(progress).toHaveAttribute('aria-valuemax', '100');
+    await expect(page.getByText('ACCESS GRANTED', { exact: true })).toBeVisible({ timeout: 5000 });
+    const mailto = page.locator('a[href^="mailto:"]');
+    await expect(mailto).toBeVisible({ timeout: 5000 });
+    const href = await mailto.getAttribute('href');
+    const emailUrl = new URL(href!);
+    expect(emailUrl.searchParams.get('subject')).toBe(`Hiring inquiry via ${new URL(page.url()).host}`);
+    expect(emailUrl.searchParams.get('body')?.startsWith(`Hi ${profile.firstName},`)).toBe(true);
+  });
+
+  test('Ctrl+C skips the hire sequence and keeps the prompt usable', async ({ page }) => {
+    const input = page.getByLabel('Terminal command input');
+    await input.fill('sudo hire-me');
+    await input.press('Enter');
+    await input.press('Control+c');
+    await expect(page.locator('a[href^="mailto:"]')).toBeVisible({ timeout: 200 });
+    await expect(page.getByText(`Email:    ${cvData.contact.email}`, { exact: true }).last()).toBeVisible();
+    await expect(input).toBeFocused();
+    await expect(input).toBeEnabled();
+  });
+
+  test('finishes the hire sequence before the next command output', async ({ page }) => {
+    const input = page.getByLabel('Terminal command input');
+    await input.fill('sudo hire-me');
+    await input.press('Enter');
+    await input.fill('about');
+    await input.press('Enter');
+    const mailto = page.locator('a[href^="mailto:"]');
+    const about = page.getByText(`About ${cvData.name}`, { exact: true });
+    await expect(mailto).toBeVisible();
+    await expect(about).toBeVisible();
+    expect(await mailto.evaluate((link, heading) => {
+      const aboutHeading = [...document.querySelectorAll('div')].find((node) => node.textContent === heading);
+      return aboutHeading ? Boolean(link.compareDocumentPosition(aboutHeading) & Node.DOCUMENT_POSITION_FOLLOWING) : false;
+    }, `About ${cvData.name}`)).toBe(true);
+  });
+
+  test('shows only final output with reduced motion', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const input = page.getByLabel('Terminal command input');
+    await input.fill('sudo hire-me');
+    await input.press('Enter');
+    await expect(page.locator('a[href^="mailto:"]')).toBeVisible();
+    await expect(page.getByRole('progressbar')).toHaveCount(0);
+  });
+
+  test('keeps whoami output equal to the shared command result', async ({ page }) => {
+    const result = await executeCommand('whoami');
+    const input = page.getByLabel('Terminal command input');
+    await input.fill('whoami');
+    await input.press('Enter');
+    const expected = result.output.flatMap((block) => block.type === 'text' ? [block.content] : []);
+    await expect(page.getByText(expected.at(-1)!, { exact: true })).toBeVisible();
+    const rendered = await page.getByText('whoami', { exact: true })
+      .locator('..').locator('..').locator(':scope > div:nth-child(2) > div').allTextContents();
+    expect(rendered).toEqual(expected);
   });
 });

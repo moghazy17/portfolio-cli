@@ -15,6 +15,7 @@ interface Props {
   clearScreen: () => void;
   prompt: string;
   running: boolean;
+  sequencePlaying: boolean;
 }
 
 export default function CommandLine({
@@ -29,6 +30,7 @@ export default function CommandLine({
   clearScreen,
   prompt,
   running,
+  sequencePlaying,
 }: Props) {
   const [input, setInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -53,7 +55,7 @@ export default function CommandLine({
     if (e.ctrlKey && !e.metaKey && e.key.toLowerCase() === 'c' &&
       (window.getSelection()?.toString() ?? '') === '') {
       e.preventDefault();
-      if (running) cancel();
+      if (sequencePlaying || running) cancel();
       else {
         onAbandon(input);
         setInput('');

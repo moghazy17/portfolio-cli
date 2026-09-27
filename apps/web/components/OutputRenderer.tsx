@@ -167,7 +167,19 @@ export default function OutputRenderer({ output, theme }: Props) {
         return <div key={index} style={{ color: theme.error }}>{block.content}</div>;
 
       case 'progress':
-        return <div key={index}>{`${block.label} ${Math.round(block.value * 100)}%`}</div>;
+        return (
+          <div
+            key={index}
+            role="progressbar"
+            aria-valuenow={Math.round(block.value * 100)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={block.label}
+            style={{ whiteSpace: 'pre', fontFamily: 'var(--font-mono)' }}
+          >
+            {`${block.label} ${'█'.repeat(Math.round(block.value * 20))}${'░'.repeat(20 - Math.round(block.value * 20))} ${Math.round(block.value * 100)}%`}
+          </div>
+        );
 
       case 'lines':
         return (

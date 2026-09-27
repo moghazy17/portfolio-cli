@@ -361,7 +361,7 @@ an unchanged `whoami`. Easter eggs never block input.
   - `sudo hire-me | wc -l` has no `sequence`.
   - `whoami` is unchanged against the T001 snapshot.
 - [X] T059 [P] [US3] Add to `packages/shared/test/registry-coverage.test.ts` (the SC-005 part): every non-hidden registry entry has a non-empty `man.description` and at least one example, and `renderManPage` output for each is non-empty.
-- [ ] T060 [P] [US3] Add a `describe('US3')` block to `apps/web/e2e/shell.spec.ts`. Cover:
+- [X] T060 [P] [US3] Add a `describe('US3')` block to `apps/web/e2e/shell.spec.ts`. Cover:
   - `man projects` shows `SYNOPSIS`.
   - `resume` triggers `page.waitForEvent('download')` with a suggested filename ending in `-CV.pdf`.
   - `sudo hire-me` shows `ACCESS GRANTED`, then a `mailto:` link, within 5 s.
@@ -384,18 +384,18 @@ an unchanged `whoami`. Easter eggs never block input.
   - The permission-denied branch hint changes to `Hint: try "sudo hire-me"`.
 
   Update the `sudo` snapshot deliberately. T058 should now pass.
-- [ ] T065 [P] [US3] Render `progress` in `apps/web/components/OutputRenderer.tsx` as a label plus a 20-cell `â–ˆ`/`â–‘` bar plus a percentage, wrapped in `role="progressbar"` with `aria-valuenow`, `aria-valuemin=0`, `aria-valuemax=100` and `aria-label={label}`.
-- [ ] T066 [US3] Create `apps/web/components/SequencePlayer.tsx`:
+- [X] T065 [P] [US3] Render `progress` in `apps/web/components/OutputRenderer.tsx` as a label plus a 20-cell `â–ˆ`/`â–‘` bar plus a percentage, wrapped in `role="progressbar"` with `aria-valuenow`, `aria-valuemin=0`, `aria-valuemax=100` and `aria-label={label}`.
+- [X] T066 [US3] Create `apps/web/components/SequencePlayer.tsx`:
   - Props: `steps`, `final`, `onDone`, and a `skipSignal` counter.
   - It plays the frames with `setTimeout`, showing only the current frame, then renders `final` through `OutputRenderer` and calls `onDone`.
   - If `window.matchMedia('(prefers-reduced-motion: reduce)').matches`, it renders `final` immediately.
   - Timers are cleared on unmount and on skip.
-- [ ] T067 [US3] Wire sequences and downloads into `apps/web/hooks/useTerminal.ts` and `apps/web/components/Terminal.tsx`:
+- [X] T067 [US3] Wire sequences and downloads into `apps/web/hooks/useTerminal.ts` and `apps/web/components/Terminal.tsx`:
   - A result with `sequence` becomes a history entry rendered by `SequencePlayer`.
   - Ctrl+C (`cancel()`) or a new `handleCommand` call while a sequence plays increments the skip signal first, so the final output is always shown before the next command's output.
   - The input is never disabled.
   - The `download` effect creates a temporary `<a href download=filename>`, clicks it and removes it. If that throws, it falls back to `window.open(url, '_blank', 'noopener,noreferrer')`.
-- [ ] T068 [US3] Run `npm test`, `npm run typecheck` and `npm run test:e2e -- -g "US3"`, and go through every quickstart US3 row by hand, including the reduced-motion row in DevTools.
+- [X] T068 [US3] Run `npm test`, `npm run typecheck` and `npm run test:e2e -- -g "US3"`, and go through every quickstart US3 row by hand, including the reduced-motion row in DevTools.
 
 **Checkpoint**: All three stories work on their own and together.
 

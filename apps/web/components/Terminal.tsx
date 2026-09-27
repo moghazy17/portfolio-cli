@@ -3,6 +3,7 @@
 import { getMenuItems } from '@ahmed-moghazy/shared';
 import CommandLine from './CommandLine';
 import OutputRenderer from './OutputRenderer';
+import SequencePlayer from './SequencePlayer';
 import WelcomeScreen from './WelcomeScreen';
 
 import ChatRenderer from './ChatRenderer';
@@ -13,7 +14,8 @@ const menuItems = getMenuItems();
 export default function Terminal() {
   const {
     history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat,
-    prompt, running, complete, cancel, clearScreen, onListCandidates, onAbandon,
+    prompt, running, skip, sequencePlaying, finishSequence,
+    complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp, historyDown, resetHistoryCursor,
   } = useTerminal();
 
@@ -109,7 +111,17 @@ export default function Terminal() {
               </span>
               <span style={{ color: 'var(--fg)' }}>{entry.input}</span>
             </div>
-            <OutputRenderer output={entry.output} theme={theme} />
+            {entry.sequence && !entry.sequenceDone && entry.sequenceId !== undefined ? (
+              <SequencePlayer
+                steps={entry.sequence}
+                final={entry.output}
+                theme={theme}
+                skip={skip}
+                onDone={() => finishSequence(entry.sequenceId!)}
+              />
+            ) : (
+              <OutputRenderer output={entry.output} theme={theme} />
+            )}
           </div>
         ))}
 
@@ -128,6 +140,7 @@ export default function Terminal() {
             clearScreen={clearScreen}
             prompt={prompt}
             running={running}
+            sequencePlaying={sequencePlaying}
           />
         )}
       </div>

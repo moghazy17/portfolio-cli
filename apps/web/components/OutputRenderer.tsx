@@ -170,7 +170,26 @@ export default function OutputRenderer({ output, theme }: Props) {
         return <div key={index}>{`${block.label} ${Math.round(block.value * 100)}%`}</div>;
 
       case 'lines':
-        return <div key={index}>{block.lines.map((line, i) => <div key={i}>{line.text}</div>)}</div>;
+        return (
+          <div key={index}>
+            {block.lines.map((line, i) => (
+              <div
+                key={i}
+                style={{
+                  color: resolveColor(line.style?.color),
+                  fontWeight: line.style?.bold ? 'bold' : undefined,
+                  opacity: line.style?.dim ? 0.6 : undefined,
+                  fontStyle: line.style?.italic ? 'italic' : undefined,
+                  whiteSpace: 'pre',
+                  marginBottom: '4px',
+                }}
+              >
+                {block.showItems && line.item && <span style={{ color: theme.dimmed }}>{line.item}: </span>}
+                {line.text}
+              </div>
+            ))}
+          </div>
+        );
 
       default:
         return null;

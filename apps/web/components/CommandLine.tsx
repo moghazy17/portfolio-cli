@@ -1,75 +1,99 @@
 'use client';
 
 import { useState, useRef, useEffect, KeyboardEvent } from 'react';
+import type { Completion } from '@ahmed-moghazy/shared';
 
 interface Props {
   onSubmit: (input: string) => void;
-  commandHistory: string[];
-  getCompletions: (partial: string) => string[];
+  complete: (input: string, caret: number) => Completion;
+  historyUp: (current: string) => string;
+  historyDown: () => string;
+  resetHistoryCursor: () => void;
+  onListCandidates: (input: string, candidates: string[]) => void;
+  onAbandon: (input: string) => void;
+  cancel: () => void;
+  clearScreen: () => void;
+  prompt: string;
+  running: boolean;
 }
 
 export default function CommandLine({
   onSubmit,
-  commandHistory,
-  getCompletions,
+  complete,
+  historyUp,
+  historyDown,
+  resetHistoryCursor,
+  onListCandidates,
+  onAbandon,
+  cancel,
+  clearScreen,
+  prompt,
+  running,
 }: Props) {
   const [input, setInput] = useState('');
-  const [historyIndex, setHistoryIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
+  const previousTab = useRef(false);
+  const pendingCaret = useRef<number | null>(null);
 
-  // Focus the input on mount
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
+  useEffect(() => {
+    if (pendingCaret.current !== null) {
+      inputRef.current?.setSelectionRange(pendingCaret.current, pendingCaret.current);
+      pendingCaret.current = null;
+    }
+  }, [input]);
+
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    const secondTab = previousTab.current && e.key === 'Tab';
+    previousTab.current = e.key === 'Tab';
+
+    if (e.ctrlKey && !e.metaKey && e.key.toLowerCase() === 'c' &&
+      (window.getSelection()?.toString() ?? '') === '') {
+      e.preventDefault();
+      if (running) cancel();
+      else {
+        onAbandon(input);
+        setInput('');
+      }
+      return;
+    }
+
+    if (e.ctrlKey && !e.metaKey && e.key.toLowerCase() === 'l') {
+      e.preventDefault();
+      clearScreen();
+      return;
+    }
+
     switch (e.key) {
       case 'Enter':
         if (input.trim()) {
           onSubmit(input);
           setInput('');
-          setHistoryIndex(-1);
+          resetHistoryCursor();
         }
         break;
 
       case 'ArrowUp':
         e.preventDefault();
-        if (commandHistory.length > 0) {
-          const newIndex =
-            historyIndex < commandHistory.length - 1
-              ? historyIndex + 1
-              : historyIndex;
-          setHistoryIndex(newIndex);
-          setInput(commandHistory[commandHistory.length - 1 - newIndex]);
-        }
+        setInput(historyUp(input));
         break;
 
       case 'ArrowDown':
         e.preventDefault();
-        if (historyIndex > 0) {
-          const newIndex = historyIndex - 1;
-          setHistoryIndex(newIndex);
-          setInput(commandHistory[commandHistory.length - 1 - newIndex]);
-        } else {
-          setHistoryIndex(-1);
-          setInput('');
-        }
+        setInput(historyDown());
         break;
 
       case 'Tab':
         e.preventDefault();
-        if (input.trim()) {
-          const completions = getCompletions(input.trim());
-          if (completions.length === 1) {
-            setInput(completions[0]);
-          }
-        }
-        break;
-
-      case 'l':
-        if (e.ctrlKey) {
-          e.preventDefault();
-          onSubmit('clear');
+        const completion = complete(input, e.currentTarget.selectionStart ?? input.length);
+        if (secondTab && completion.candidates.length > 1) {
+          onListCandidates(input, completion.candidates);
+        } else if (completion.replacement !== undefined) {
+          setInput(input.slice(0, completion.start) + completion.replacement + input.slice(completion.end));
+          pendingCaret.current = completion.start + completion.replacement.length;
         }
         break;
     }
@@ -78,13 +102,13 @@ export default function CommandLine({
   return (
     <div style={{ display: 'flex', alignItems: 'center' }}>
       <span style={{ color: 'var(--accent)', marginRight: '8px', userSelect: 'none' }}>
-        $
+        {prompt}
       </span>
       <input
         ref={inputRef}
         type="text"
         value={input}
-        onChange={(e) => setInput(e.target.value)}
+        onChange={(e) => { previousTab.current = false; resetHistoryCursor(); setInput(e.target.value); }}
         onKeyDown={handleKeyDown}
         enterKeyHint="go"
         spellCheck={false}

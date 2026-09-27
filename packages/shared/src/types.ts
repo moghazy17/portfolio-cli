@@ -279,6 +279,7 @@ export interface ChatMessage {
 export interface HistoryEntry {
   input: string;
   output: CommandOutput[];
+  prompt?: string;
 }
 
 // ============================================================

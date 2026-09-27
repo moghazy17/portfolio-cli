@@ -165,7 +165,7 @@ and `npm run test:e2e -- shell.spec.ts -g "US1"`.
 - [X] T020 [P] [US1] Write `packages/shared/test/ansi-render.test.ts`. Cover:
   - With `color: false`, the output equals the `toLines` join formula in `contracts/engine-api.md` for `about`, `projects` and `timeline`, stored as golden inline snapshots.
   - With `color: true`, spans get 24-bit SGR codes from the default theme, every span ends with `\x1b[0m`, and links are OSC 8 with the visible `text: url`.
-- [ ] T021 [P] [US1] Write `apps/web/e2e/shell.spec.ts` in a `describe('US1')` block. Cover:
+- [X] T021 [P] [US1] Write `apps/web/e2e/shell.spec.ts` in a `describe('US1')` block. Cover:
   - `pro` + Tab â†’ the input value is `projects `.
   - `t` + Tab + Tab â†’ the candidates are listed and the input is kept.
   - Run 3 commands, then Up Ã—3 and Down Ã—1 â†’ the second most recent; type `abc`, Up, Down â†’ `abc`.
@@ -225,31 +225,31 @@ and `npm run test:e2e -- shell.spec.ts -g "US1"`.
   Update the `help` snapshot deliberately.
 - [X] T034 [P] [US1] Implement `packages/shared/src/render/ansi.ts` with `renderAnsi(output, { color = true, width = 80, theme = themes[DEFAULT_THEME] })`, built on `toLines`: SGR 38;2 truecolor, bold, dim and italic, a reset after each span, OSC 8 links, and `color: false` â†’ plain text. Export it from the render barrel. T020 should now pass.
 - [X] T035 [US1] Update `packages/shared/src/index.ts` and the barrels to export everything in the `contracts/engine-api.md` "Exports" block that exists after US1: `createShell`, `defaultUnknownCommandHandler`, `toLines`, `renderAnsi`, `suggestCommand`, `history`, `itemIds`, and the existing wrappers. Run `npm run typecheck`.
-- [ ] T036 [P] [US1] Create `apps/web/hooks/useHistory.ts` over the shared `history` helpers. It loads and saves `localStorage['portfolio.history.v1']` (a JSON string array) inside try/catch with an in-memory fallback, and exposes `push`, `up(current)` and `down()`.
-- [ ] T037 [US1] Refactor `apps/web/hooks/useTerminal.ts`:
+- [X] T036 [P] [US1] Create `apps/web/hooks/useHistory.ts` over the shared `history` helpers. It loads and saves `localStorage['portfolio.history.v1']` (a JSON string array) inside try/catch with an in-memory fallback, and exposes `push`, `up(current)` and `down()`.
+- [X] T037 [US1] Refactor `apps/web/hooks/useTerminal.ts`:
   - Hold one `Shell` in a `useRef`, created with `createShell({ surface: 'web', origin: window.location.origin })` on mount.
   - Keep one `AbortController` per `run`, and expose `cancel()` (abort it and mark the run cancelled).
   - Apply the effects `clear`, `theme`, `welcome`, `openUrl` and `mode` from `ShellResult`. Ignore `cancelled` results.
   - Record the echoed input with the prompt string of the time (`visitor@portfolio:<cwd>$`) in each `HistoryEntry`. Add optional `prompt?: string` to `HistoryEntry` in `packages/shared/src/types.ts`.
   - Use `useHistory` instead of `commandHistoryList`, and only for command-mode input.
   - Expose `clearScreen()`, which empties the visible history without submitting `clear`.
-- [ ] T038 [US1] Rewrite `apps/web/components/CommandLine.tsx` per research R16:
+- [X] T038 [US1] Rewrite `apps/web/components/CommandLine.tsx` per research R16:
   - **Tab** â†’ `shell.complete(input, caret)`. Apply the `replacement`. On a second consecutive Tab with more than one candidate, call an `onListCandidates(candidates)` prop that appends a `lines` block to the visible history, and keep the input.
   - **ArrowUp / ArrowDown** â†’ `useHistory` with draft restore.
   - **Ctrl+C** (`e.ctrlKey && e.key === 'c'`, only when `window.getSelection()?.toString()` is empty): if a command is running, call `cancel()`. Otherwise append an echo entry `input^C` and clear the input.
   - **Ctrl+L** â†’ `clearScreen()`, keeping the input.
   - The prompt label shows `visitor@portfolio:<cwd>$` from `shell.prompt()`.
   - Keep the existing input attributes (`enterKeyHint`, `autoCapitalize="off"`, `aria-label`).
-- [ ] T039 [US1] Update `apps/web/components/Terminal.tsx`:
+- [X] T039 [US1] Update `apps/web/components/Terminal.tsx`:
   - Wire the new `CommandLine` props (`complete`, `cancel`, `clearScreen`, `onListCandidates`, `prompt`).
   - The history echo uses `entry.prompt ?? '$'`.
   - The window chrome title shows the current prompt instead of the static `ahmed@portfolio ~ $`.
   - The menu bar still calls `handleCommand(item.value)`.
-- [ ] T040 [P] [US1] Finish `error` and `lines` rendering in `apps/web/components/OutputRenderer.tsx`:
+- [X] T040 [P] [US1] Finish `error` and `lines` rendering in `apps/web/components/OutputRenderer.tsx`:
   - `error` uses the `theme.error` color.
   - `lines` renders one `<div>` per line, with its style (reuse the `text` style logic) and a dimmed `item: ` prefix `<span>` when `line.item` is set and `showItems !== false`.
-- [ ] T041 [P] [US1] Add Ctrl+C handling to `apps/web/components/ChatRenderer.tsx`. With no text selected: if a response is streaming, call `stop()` from the AI SDK hook; otherwise call `onExit()`. Keep typed `exit` working.
-- [ ] T042 [US1] Run `npm test`, `npm run typecheck` and `npm run test:e2e -- -g "US1"`. Go through every quickstart US1 row by hand in `npm run dev:web`. Confirm the T001 snapshot diff contains only the documented exceptions.
+- [X] T041 [P] [US1] Add Ctrl+C handling to `apps/web/components/ChatRenderer.tsx`. With no text selected: if a response is streaming, call `stop()` from the AI SDK hook; otherwise call `onExit()`. Keep typed `exit` working.
+- [X] T042 [US1] Run `npm test`, `npm run typecheck` and `npm run test:e2e -- -g "US1"`. Go through every quickstart US1 row by hand in `npm run dev:web`. Confirm the T001 snapshot diff contains only the documented exceptions.
 
 **Checkpoint**: US1 is shippable on its own (MVP), with the web terminal behaving like a real shell over the existing commands.
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { getCompletions, getMenuItems } from '@ahmed-moghazy/shared';
+import { getMenuItems } from '@ahmed-moghazy/shared';
 import CommandLine from './CommandLine';
 import OutputRenderer from './OutputRenderer';
 import WelcomeScreen from './WelcomeScreen';
@@ -11,8 +11,11 @@ import { useTerminal } from '../hooks/useTerminal';
 const menuItems = getMenuItems();
 
 export default function Terminal() {
-  const { history, showWelcome, theme, commandHistoryList, scrollRef, handleCommand, mode, exitChat } =
-    useTerminal();
+  const {
+    history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat,
+    prompt, running, complete, cancel, clearScreen, onListCandidates, onAbandon,
+    historyUp, historyDown, resetHistoryCursor,
+  } = useTerminal();
 
   return (
     <div
@@ -73,7 +76,7 @@ export default function Terminal() {
             fontSize: '12px',
           }}
         >
-          ahmed@portfolio ~ $
+          {prompt}
         </span>
       </div>
 
@@ -102,7 +105,7 @@ export default function Terminal() {
           <div key={i} style={{ marginBottom: '16px' }}>
             <div>
               <span style={{ color: 'var(--accent)', userSelect: 'none' }}>
-                ${' '}
+                {entry.prompt ?? '$'}{' '}
               </span>
               <span style={{ color: 'var(--fg)' }}>{entry.input}</span>
             </div>
@@ -115,8 +118,16 @@ export default function Terminal() {
         ) : (
           <CommandLine
             onSubmit={handleCommand}
-            commandHistory={commandHistoryList}
-            getCompletions={getCompletions}
+            complete={complete}
+            historyUp={historyUp}
+            historyDown={historyDown}
+            resetHistoryCursor={resetHistoryCursor}
+            onListCandidates={onListCandidates}
+            onAbandon={onAbandon}
+            cancel={cancel}
+            clearScreen={clearScreen}
+            prompt={prompt}
+            running={running}
           />
         )}
       </div>

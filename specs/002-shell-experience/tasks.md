@@ -409,13 +409,13 @@ an unchanged `whoami`. Easter eggs never block input.
   - The new web files (`SequencePlayer.tsx`, `useHistory.ts`).
   - Remove the note that the output union has "7 variants".
 - [X] T070 [P] Update `README.md` with a short "Try it" list of shell features: Tab, history, pipes, `ls`/`cd`/`cat`/`tree`, `man`, `resume`, and a hint that there are easter eggs.
-- [ ] T071 [P] Check the bundle impact. Run `npm run build:web` and compare the First Load JS for `/` against `main` (Next build output). The shared engine should add â‰¤ 15 kB gzipped. Record the numbers in the PR description (Principle VII).
+- [X] T071 [P] Check the bundle impact. Run `npm run build:web` and compare the First Load JS for `/` against `main` (Next build output). The shared engine should add â‰¤ 15 kB gzipped. Record the numbers in the PR description (Principle VII).
 - [X] T072 Accessibility pass on `apps/web/components/OutputRenderer.tsx`, `apps/web/components/CommandLine.tsx` and `apps/web/components/SequencePlayer.tsx`:
   - New output is inside the existing output region.
   - The candidate list and `^C` echoes are plain text.
   - The prompt label is associated with the input (`aria-label` includes the cwd).
   - Keyboard-only run-through of the quickstart succeeds.
-- [ ] T073 Run the full gate: `npm run content:validate && npm run typecheck && npm test && npm run build:web && npm run test:e2e`. In the PR description, state the affected surfaces (web only; SSH and curl gain engine support without a host) and paste the final `legacy-output` snapshot diff summary. Only the documented exceptions may differ.
+- [X] T073 Run the full gate: `npm run content:validate && npm run typecheck && npm test && npm run build:web && npm run test:e2e`. In the PR description, state the affected surfaces (web only; SSH and curl gain engine support without a host) and paste the final `legacy-output` snapshot diff summary. Only the documented exceptions may differ.
 
 ---
 

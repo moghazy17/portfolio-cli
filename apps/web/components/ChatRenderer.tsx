@@ -28,7 +28,7 @@ function getErrorText(error: Error): string {
 }
 
 export default function ChatRenderer({ onExit }: Props) {
-  const { messages, sendMessage, status, error } = useChat();
+  const { messages, sendMessage, stop, status, error } = useChat();
   const [input, setInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -57,6 +57,13 @@ export default function ChatRenderer({ onExit }: Props) {
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.ctrlKey && !e.metaKey && e.key.toLowerCase() === 'c' &&
+      (window.getSelection()?.toString() ?? '') === '') {
+      e.preventDefault();
+      if (isLoading) stop();
+      else onExit();
+      return;
+    }
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
@@ -118,7 +125,6 @@ export default function ChatRenderer({ onExit }: Props) {
           onKeyDown={onKeyDown}
           enterKeyHint="send"
           placeholder={`Ask about ${profile.firstName}... (type 'exit' to leave)`}
-          disabled={isLoading}
           spellCheck={false}
           autoComplete="off"
           autoCapitalize="off"

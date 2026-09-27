@@ -25,6 +25,13 @@ A browser-based terminal emulator with AI chat, built on a shared command engine
 
 **Coming soon:** `ssh term.moghazy.me` — the same portfolio in your own terminal, with nothing to install.
 
+## Try it
+
+- Press `Tab` for completion and `↑`/`↓` to browse history; use `Ctrl+C` to cancel and `Ctrl+L` to clear.
+- Pipe output into filters, for example `projects | grep rag`.
+- Explore with `ls`, `cd`, `cat`, and `tree`; use `man <command>` for details and `resume` for the PDF.
+- There are a few easter eggs waiting to be found.
+
 ---
 
 ## Navigation

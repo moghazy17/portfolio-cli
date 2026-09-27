@@ -163,6 +163,46 @@ export default function OutputRenderer({ output, theme }: Props) {
           />
         );
 
+      case 'error':
+        return <div key={index} style={{ color: theme.error }}>{block.content}</div>;
+
+      case 'progress':
+        return (
+          <div
+            key={index}
+            role="progressbar"
+            aria-valuenow={Math.round(block.value * 100)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={block.label}
+            style={{ whiteSpace: 'pre', fontFamily: 'var(--font-mono)' }}
+          >
+            {`${block.label} ${'█'.repeat(Math.round(block.value * 20))}${'░'.repeat(20 - Math.round(block.value * 20))} ${Math.round(block.value * 100)}%`}
+          </div>
+        );
+
+      case 'lines':
+        return (
+          <div key={index}>
+            {block.lines.map((line, i) => (
+              <div
+                key={i}
+                style={{
+                  color: resolveColor(line.style?.color),
+                  fontWeight: line.style?.bold ? 'bold' : undefined,
+                  opacity: line.style?.dim ? 0.6 : undefined,
+                  fontStyle: line.style?.italic ? 'italic' : undefined,
+                  whiteSpace: 'pre',
+                  marginBottom: '4px',
+                }}
+              >
+                {block.showItems && line.item && <span style={{ color: theme.dimmed }}>{line.item}: </span>}
+                {line.text}
+              </div>
+            ))}
+          </div>
+        );
+
       default:
         return null;
     }

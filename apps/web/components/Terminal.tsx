@@ -1,8 +1,9 @@
 'use client';
 
-import { getCompletions, getMenuItems } from '@ahmed-moghazy/shared';
+import { getMenuItems } from '@ahmed-moghazy/shared';
 import CommandLine from './CommandLine';
 import OutputRenderer from './OutputRenderer';
+import SequencePlayer from './SequencePlayer';
 import WelcomeScreen from './WelcomeScreen';
 
 import ChatRenderer from './ChatRenderer';
@@ -11,8 +12,12 @@ import { useTerminal } from '../hooks/useTerminal';
 const menuItems = getMenuItems();
 
 export default function Terminal() {
-  const { history, showWelcome, theme, commandHistoryList, scrollRef, handleCommand, mode, exitChat } =
-    useTerminal();
+  const {
+    history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat,
+    prompt, running, skip, sequencePlaying, finishSequence,
+    complete, cancel, clearScreen, onListCandidates, onAbandon,
+    historyUp, historyDown, resetHistoryCursor,
+  } = useTerminal();
 
   return (
     <div
@@ -73,13 +78,16 @@ export default function Terminal() {
             fontSize: '12px',
           }}
         >
-          ahmed@portfolio ~ $
+          {prompt}
         </span>
       </div>
 
       {/* Scrollable output area */}
       <div
         ref={scrollRef}
+        role="log"
+        aria-label="Terminal output"
+        aria-live="polite"
         style={{
           flex: 1,
           overflow: 'auto',
@@ -102,11 +110,21 @@ export default function Terminal() {
           <div key={i} style={{ marginBottom: '16px' }}>
             <div>
               <span style={{ color: 'var(--accent)', userSelect: 'none' }}>
-                ${' '}
+                {entry.prompt ?? '$'}{' '}
               </span>
               <span style={{ color: 'var(--fg)' }}>{entry.input}</span>
             </div>
-            <OutputRenderer output={entry.output} theme={theme} />
+            {entry.sequence && !entry.sequenceDone && entry.sequenceId !== undefined ? (
+              <SequencePlayer
+                steps={entry.sequence}
+                final={entry.output}
+                theme={theme}
+                skip={skip}
+                onDone={() => finishSequence(entry.sequenceId!)}
+              />
+            ) : (
+              <OutputRenderer output={entry.output} theme={theme} />
+            )}
           </div>
         ))}
 
@@ -115,8 +133,17 @@ export default function Terminal() {
         ) : (
           <CommandLine
             onSubmit={handleCommand}
-            commandHistory={commandHistoryList}
-            getCompletions={getCompletions}
+            complete={complete}
+            historyUp={historyUp}
+            historyDown={historyDown}
+            resetHistoryCursor={resetHistoryCursor}
+            onListCandidates={onListCandidates}
+            onAbandon={onAbandon}
+            cancel={cancel}
+            clearScreen={clearScreen}
+            prompt={prompt}
+            running={running}
+            sequencePlaying={sequencePlaying}
           />
         )}
       </div>

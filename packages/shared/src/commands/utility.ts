@@ -4,11 +4,13 @@ import { themes, DEFAULT_THEME } from '../theme';
 import { ASCII_BANNER, WELCOME_SUBTITLE, WELCOME_HINT } from '../ascii';
 import { parseTimelineDate } from './helpers';
 
+export const openTargets: Record<string, string> = {
+  github: cvData.contact.github,
+  linkedin: cvData.contact.linkedin,
+};
+
 export function openCommand(args: string[]): CommandResult {
-  const targets: Record<string, string> = {
-    github:   cvData.contact.github,
-    linkedin: cvData.contact.linkedin,
-  };
+  const targets = openTargets;
 
   if (args.length === 0) {
     return {
@@ -105,11 +107,13 @@ export function themeCommand(args: string[]): CommandResult {
     output: [
       { type: 'text', content: `Theme switched to "${themeName}".`, style: { color: 'success' } },
     ],
+    theme: themeName,
   };
 }
 
 export function welcomeCommand(): CommandResult {
   return {
+    welcome: true,
     output: [
       { type: 'ascii', content: ASCII_BANNER, style: { color: 'primary' } },
       { type: 'text', content: WELCOME_SUBTITLE, style: { bold: true } },

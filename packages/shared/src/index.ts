@@ -1,7 +1,11 @@
 export * from './types';
-export { cvData, content, contentVersion, generatedAt, profile, site } from './content';
+export { cvData, content, contentVersion, generatedAt, profile, site, itemIds, slugify } from './content';
+export type { ItemId, ItemKind } from './content';
 export * from './commands/index';
 export * from './theme';
 export * from './ascii';
 export * from './prompt';
 export * from './github';
+export * from './shell';
+export * from './vfs';
+export * from './render';

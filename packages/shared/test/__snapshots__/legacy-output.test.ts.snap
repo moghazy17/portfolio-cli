@@ -1,0 +1,2657 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`legacy command output > snapshots ? 1`] = `
+{
+  "output": [
+    {
+      "content": "Available Commands:",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "headers": [
+        "Command",
+        "Description",
+      ],
+      "rows": [
+        [
+          "help",
+          "List all available commands",
+        ],
+        [
+          "about",
+          "Professional summary",
+        ],
+        [
+          "education",
+          "Education details and coursework",
+        ],
+        [
+          "experience [company]",
+          "Work experience (filter by company)",
+        ],
+        [
+          "projects [name]",
+          "Technical projects (filter by name)",
+        ],
+        [
+          "skills [category]",
+          "Technical skills by category",
+        ],
+        [
+          "certifications",
+          "Certifications and achievements",
+        ],
+        [
+          "contact",
+          "Contact information and links",
+        ],
+        [
+          "open [target]",
+          "Open a profile link in your browser",
+        ],
+        [
+          "timeline",
+          "Reverse-chronological career overview",
+        ],
+        [
+          "theme [name]",
+          "Switch color theme",
+        ],
+        [
+          "welcome",
+          "Show the welcome screen",
+        ],
+        [
+          "whoami",
+          "???",
+        ],
+        [
+          "github",
+          "Live GitHub profile stats",
+        ],
+        [
+          "chat",
+          "Chat with AI about Ahmed",
+        ],
+        [
+          "clear",
+          "Clear the terminal",
+        ],
+        [
+          "<cmd> | grep, head, tail, wc, sort",
+          "Pipes: filter any command output",
+        ],
+      ],
+      "type": "table",
+    },
+    {
+      "type": "divider",
+    },
+    {
+      "content": "Tip: Tab completes, ↑/↓ browse history, pipes work: projects | grep rag",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots about 1`] = `
+{
+  "output": [
+    {
+      "children": [
+        {
+          "content": "Computer Science graduate specializing in machine learning, applied AI, and data-driven systems. Experienced in designing and deploying end-to-end ML solutions including AutoML pipelines, predictive modeling, and retrieval-augmented generation (RAG) applications using large language models. Strong background in data analysis, feature engineering, and model evaluation, with hands-on exposure to data engineering workflows, MLOps practices, and translating complex data into actionable business insights.",
+          "type": "text",
+        },
+      ],
+      "title": "About Ahmed Moghazy",
+      "type": "section",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots ai 1`] = `
+{
+  "mode": "chat",
+  "output": [
+    {
+      "content": "Entering AI chat mode — ask me anything about Ahmed!",
+      "style": {
+        "bold": true,
+        "color": "primary",
+      },
+      "type": "text",
+    },
+    {
+      "content": "Type "exit" to return to command mode.",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots ask 1`] = `
+{
+  "mode": "chat",
+  "output": [
+    {
+      "content": "Entering AI chat mode — ask me anything about Ahmed!",
+      "style": {
+        "bold": true,
+        "color": "primary",
+      },
+      "type": "text",
+    },
+    {
+      "content": "Type "exit" to return to command mode.",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots awards 1`] = `
+{
+  "output": [
+    {
+      "content": "Certifications & Achievements",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "children": [
+        {
+          "content": "Oct 2024 — Dec 2024",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+      ],
+      "title": "DeepLearning.AI — Deep Learning Specialization",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Nov 2024 — May 2025",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Won the Second Prize Globally in the Huawei ICT Global Competition (Cloud Track).",
+            "Awarded the Grand Prize in the North Africa Region, representing Egypt in the global finals.",
+            "Led the AI Technologies section, covering Machine Learning & Deep Learning in the Cloud Track.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Huawei — Huawei ICT Global Competition — AI Section Lead - Cloud Track",
+      "type": "section",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots banner 1`] = `
+{
+  "output": [
+    {
+      "content": "
+   █████╗ ██╗  ██╗███╗   ███╗███████╗██████╗
+  ██╔══██╗██║  ██║████╗ ████║██╔════╝██╔══██╗
+  ███████║███████║██╔████╔██║█████╗  ██║  ██║
+  ██╔══██║██╔══██║██║╚██╔╝██║██╔══╝  ██║  ██║
+  ██║  ██║██║  ██║██║ ╚═╝ ██║███████╗██████╔╝
+  ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝╚═════╝
+  ███╗   ███╗ ██████╗  ██████╗ ██╗  ██╗ █████╗ ███████╗██╗   ██╗
+  ████╗ ████║██╔═══██╗██╔════╝ ██║  ██║██╔══██╗╚══███╔╝╚██╗ ██╔╝
+  ██╔████╔██║██║   ██║██║  ███╗███████║███████║  ███╔╝  ╚████╔╝
+  ██║╚██╔╝██║██║   ██║██║   ██║██╔══██║██╔══██║ ███╔╝   ╚██╔╝
+  ██║ ╚═╝ ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██║███████╗  ██║
+  ╚═╝     ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝  ╚═╝
+",
+      "style": {
+        "color": "primary",
+      },
+      "type": "ascii",
+    },
+    {
+      "content": "Data Science & ML Engineer  ·  Cairo, EG",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "type": "divider",
+    },
+    {
+      "content": "Type "help" for available commands, or use arrow keys to navigate the menu below.",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots bio 1`] = `
+{
+  "output": [
+    {
+      "children": [
+        {
+          "content": "Computer Science graduate specializing in machine learning, applied AI, and data-driven systems. Experienced in designing and deploying end-to-end ML solutions including AutoML pipelines, predictive modeling, and retrieval-augmented generation (RAG) applications using large language models. Strong background in data analysis, feature engineering, and model evaluation, with hands-on exposure to data engineering workflows, MLOps practices, and translating complex data into actionable business insights.",
+          "type": "text",
+        },
+      ],
+      "title": "About Ahmed Moghazy",
+      "type": "section",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots certifications 1`] = `
+{
+  "output": [
+    {
+      "content": "Certifications & Achievements",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "children": [
+        {
+          "content": "Oct 2024 — Dec 2024",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+      ],
+      "title": "DeepLearning.AI — Deep Learning Specialization",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Nov 2024 — May 2025",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Won the Second Prize Globally in the Huawei ICT Global Competition (Cloud Track).",
+            "Awarded the Grand Prize in the North Africa Region, representing Egypt in the global finals.",
+            "Led the AI Technologies section, covering Machine Learning & Deep Learning in the Cloud Track.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Huawei — Huawei ICT Global Competition — AI Section Lead - Cloud Track",
+      "type": "section",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots certs 1`] = `
+{
+  "output": [
+    {
+      "content": "Certifications & Achievements",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "children": [
+        {
+          "content": "Oct 2024 — Dec 2024",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+      ],
+      "title": "DeepLearning.AI — Deep Learning Specialization",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Nov 2024 — May 2025",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Won the Second Prize Globally in the Huawei ICT Global Competition (Cloud Track).",
+            "Awarded the Grand Prize in the North Africa Region, representing Egypt in the global finals.",
+            "Led the AI Technologies section, covering Machine Learning & Deep Learning in the Cloud Track.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Huawei — Huawei ICT Global Competition — AI Section Lead - Cloud Track",
+      "type": "section",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots chat 1`] = `
+{
+  "mode": "chat",
+  "output": [
+    {
+      "content": "Entering AI chat mode — ask me anything about Ahmed!",
+      "style": {
+        "bold": true,
+        "color": "primary",
+      },
+      "type": "text",
+    },
+    {
+      "content": "Type "exit" to return to command mode.",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots clear 1`] = `
+{
+  "clear": true,
+  "output": [],
+}
+`;
+
+exports[`legacy command output > snapshots cls 1`] = `
+{
+  "clear": true,
+  "output": [],
+}
+`;
+
+exports[`legacy command output > snapshots contact 1`] = `
+{
+  "output": [
+    {
+      "content": "Contact",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "content": "Email:    akhaledmoghazy@gmail.com",
+      "type": "text",
+    },
+    {
+      "content": "Phone:    (+20) 115 322 7992",
+      "type": "text",
+    },
+    {
+      "text": "LinkedIn",
+      "type": "link",
+      "url": "https://linkedin.com/in/ahmed-khaled-17s",
+    },
+    {
+      "text": "GitHub",
+      "type": "link",
+      "url": "https://github.com/moghazy17",
+    },
+    {
+      "content": "Location: Cairo, EG",
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots edu 1`] = `
+{
+  "output": [
+    {
+      "children": [
+        {
+          "content": "Computer Science — Bachelor of Science",
+          "style": {
+            "bold": true,
+          },
+          "type": "text",
+        },
+        {
+          "content": "Faculty of Computers & AI, Cairo University, Giza, Egypt",
+          "type": "text",
+        },
+        {
+          "content": "Oct 2021 — June 2025  |  GPA: 3.33",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "type": "divider",
+        },
+        {
+          "content": "Relevant Coursework:",
+          "style": {
+            "bold": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Machine Learning",
+            "Introduction to Data Science",
+            "Mathematical Optimization",
+            "Operating Systems",
+            "Database Systems",
+            "Advanced Databases",
+            "Software Engineering",
+            "Algorithm Design & Analysis",
+            "Object-Oriented Programming",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Education",
+      "type": "section",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots education 1`] = `
+{
+  "output": [
+    {
+      "children": [
+        {
+          "content": "Computer Science — Bachelor of Science",
+          "style": {
+            "bold": true,
+          },
+          "type": "text",
+        },
+        {
+          "content": "Faculty of Computers & AI, Cairo University, Giza, Egypt",
+          "type": "text",
+        },
+        {
+          "content": "Oct 2021 — June 2025  |  GPA: 3.33",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "type": "divider",
+        },
+        {
+          "content": "Relevant Coursework:",
+          "style": {
+            "bold": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Machine Learning",
+            "Introduction to Data Science",
+            "Mathematical Optimization",
+            "Operating Systems",
+            "Database Systems",
+            "Advanced Databases",
+            "Software Engineering",
+            "Algorithm Design & Analysis",
+            "Object-Oriented Programming",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Education",
+      "type": "section",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots email 1`] = `
+{
+  "output": [
+    {
+      "content": "Contact",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "content": "Email:    akhaledmoghazy@gmail.com",
+      "type": "text",
+    },
+    {
+      "content": "Phone:    (+20) 115 322 7992",
+      "type": "text",
+    },
+    {
+      "text": "LinkedIn",
+      "type": "link",
+      "url": "https://linkedin.com/in/ahmed-khaled-17s",
+    },
+    {
+      "text": "GitHub",
+      "type": "link",
+      "url": "https://github.com/moghazy17",
+    },
+    {
+      "content": "Location: Cairo, EG",
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots exit 1`] = `
+{
+  "output": [
+    {
+      "content": "There is no escape from this portfolio...",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "content": "But seriously, thanks for visiting! Feel free to reach out:",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+    {
+      "text": "Email",
+      "type": "link",
+      "url": "mailto:akhaledmoghazy@gmail.com",
+    },
+    {
+      "text": "LinkedIn",
+      "type": "link",
+      "url": "https://linkedin.com/in/ahmed-khaled-17s",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots exp 1`] = `
+{
+  "output": [
+    {
+      "content": "Work Experience",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "children": [
+        {
+          "content": "Oct 2025 — Present",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Architected a Multi-Agent Concierge System using LangGraph, orchestrating specialized agents to handle autonomous guest fulfillment and complex policy inquiries with a 95% intent classification accuracy.",
+            "Engineered a Hierarchical RAG Pipeline in PGVector to navigate high-density hotel policy documents; implemented recursive retrieval strategies that improved context retention and reduced "hallucinations" by 30% on long-form queries.",
+            "Integrated LLM Tool-Access with Oracle Opera PMS via REST APIs, enabling autonomous creation and tracking of guest service requests, reducing manual front-desk entry workload by an estimated 40%.",
+            "Containerized the entire multi-agent stack using Docker, streamlining the CI/CD pipeline and reducing deployment downtime across internal testing environments.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Advanced Computer Technology (ACT) — Software Developer (AI & Backend)",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Oct 2024 — Apr 2025",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Completed the Microsoft Machine Learning Engineer track, focusing on designing scalable and production-ready machine learning solutions using Microsoft technologies.",
+            "Built strong foundations in statistics, linear algebra, Python, data preprocessing, visualization, classical ML, deep learning, NLP with attention mechanisms, and computer vision using transfer learning.",
+            "Applied Azure AI Fundamentals and Azure AI Engineer Associate concepts, with hands-on exposure to MLOps tools including MLflow and Hugging Face.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Digital Egypt Pioneers Initiative (DEPI) — Machine Learning Engineer Trainee",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Aug 2024 — Sep 2024",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Automated and optimized ETL workflows for company voucher data using Apache NiFi and dbt models.",
+            "Explored pipeline orchestration and scheduling using Apache Airflow to improve data reliability and automation.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Orange Egypt — Data Engineer Intern",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "July 2024 — July 2024",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Analyzed company growth metrics and customer behavior to generate data-driven strategic insights.",
+            "Designed and delivered interactive Power BI dashboards visualizing KPIs, improving executive decision-making.",
+            "Built and evaluated ML models (Random Forest, XGBoost) for customer lifetime value prediction, achieving an AUC of 0.70.",
+            "Contributed to a customer-facing chatbot by unifying vendors and geographic regions using Named Entity Recognition (NER) for accurate offer retrieval.",
+            "Optimized LLM prompts for intent extraction (offers, vendors, regions) and analyzed OpenAI API usage, reducing inference costs by approximately 30% while maintaining response quality.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "ValU — Data Science Intern",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Aug 2023 — Sep 2023",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Conducted EDA on large datasets and presented insights to stakeholders.",
+            "Automated web scraping pipelines using BeautifulSoup.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Advanced Computer Technology (ACT) — Data Science Intern",
+      "type": "section",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots experience 1`] = `
+{
+  "output": [
+    {
+      "content": "Work Experience",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "children": [
+        {
+          "content": "Oct 2025 — Present",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Architected a Multi-Agent Concierge System using LangGraph, orchestrating specialized agents to handle autonomous guest fulfillment and complex policy inquiries with a 95% intent classification accuracy.",
+            "Engineered a Hierarchical RAG Pipeline in PGVector to navigate high-density hotel policy documents; implemented recursive retrieval strategies that improved context retention and reduced "hallucinations" by 30% on long-form queries.",
+            "Integrated LLM Tool-Access with Oracle Opera PMS via REST APIs, enabling autonomous creation and tracking of guest service requests, reducing manual front-desk entry workload by an estimated 40%.",
+            "Containerized the entire multi-agent stack using Docker, streamlining the CI/CD pipeline and reducing deployment downtime across internal testing environments.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Advanced Computer Technology (ACT) — Software Developer (AI & Backend)",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Oct 2024 — Apr 2025",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Completed the Microsoft Machine Learning Engineer track, focusing on designing scalable and production-ready machine learning solutions using Microsoft technologies.",
+            "Built strong foundations in statistics, linear algebra, Python, data preprocessing, visualization, classical ML, deep learning, NLP with attention mechanisms, and computer vision using transfer learning.",
+            "Applied Azure AI Fundamentals and Azure AI Engineer Associate concepts, with hands-on exposure to MLOps tools including MLflow and Hugging Face.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Digital Egypt Pioneers Initiative (DEPI) — Machine Learning Engineer Trainee",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Aug 2024 — Sep 2024",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Automated and optimized ETL workflows for company voucher data using Apache NiFi and dbt models.",
+            "Explored pipeline orchestration and scheduling using Apache Airflow to improve data reliability and automation.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Orange Egypt — Data Engineer Intern",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "July 2024 — July 2024",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Analyzed company growth metrics and customer behavior to generate data-driven strategic insights.",
+            "Designed and delivered interactive Power BI dashboards visualizing KPIs, improving executive decision-making.",
+            "Built and evaluated ML models (Random Forest, XGBoost) for customer lifetime value prediction, achieving an AUC of 0.70.",
+            "Contributed to a customer-facing chatbot by unifying vendors and geographic regions using Named Entity Recognition (NER) for accurate offer retrieval.",
+            "Optimized LLM prompts for intent extraction (offers, vendors, regions) and analyzed OpenAI API usage, reducing inference costs by approximately 30% while maintaining response quality.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "ValU — Data Science Intern",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Aug 2023 — Sep 2023",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Conducted EDA on large datasets and presented insights to stakeholders.",
+            "Automated web scraping pipelines using BeautifulSoup.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Advanced Computer Technology (ACT) — Data Science Intern",
+      "type": "section",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots experience act 1`] = `
+{
+  "output": [
+    {
+      "content": "Work Experience",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "children": [
+        {
+          "content": "Oct 2025 — Present",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Architected a Multi-Agent Concierge System using LangGraph, orchestrating specialized agents to handle autonomous guest fulfillment and complex policy inquiries with a 95% intent classification accuracy.",
+            "Engineered a Hierarchical RAG Pipeline in PGVector to navigate high-density hotel policy documents; implemented recursive retrieval strategies that improved context retention and reduced "hallucinations" by 30% on long-form queries.",
+            "Integrated LLM Tool-Access with Oracle Opera PMS via REST APIs, enabling autonomous creation and tracking of guest service requests, reducing manual front-desk entry workload by an estimated 40%.",
+            "Containerized the entire multi-agent stack using Docker, streamlining the CI/CD pipeline and reducing deployment downtime across internal testing environments.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Advanced Computer Technology (ACT) — Software Developer (AI & Backend)",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Aug 2023 — Sep 2023",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Conducted EDA on large datasets and presented insights to stakeholders.",
+            "Automated web scraping pipelines using BeautifulSoup.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Advanced Computer Technology (ACT) — Data Science Intern",
+      "type": "section",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots experience zzz 1`] = `
+{
+  "output": [
+    {
+      "content": "No experience found matching "zzz". Try: act, depi, orange, valu, act-intern",
+      "style": {
+        "color": "error",
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots h 1`] = `
+{
+  "output": [
+    {
+      "content": "Available Commands:",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "headers": [
+        "Command",
+        "Description",
+      ],
+      "rows": [
+        [
+          "help",
+          "List all available commands",
+        ],
+        [
+          "about",
+          "Professional summary",
+        ],
+        [
+          "education",
+          "Education details and coursework",
+        ],
+        [
+          "experience [company]",
+          "Work experience (filter by company)",
+        ],
+        [
+          "projects [name]",
+          "Technical projects (filter by name)",
+        ],
+        [
+          "skills [category]",
+          "Technical skills by category",
+        ],
+        [
+          "certifications",
+          "Certifications and achievements",
+        ],
+        [
+          "contact",
+          "Contact information and links",
+        ],
+        [
+          "open [target]",
+          "Open a profile link in your browser",
+        ],
+        [
+          "timeline",
+          "Reverse-chronological career overview",
+        ],
+        [
+          "theme [name]",
+          "Switch color theme",
+        ],
+        [
+          "welcome",
+          "Show the welcome screen",
+        ],
+        [
+          "whoami",
+          "???",
+        ],
+        [
+          "github",
+          "Live GitHub profile stats",
+        ],
+        [
+          "chat",
+          "Chat with AI about Ahmed",
+        ],
+        [
+          "clear",
+          "Clear the terminal",
+        ],
+        [
+          "<cmd> | grep, head, tail, wc, sort",
+          "Pipes: filter any command output",
+        ],
+      ],
+      "type": "table",
+    },
+    {
+      "type": "divider",
+    },
+    {
+      "content": "Tip: Tab completes, ↑/↓ browse history, pipes work: projects | grep rag",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots hello 1`] = `
+[
+  "text",
+  "text",
+]
+`;
+
+exports[`legacy command output > snapshots help 1`] = `
+{
+  "output": [
+    {
+      "content": "Available Commands:",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "headers": [
+        "Command",
+        "Description",
+      ],
+      "rows": [
+        [
+          "help",
+          "List all available commands",
+        ],
+        [
+          "about",
+          "Professional summary",
+        ],
+        [
+          "education",
+          "Education details and coursework",
+        ],
+        [
+          "experience [company]",
+          "Work experience (filter by company)",
+        ],
+        [
+          "projects [name]",
+          "Technical projects (filter by name)",
+        ],
+        [
+          "skills [category]",
+          "Technical skills by category",
+        ],
+        [
+          "certifications",
+          "Certifications and achievements",
+        ],
+        [
+          "contact",
+          "Contact information and links",
+        ],
+        [
+          "open [target]",
+          "Open a profile link in your browser",
+        ],
+        [
+          "timeline",
+          "Reverse-chronological career overview",
+        ],
+        [
+          "theme [name]",
+          "Switch color theme",
+        ],
+        [
+          "welcome",
+          "Show the welcome screen",
+        ],
+        [
+          "whoami",
+          "???",
+        ],
+        [
+          "github",
+          "Live GitHub profile stats",
+        ],
+        [
+          "chat",
+          "Chat with AI about Ahmed",
+        ],
+        [
+          "clear",
+          "Clear the terminal",
+        ],
+        [
+          "<cmd> | grep, head, tail, wc, sort",
+          "Pipes: filter any command output",
+        ],
+      ],
+      "type": "table",
+    },
+    {
+      "type": "divider",
+    },
+    {
+      "content": "Tip: Tab completes, ↑/↓ browse history, pipes work: projects | grep rag",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots hey 1`] = `
+[
+  "text",
+  "text",
+]
+`;
+
+exports[`legacy command output > snapshots hi 1`] = `
+[
+  "text",
+  "text",
+]
+`;
+
+exports[`legacy command output > snapshots home 1`] = `
+{
+  "output": [
+    {
+      "content": "
+   █████╗ ██╗  ██╗███╗   ███╗███████╗██████╗
+  ██╔══██╗██║  ██║████╗ ████║██╔════╝██╔══██╗
+  ███████║███████║██╔████╔██║█████╗  ██║  ██║
+  ██╔══██║██╔══██║██║╚██╔╝██║██╔══╝  ██║  ██║
+  ██║  ██║██║  ██║██║ ╚═╝ ██║███████╗██████╔╝
+  ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝╚═════╝
+  ███╗   ███╗ ██████╗  ██████╗ ██╗  ██╗ █████╗ ███████╗██╗   ██╗
+  ████╗ ████║██╔═══██╗██╔════╝ ██║  ██║██╔══██╗╚══███╔╝╚██╗ ██╔╝
+  ██╔████╔██║██║   ██║██║  ███╗███████║███████║  ███╔╝  ╚████╔╝
+  ██║╚██╔╝██║██║   ██║██║   ██║██╔══██║██╔══██║ ███╔╝   ╚██╔╝
+  ██║ ╚═╝ ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██║███████╗  ██║
+  ╚═╝     ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝  ╚═╝
+",
+      "style": {
+        "color": "primary",
+      },
+      "type": "ascii",
+    },
+    {
+      "content": "Data Science & ML Engineer  ·  Cairo, EG",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "type": "divider",
+    },
+    {
+      "content": "Type "help" for available commands, or use arrow keys to navigate the menu below.",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots links 1`] = `
+{
+  "output": [
+    {
+      "content": "Contact",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "content": "Email:    akhaledmoghazy@gmail.com",
+      "type": "text",
+    },
+    {
+      "content": "Phone:    (+20) 115 322 7992",
+      "type": "text",
+    },
+    {
+      "text": "LinkedIn",
+      "type": "link",
+      "url": "https://linkedin.com/in/ahmed-khaled-17s",
+    },
+    {
+      "text": "GitHub",
+      "type": "link",
+      "url": "https://github.com/moghazy17",
+    },
+    {
+      "content": "Location: Cairo, EG",
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots menu items 1`] = `
+[
+  {
+    "label": "help             List all available commands",
+    "value": "help",
+  },
+  {
+    "label": "about            Professional summary",
+    "value": "about",
+  },
+  {
+    "label": "education        Education details and coursework",
+    "value": "education",
+  },
+  {
+    "label": "experience       Work experience (filter by company)",
+    "value": "experience",
+  },
+  {
+    "label": "projects         Technical projects (filter by name)",
+    "value": "projects",
+  },
+  {
+    "label": "skills           Technical skills by category",
+    "value": "skills",
+  },
+  {
+    "label": "certifications   Certifications and achievements",
+    "value": "certifications",
+  },
+  {
+    "label": "contact          Contact information and links",
+    "value": "contact",
+  },
+  {
+    "label": "timeline         Reverse-chronological career overview",
+    "value": "timeline",
+  },
+  {
+    "label": "github           Live GitHub profile stats",
+    "value": "github",
+  },
+  {
+    "label": "chat             Chat with AI about Ahmed",
+    "value": "chat",
+  },
+]
+`;
+
+exports[`legacy command output > snapshots neofetch 1`] = `
+{
+  "output": [
+    {
+      "content": "visitor@ahmed-portfolio
+──────────────────────
+Name:      Ahmed Moghazy
+Role:      Data Science & ML Engineer
+Location:  Cairo, EG
+Education: Cairo University
+Shell:     portfolio-cli v1.0.0
+Uptime:    5 years in tech
+Repos:     github.com/moghazy17
+Stack:     Python (Advanced), SQL, C++, JavaScript, HTML/CSS, Scikit-learn, TensorFlow/Keras, Classical Machine Learning
+
+  ███  ███  ███  ███  ███  ███  ███  ███",
+      "style": {
+        "color": "primary",
+      },
+      "type": "ascii",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots open 1`] = `
+{
+  "output": [
+    {
+      "content": "Openable targets:",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "text": "github",
+      "type": "link",
+      "url": "https://github.com/moghazy17",
+    },
+    {
+      "text": "linkedin",
+      "type": "link",
+      "url": "https://linkedin.com/in/ahmed-khaled-17s",
+    },
+    {
+      "content": "Usage: open <target>",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots open 2`] = `
+{
+  "output": [
+    {
+      "content": "Openable targets:",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "text": "github",
+      "type": "link",
+      "url": "https://github.com/moghazy17",
+    },
+    {
+      "text": "linkedin",
+      "type": "link",
+      "url": "https://linkedin.com/in/ahmed-khaled-17s",
+    },
+    {
+      "content": "Usage: open <target>",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots open github 1`] = `
+{
+  "openUrl": "https://github.com/moghazy17",
+  "output": [
+    {
+      "content": "Opening github...",
+      "style": {
+        "color": "success",
+      },
+      "type": "text",
+    },
+    {
+      "text": "github",
+      "type": "link",
+      "url": "https://github.com/moghazy17",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots open zzz 1`] = `
+{
+  "output": [
+    {
+      "content": "Unknown target "zzz". Available: github, linkedin",
+      "style": {
+        "color": "error",
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots proj 1`] = `
+{
+  "output": [
+    {
+      "content": "Technical Projects",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "children": [
+        {
+          "content": "Jan 2026 — Jan 2026",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Built an automated news aggregation pipeline using n8n to ingest RSS feeds from multiple tech sources on a scheduled basis.",
+            "Implemented an LLM-based classification and ranking system to categorize articles, generate why-it-matters insights, and score news importance.",
+            "Designed daily and weekly workflows to store structured results in Google Sheets and deliver curated HTML email summaries of top-ranked articles.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "AI-Powered Tech News Aggregator (n8n, LLMs)",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Oct 2024 — June 2025",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Engineered a modular AutoML pipeline in Python (scikit-learn) with 4 stages: preprocessing, feature selection, model selection, and hyperparameter optimization.",
+            "Synthesized AutoML foundations (model selection, HPO, evaluation) into the system architecture and experiment plan.",
+            "Implemented and benchmarked Grid Search, Random Search, and Bayesian Optimization for HPO on tabular ML tasks.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "[Graduation] AutoML Pipeline (scikit-learn)",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Dec 2024 — Jan 2025",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Built a retrieval-augmented chatbot with LangChain + Ollama Gemma-3 (12B) and a Gradio UI for real-time Q&A.",
+            "Crawled up to 30 LangChain doc pages (BeautifulSoup); chunked via RecursiveCharacterTextSplitter.",
+            "Embedded with all-MiniLM-L6-v2 and indexed in FAISS; boosted relevance using MultiQueryRetriever + ContextualCompressionRetriever; added SerpAPI + Python REPL tools.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "RAG Chatbot (LangChain + FAISS + Ollama)",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Apr 2025 — May 2025",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Developed a full-stack expense tracker: React frontend + Spring Boot backend secured with JWT.",
+            "Integrated Mistral (via Ollama) to convert natural-language inputs into structured expense entries for single-step data capture.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "ExpenSum — Smart Expense Tracker (React + Spring Boot + JWT + LLM)",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Dec 2023 — Jan 2024",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Designed a star schema (fact/dimension) for a recommendation dataset.",
+            "Automated daily CSV loads via scheduled SQL jobs (ETL).",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Star-Schema Data Warehouse (SQL, ETL)",
+      "type": "section",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots projcts 1`] = `
+{
+  "output": [
+    {
+      "content": "command not found: projcts",
+      "type": "error",
+    },
+    {
+      "content": "did you mean \`projects\`?",
+      "type": "text",
+    },
+    {
+      "content": "Type \`help\` for commands or \`chat\` to ask the AI.",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots projects 1`] = `
+{
+  "output": [
+    {
+      "content": "Technical Projects",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "children": [
+        {
+          "content": "Jan 2026 — Jan 2026",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Built an automated news aggregation pipeline using n8n to ingest RSS feeds from multiple tech sources on a scheduled basis.",
+            "Implemented an LLM-based classification and ranking system to categorize articles, generate why-it-matters insights, and score news importance.",
+            "Designed daily and weekly workflows to store structured results in Google Sheets and deliver curated HTML email summaries of top-ranked articles.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "AI-Powered Tech News Aggregator (n8n, LLMs)",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Oct 2024 — June 2025",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Engineered a modular AutoML pipeline in Python (scikit-learn) with 4 stages: preprocessing, feature selection, model selection, and hyperparameter optimization.",
+            "Synthesized AutoML foundations (model selection, HPO, evaluation) into the system architecture and experiment plan.",
+            "Implemented and benchmarked Grid Search, Random Search, and Bayesian Optimization for HPO on tabular ML tasks.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "[Graduation] AutoML Pipeline (scikit-learn)",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Dec 2024 — Jan 2025",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Built a retrieval-augmented chatbot with LangChain + Ollama Gemma-3 (12B) and a Gradio UI for real-time Q&A.",
+            "Crawled up to 30 LangChain doc pages (BeautifulSoup); chunked via RecursiveCharacterTextSplitter.",
+            "Embedded with all-MiniLM-L6-v2 and indexed in FAISS; boosted relevance using MultiQueryRetriever + ContextualCompressionRetriever; added SerpAPI + Python REPL tools.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "RAG Chatbot (LangChain + FAISS + Ollama)",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Apr 2025 — May 2025",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Developed a full-stack expense tracker: React frontend + Spring Boot backend secured with JWT.",
+            "Integrated Mistral (via Ollama) to convert natural-language inputs into structured expense entries for single-step data capture.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "ExpenSum — Smart Expense Tracker (React + Spring Boot + JWT + LLM)",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Dec 2023 — Jan 2024",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Designed a star schema (fact/dimension) for a recommendation dataset.",
+            "Automated daily CSV loads via scheduled SQL jobs (ETL).",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Star-Schema Data Warehouse (SQL, ETL)",
+      "type": "section",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots projects news-aggregator 1`] = `
+{
+  "output": [
+    {
+      "content": "Technical Projects",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "children": [
+        {
+          "content": "Jan 2026 — Jan 2026",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Built an automated news aggregation pipeline using n8n to ingest RSS feeds from multiple tech sources on a scheduled basis.",
+            "Implemented an LLM-based classification and ranking system to categorize articles, generate why-it-matters insights, and score news importance.",
+            "Designed daily and weekly workflows to store structured results in Google Sheets and deliver curated HTML email summaries of top-ranked articles.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "AI-Powered Tech News Aggregator (n8n, LLMs)",
+      "type": "section",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots projects zzz 1`] = `
+{
+  "output": [
+    {
+      "content": "No project found matching "zzz". Try: news-aggregator, automl, rag-chatbot, expensum, star-schema",
+      "style": {
+        "color": "error",
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots quit 1`] = `
+{
+  "output": [
+    {
+      "content": "There is no escape from this portfolio...",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "content": "But seriously, thanks for visiting! Feel free to reach out:",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+    {
+      "text": "Email",
+      "type": "link",
+      "url": "mailto:akhaledmoghazy@gmail.com",
+    },
+    {
+      "text": "LinkedIn",
+      "type": "link",
+      "url": "https://linkedin.com/in/ahmed-khaled-17s",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots rm -rf / 1`] = `
+{
+  "output": [
+    {
+      "content": "rm: cannot remove '/': Permission denied",
+      "style": {
+        "color": "error",
+      },
+      "type": "text",
+    },
+    {
+      "content": "Nice try. This portfolio is indestructible.",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "content": "(╯°□°)╯︵ ┻━┻  ...  ┬─┬ ノ( ゜-゜ノ)",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots rm 1`] = `
+{
+  "output": [
+    {
+      "content": "rm: cannot remove '/': Permission denied",
+      "style": {
+        "color": "error",
+      },
+      "type": "text",
+    },
+    {
+      "content": "Nice try. This portfolio is indestructible.",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "content": "(╯°□°)╯︵ ┻━┻  ...  ┬─┬ ノ( ゜-゜ノ)",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots sk 1`] = `
+{
+  "output": [
+    {
+      "content": "Skills",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "Python (Advanced)",
+            "SQL",
+            "C++",
+            "JavaScript",
+            "HTML/CSS",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Programming",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "Scikit-learn",
+            "TensorFlow/Keras",
+            "Classical Machine Learning",
+            "Deep Learning",
+            "NLP",
+            "Computer Vision",
+            "Feature Engineering",
+            "Model Evaluation",
+            "Hyperparameter Optimization",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Machine Learning & AI",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "LangChain",
+            "Retrieval-Augmented Generation (RAG)",
+            "Prompt Engineering",
+            "Hugging Face",
+            "Ollama",
+            "FAISS",
+            "Vector Databases",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "LLMs & Generative AI",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "Pandas",
+            "NumPy",
+            "Matplotlib",
+            "Seaborn",
+            "Power BI",
+            "Exploratory Data Analysis (EDA)",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Data Analysis & Visualization",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "Apache Airflow",
+            "Apache NiFi",
+            "dbt",
+            "ETL Pipelines",
+            "MLflow",
+            "HDFS",
+            "Workflow Orchestration",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Data Engineering & MLOps",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "PostgreSQL",
+            "MySQL",
+            "Star Schema Design",
+            "Data Warehousing",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Databases",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "Azure AI Fundamentals",
+            "Huawei Cloud",
+            "Git/GitHub",
+            "Docker",
+            "Linux",
+            "Azure Machine Learning Concepts",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Cloud & Tools",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "Data Structures & Algorithms",
+            "Operating Systems",
+            "Distributed Systems",
+            "Database Management Systems",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Core Computer Science",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "Technical Communication",
+            "Problem Solving",
+            "Leadership",
+            "Analytical Thinking",
+            "Adaptability",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Soft Skills",
+      "type": "section",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots skills 1`] = `
+{
+  "output": [
+    {
+      "content": "Skills",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "Python (Advanced)",
+            "SQL",
+            "C++",
+            "JavaScript",
+            "HTML/CSS",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Programming",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "Scikit-learn",
+            "TensorFlow/Keras",
+            "Classical Machine Learning",
+            "Deep Learning",
+            "NLP",
+            "Computer Vision",
+            "Feature Engineering",
+            "Model Evaluation",
+            "Hyperparameter Optimization",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Machine Learning & AI",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "LangChain",
+            "Retrieval-Augmented Generation (RAG)",
+            "Prompt Engineering",
+            "Hugging Face",
+            "Ollama",
+            "FAISS",
+            "Vector Databases",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "LLMs & Generative AI",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "Pandas",
+            "NumPy",
+            "Matplotlib",
+            "Seaborn",
+            "Power BI",
+            "Exploratory Data Analysis (EDA)",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Data Analysis & Visualization",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "Apache Airflow",
+            "Apache NiFi",
+            "dbt",
+            "ETL Pipelines",
+            "MLflow",
+            "HDFS",
+            "Workflow Orchestration",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Data Engineering & MLOps",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "PostgreSQL",
+            "MySQL",
+            "Star Schema Design",
+            "Data Warehousing",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Databases",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "Azure AI Fundamentals",
+            "Huawei Cloud",
+            "Git/GitHub",
+            "Docker",
+            "Linux",
+            "Azure Machine Learning Concepts",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Cloud & Tools",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "Data Structures & Algorithms",
+            "Operating Systems",
+            "Distributed Systems",
+            "Database Management Systems",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Core Computer Science",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "Technical Communication",
+            "Problem Solving",
+            "Leadership",
+            "Analytical Thinking",
+            "Adaptability",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Soft Skills",
+      "type": "section",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots skills programming 1`] = `
+{
+  "output": [
+    {
+      "content": "Skills",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "children": [
+        {
+          "items": [
+            "Python (Advanced)",
+            "SQL",
+            "C++",
+            "JavaScript",
+            "HTML/CSS",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Programming",
+      "type": "section",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots skills zzz 1`] = `
+{
+  "output": [
+    {
+      "content": "No skill category matching "zzz". Categories: Programming, Machine Learning & AI, LLMs & Generative AI, Data Analysis & Visualization, Data Engineering & MLOps, Databases, Cloud & Tools, Core Computer Science, Soft Skills",
+      "style": {
+        "color": "error",
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots sudo 1`] = `
+{
+  "output": [
+    {
+      "content": "[sudo] password for visitor: ",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "content": "Permission denied. Nice try though.",
+      "type": "text",
+    },
+    {
+      "content": "Hint: try "sudo hire-me"",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots sudo 2`] = `
+{
+  "output": [
+    {
+      "content": "[sudo] password for visitor: ",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "content": "Permission denied. Nice try though.",
+      "type": "text",
+    },
+    {
+      "content": "Hint: try "sudo hire-me"",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots sudo hire ahmed 1`] = `
+{
+  "output": [
+    {
+      "content": "Welcome aboard. Here's how to reach Ahmed:",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "content": "Ahmed Moghazy",
+      "type": "text",
+    },
+    {
+      "content": "Email:    akhaledmoghazy@gmail.com",
+      "type": "text",
+    },
+    {
+      "text": "LinkedIn",
+      "type": "link",
+      "url": "https://linkedin.com/in/ahmed-khaled-17s",
+    },
+    {
+      "text": "Send an email",
+      "type": "link",
+      "url": "mailto:akhaledmoghazy@gmail.com?subject=Hiring%20inquiry%20via%20Ahmed%20Moghazy%20%7C%20Data%20Science%20%26%20ML%20Engineer&body=Hi%20Ahmed%2C%0A%0AI%20came%20across%20your%20portfolio%20and%20would%20love%20to%20talk%20about%20an%20opportunity.%0A%0A",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots summary 1`] = `
+{
+  "output": [
+    {
+      "children": [
+        {
+          "content": "Computer Science graduate specializing in machine learning, applied AI, and data-driven systems. Experienced in designing and deploying end-to-end ML solutions including AutoML pipelines, predictive modeling, and retrieval-augmented generation (RAG) applications using large language models. Strong background in data analysis, feature engineering, and model evaluation, with hands-on exposure to data engineering workflows, MLOps practices, and translating complex data into actionable business insights.",
+          "type": "text",
+        },
+      ],
+      "title": "About Ahmed Moghazy",
+      "type": "section",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots sysinfo 1`] = `
+{
+  "output": [
+    {
+      "content": "visitor@ahmed-portfolio
+──────────────────────
+Name:      Ahmed Moghazy
+Role:      Data Science & ML Engineer
+Location:  Cairo, EG
+Education: Cairo University
+Shell:     portfolio-cli v1.0.0
+Uptime:    5 years in tech
+Repos:     github.com/moghazy17
+Stack:     Python (Advanced), SQL, C++, JavaScript, HTML/CSS, Scikit-learn, TensorFlow/Keras, Classical Machine Learning
+
+  ███  ███  ███  ███  ███  ███  ███  ███",
+      "style": {
+        "color": "primary",
+      },
+      "type": "ascii",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots theme 1`] = `
+{
+  "output": [
+    {
+      "content": "Available themes:",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "items": [
+        "matrix (default)",
+        "dracula",
+        "nord",
+      ],
+      "type": "list",
+    },
+    {
+      "content": "Usage: theme <name>",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots theme 2`] = `
+{
+  "output": [
+    {
+      "content": "Available themes:",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "items": [
+        "matrix (default)",
+        "dracula",
+        "nord",
+      ],
+      "type": "list",
+    },
+    {
+      "content": "Usage: theme <name>",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots theme dracula 1`] = `
+{
+  "output": [
+    {
+      "content": "Theme switched to "dracula".",
+      "style": {
+        "color": "success",
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots theme zzz 1`] = `
+{
+  "output": [
+    {
+      "content": "Unknown theme "zzz". Available: matrix, dracula, nord",
+      "style": {
+        "color": "error",
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots timeline 1`] = `
+{
+  "output": [
+    {
+      "headers": [
+        "Period",
+        "Role / Degree",
+        "Organization",
+      ],
+      "rows": [
+        [
+          "Oct 2025 – Present",
+          "Software Developer (AI & Backend)",
+          "Advanced Computer Technology (ACT)",
+        ],
+        [
+          "Oct 2021 – June 2025",
+          "Computer Science — Bachelor of Science",
+          "Cairo University",
+        ],
+        [
+          "Oct 2024 – Apr 2025",
+          "Machine Learning Engineer Trainee",
+          "Digital Egypt Pioneers Initiative (DEPI)",
+        ],
+        [
+          "Aug 2024 – Sep 2024",
+          "Data Engineer Intern",
+          "Orange Egypt",
+        ],
+        [
+          "July 2024 – July 2024",
+          "Data Science Intern",
+          "ValU",
+        ],
+        [
+          "Aug 2023 – Sep 2023",
+          "Data Science Intern",
+          "Advanced Computer Technology (ACT)",
+        ],
+      ],
+      "type": "table",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots tl 1`] = `
+{
+  "output": [
+    {
+      "headers": [
+        "Period",
+        "Role / Degree",
+        "Organization",
+      ],
+      "rows": [
+        [
+          "Oct 2025 – Present",
+          "Software Developer (AI & Backend)",
+          "Advanced Computer Technology (ACT)",
+        ],
+        [
+          "Oct 2021 – June 2025",
+          "Computer Science — Bachelor of Science",
+          "Cairo University",
+        ],
+        [
+          "Oct 2024 – Apr 2025",
+          "Machine Learning Engineer Trainee",
+          "Digital Egypt Pioneers Initiative (DEPI)",
+        ],
+        [
+          "Aug 2024 – Sep 2024",
+          "Data Engineer Intern",
+          "Orange Egypt",
+        ],
+        [
+          "July 2024 – July 2024",
+          "Data Science Intern",
+          "ValU",
+        ],
+        [
+          "Aug 2023 – Sep 2023",
+          "Data Science Intern",
+          "Advanced Computer Technology (ACT)",
+        ],
+      ],
+      "type": "table",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots welcome 1`] = `
+{
+  "output": [
+    {
+      "content": "
+   █████╗ ██╗  ██╗███╗   ███╗███████╗██████╗
+  ██╔══██╗██║  ██║████╗ ████║██╔════╝██╔══██╗
+  ███████║███████║██╔████╔██║█████╗  ██║  ██║
+  ██╔══██║██╔══██║██║╚██╔╝██║██╔══╝  ██║  ██║
+  ██║  ██║██║  ██║██║ ╚═╝ ██║███████╗██████╔╝
+  ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝╚═════╝
+  ███╗   ███╗ ██████╗  ██████╗ ██╗  ██╗ █████╗ ███████╗██╗   ██╗
+  ████╗ ████║██╔═══██╗██╔════╝ ██║  ██║██╔══██╗╚══███╔╝╚██╗ ██╔╝
+  ██╔████╔██║██║   ██║██║  ███╗███████║███████║  ███╔╝  ╚████╔╝
+  ██║╚██╔╝██║██║   ██║██║   ██║██╔══██║██╔══██║ ███╔╝   ╚██╔╝
+  ██║ ╚═╝ ██║╚██████╔╝╚██████╔╝██║  ██║██║  ██║███████╗  ██║
+  ╚═╝     ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝  ╚═╝
+",
+      "style": {
+        "color": "primary",
+      },
+      "type": "ascii",
+    },
+    {
+      "content": "Data Science & ML Engineer  ·  Cairo, EG",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "type": "divider",
+    },
+    {
+      "content": "Type "help" for available commands, or use arrow keys to navigate the menu below.",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots whoami 1`] = `
+{
+  "output": [
+    {
+      "content": "You are a curious visitor exploring Ahmed's portfolio. Nice taste in CLI tools, by the way.",
+      "type": "text",
+    },
+    {
+      "content": "Run "about" to learn about the person who built this.",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
+    },
+  ],
+}
+`;
+
+exports[`legacy command output > snapshots work 1`] = `
+{
+  "output": [
+    {
+      "content": "Work Experience",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "children": [
+        {
+          "content": "Oct 2025 — Present",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Architected a Multi-Agent Concierge System using LangGraph, orchestrating specialized agents to handle autonomous guest fulfillment and complex policy inquiries with a 95% intent classification accuracy.",
+            "Engineered a Hierarchical RAG Pipeline in PGVector to navigate high-density hotel policy documents; implemented recursive retrieval strategies that improved context retention and reduced "hallucinations" by 30% on long-form queries.",
+            "Integrated LLM Tool-Access with Oracle Opera PMS via REST APIs, enabling autonomous creation and tracking of guest service requests, reducing manual front-desk entry workload by an estimated 40%.",
+            "Containerized the entire multi-agent stack using Docker, streamlining the CI/CD pipeline and reducing deployment downtime across internal testing environments.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Advanced Computer Technology (ACT) — Software Developer (AI & Backend)",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Oct 2024 — Apr 2025",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Completed the Microsoft Machine Learning Engineer track, focusing on designing scalable and production-ready machine learning solutions using Microsoft technologies.",
+            "Built strong foundations in statistics, linear algebra, Python, data preprocessing, visualization, classical ML, deep learning, NLP with attention mechanisms, and computer vision using transfer learning.",
+            "Applied Azure AI Fundamentals and Azure AI Engineer Associate concepts, with hands-on exposure to MLOps tools including MLflow and Hugging Face.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Digital Egypt Pioneers Initiative (DEPI) — Machine Learning Engineer Trainee",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Aug 2024 — Sep 2024",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Automated and optimized ETL workflows for company voucher data using Apache NiFi and dbt models.",
+            "Explored pipeline orchestration and scheduling using Apache Airflow to improve data reliability and automation.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Orange Egypt — Data Engineer Intern",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "July 2024 — July 2024",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Analyzed company growth metrics and customer behavior to generate data-driven strategic insights.",
+            "Designed and delivered interactive Power BI dashboards visualizing KPIs, improving executive decision-making.",
+            "Built and evaluated ML models (Random Forest, XGBoost) for customer lifetime value prediction, achieving an AUC of 0.70.",
+            "Contributed to a customer-facing chatbot by unifying vendors and geographic regions using Named Entity Recognition (NER) for accurate offer retrieval.",
+            "Optimized LLM prompts for intent extraction (offers, vendors, regions) and analyzed OpenAI API usage, reducing inference costs by approximately 30% while maintaining response quality.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "ValU — Data Science Intern",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Aug 2023 — Sep 2023",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Conducted EDA on large datasets and presented insights to stakeholders.",
+            "Automated web scraping pipelines using BeautifulSoup.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "Advanced Computer Technology (ACT) — Data Science Intern",
+      "type": "section",
+    },
+  ],
+}
+`;

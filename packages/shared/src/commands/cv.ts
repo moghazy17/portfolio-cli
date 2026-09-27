@@ -1,13 +1,50 @@
 import type { CommandResult, SectionOutput } from '../types';
-import { cvData } from '../content';
+import { content, cvData, itemIds } from '../content';
+import type { Content } from '../content/schema';
+import { toCVData } from '../content/view';
 
-export function aboutCommand(): CommandResult {
+export function projectSection(index: number, data: Content = content): SectionOutput {
+  const proj = data === content ? cvData.projects[index] : toCVData(data).projects[index];
+  return {
+    type: 'section', item: itemIds(data).project[index],
+    title: `${proj.isGraduation ? '[Graduation] ' : ''}${proj.name} (${proj.techStack})`,
+    children: [
+      { type: 'text', content: `${proj.startDate} — ${proj.endDate}`, style: { dim: true } },
+      { type: 'list', items: proj.bullets },
+    ],
+  };
+}
+
+export function experienceSection(index: number, data: Content = content): SectionOutput {
+  const exp = data === content ? cvData.experience[index] : toCVData(data).experience[index];
+  return {
+    type: 'section', item: itemIds(data).experience[index], title: `${exp.company} — ${exp.role}`,
+    children: [
+      { type: 'text', content: `${exp.startDate} — ${exp.endDate}`, style: { dim: true } },
+      { type: 'list', items: exp.bullets },
+    ],
+  };
+}
+
+export function certificationSection(index: number, data: Content = content): SectionOutput {
+  const cert = data === content ? cvData.certifications[index] : toCVData(data).certifications[index];
+  return {
+    type: 'section', item: itemIds(data).certification[index], title: `${cert.issuer} — ${cert.title}`,
+    children: [
+      { type: 'text', content: `${cert.startDate} — ${cert.endDate}`, style: { dim: true } },
+      ...(cert.bullets.length > 0 ? [{ type: 'list' as const, items: cert.bullets }] : []),
+    ],
+  };
+}
+
+export function aboutCommand(data: Content = content): CommandResult {
+  const cv = data === content ? cvData : toCVData(data);
   return {
     output: [
       {
         type: 'section',
-        title: `About ${cvData.name}`,
-        children: [{ type: 'text', content: cvData.professionalSummary }],
+        title: `About ${cv.name}`,
+        children: [{ type: 'text', content: cv.professionalSummary }],
       },
     ],
   };
@@ -60,14 +97,7 @@ export function experienceCommand(args: string[]): CommandResult {
     }
   }
 
-  const sections: SectionOutput[] = entries.map((exp) => ({
-    type: 'section',
-    title: `${exp.company} — ${exp.role}`,
-    children: [
-      { type: 'text', content: `${exp.startDate} — ${exp.endDate}`, style: { dim: true } },
-      { type: 'list', items: exp.bullets },
-    ],
-  }));
+  const sections: SectionOutput[] = entries.map((exp) => experienceSection(cvData.experience.indexOf(exp)));
 
   return {
     output: [
@@ -100,14 +130,7 @@ export function projectsCommand(args: string[]): CommandResult {
     }
   }
 
-  const sections: SectionOutput[] = entries.map((proj) => ({
-    type: 'section',
-    title: `${proj.isGraduation ? '[Graduation] ' : ''}${proj.name} (${proj.techStack})`,
-    children: [
-      { type: 'text', content: `${proj.startDate} — ${proj.endDate}`, style: { dim: true } },
-      { type: 'list', items: proj.bullets },
-    ],
-  }));
+  const sections: SectionOutput[] = entries.map((proj) => projectSection(cvData.projects.indexOf(proj)));
 
   return {
     output: [
@@ -136,8 +159,10 @@ export function skillsCommand(args: string[]): CommandResult {
     }
   }
 
+  const ids = itemIds(content);
   const sections: SectionOutput[] = categories.map((cat) => ({
     type: 'section',
+    item: ids.skill[cvData.skills.indexOf(cat)],
     title: cat.name,
     children: [{ type: 'list', items: cat.skills }],
   }));
@@ -151,14 +176,7 @@ export function skillsCommand(args: string[]): CommandResult {
 }
 
 export function certificationsCommand(): CommandResult {
-  const sections: SectionOutput[] = cvData.certifications.map((cert) => ({
-    type: 'section',
-    title: `${cert.issuer} — ${cert.title}`,
-    children: [
-      { type: 'text', content: `${cert.startDate} — ${cert.endDate}`, style: { dim: true } },
-      ...(cert.bullets.length > 0 ? [{ type: 'list' as const, items: cert.bullets }] : []),
-    ],
-  }));
+  const sections: SectionOutput[] = cvData.certifications.map((_, index) => certificationSection(index));
 
   return {
     output: [

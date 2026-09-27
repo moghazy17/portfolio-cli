@@ -52,5 +52,12 @@ export default function SequencePlayer({ steps, final, theme, skip, onDone }: Pr
     if (skip > initialSkip.current) finish();
   }, [skip, finish]);
 
-  return <OutputRenderer output={frame === null ? final : steps[frame].output} theme={theme} />;
+  // Frames sit inside the terminal's live log, so hide them from assistive technology;
+  // the final output mounts as a new node and is announced once.
+  if (frame === null) return <OutputRenderer output={final} theme={theme} />;
+  return (
+    <div aria-hidden="true">
+      <OutputRenderer output={steps[frame].output} theme={theme} />
+    </div>
+  );
 }

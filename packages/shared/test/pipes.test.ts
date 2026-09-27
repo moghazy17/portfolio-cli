@@ -35,8 +35,20 @@ describe('shell pipelines', () => {
     expect((await shell().run('theme dracula | wc -l')).theme).toBeUndefined();
     const chained = await shell().run('theme dracula && welcome');
     expect(chained).toMatchObject({ theme: 'dracula', welcome: true, status: 'ok' });
-    expect(chained.output.length).toBeGreaterThan(1);
+    expect(chained.output).toEqual((await shell().run('welcome')).output);
     expect((await shell().run('grep x && welcome')).welcome).toBeUndefined();
+  });
+
+  it('keeps effects and output that come after a clear or welcome', async () => {
+    const about = await shell().run('about');
+    expect(await shell().run('clear && about')).toMatchObject({ clear: true, output: about.output });
+    expect(await shell().run('about && clear')).toMatchObject({ clear: true, output: [] });
+    const welcomeThenAbout = await shell().run('welcome && theme nord && about');
+    expect(welcomeThenAbout).toMatchObject({ welcome: true, theme: 'nord' });
+    expect(welcomeThenAbout.output.slice(-about.output.length)).toEqual(about.output);
+    const hire = await shell().run('sudo hire-me && clear');
+    expect(hire.sequence).toBeUndefined();
+    expect((await shell().run('clear && sudo hire-me')).sequence?.length).toBeGreaterThan(0);
   });
 
   it('cancels before or during async work and handles throwing handlers', async () => {

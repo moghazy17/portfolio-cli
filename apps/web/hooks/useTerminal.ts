@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { createShell, themes } from '@ahmed-moghazy/shared';
+import { createShell, themes, welcomeCommand } from '@ahmed-moghazy/shared';
 import type { Completion, HistoryEntry, SequenceStep } from '@ahmed-moghazy/shared';
 import { useHistory } from './useHistory';
 import { useThemeApplier } from './useThemeApplier';
@@ -78,18 +78,20 @@ export function useTerminal() {
       controllerRef.current = null;
       setRunning(false);
     }
+    // A cancelled chain may already have changed directory.
+    setPrompt(currentPrompt());
     if (controller.signal.aborted || result.cancelled) return;
 
     push(input);
-    setPrompt(currentPrompt());
+    // The shell drops output printed before a clear or welcome, so whatever remains ran
+    // after the reset. On the web the welcome banner is the WelcomeScreen, not log output.
+    let output = result.output;
     if (result.welcome) {
       setShowWelcome(true);
       setHistory([]);
-      return;
-    }
-    if (result.clear) {
+      output = output.slice(welcomeCommand().output.length);
+    } else if (result.clear) {
       setHistory([]);
-      return;
     }
     if (result.theme && themes[result.theme]) setTheme(themes[result.theme]);
     if (result.openUrl) window.open(result.openUrl, '_blank', 'noopener,noreferrer');
@@ -107,13 +109,17 @@ export function useTerminal() {
         window.open(result.download.url, '_blank', 'noopener,noreferrer');
       }
     }
+    if ((result.welcome || result.clear) && !output.length && !result.sequence) {
+      if (result.mode === 'chat') setMode('chat');
+      return;
+    }
     const sequenceId = result.sequence ? ++sequenceIdRef.current : undefined;
     if (sequenceId !== undefined) {
       activeSequenceRef.current = sequenceId;
       setSequencePlaying(true);
     }
     setHistory((previous) => [...previous, {
-      input, prompt: submittedPrompt, output: result.output,
+      input, prompt: submittedPrompt, output,
       sequence: result.sequence, sequenceId,
     }]);
     if (result.mode === 'chat') setMode('chat');

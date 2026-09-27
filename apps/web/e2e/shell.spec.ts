@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { content, cvData, executeCommand, itemIds, profile, themes } from '@ahmed-moghazy/shared';
+import { content, cvData, executeCommand, itemIds, profile, themes, WELCOME_SUBTITLE } from '@ahmed-moghazy/shared';
 
 test.describe('US1', () => {
   test.beforeEach(async ({ page }) => {
@@ -111,6 +111,30 @@ test.describe('US1', () => {
     await expect(page.getByText(`About ${cvData.name}`)).toBeVisible();
     await input.press('ArrowUp');
     await expect(input).toHaveValue('about');
+  });
+
+  test('keeps effects and later output when a chain clears or shows the welcome screen', async ({ page }) => {
+    const input = page.getByLabel('Terminal command input');
+    await input.fill('whoami');
+    await input.press('Enter');
+    await input.fill('theme dracula && welcome');
+    await input.press('Enter');
+    await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--bg').trim())).toBe(themes.dracula.background);
+    await expect(page.getByText(WELCOME_SUBTITLE)).toBeVisible();
+
+    await input.fill('clear && about');
+    await input.press('Enter');
+    await expect(page.getByText(`About ${cvData.name}`)).toBeVisible();
+    await expect(page.getByText(WELCOME_SUBTITLE)).toHaveCount(0);
+    await expect(page.getByText('whoami', { exact: true })).toHaveCount(0);
+  });
+
+  test('runs commands joined to a pipe without spaces', async ({ page }) => {
+    const input = page.getByLabel('Terminal command input');
+    await input.fill('ls|grep about');
+    await input.press('Enter');
+    await expect(page.getByText('about.md', { exact: true })).toBeVisible();
+    await expect(page.getByText(/command not found/)).toHaveCount(0);
   });
 
   test('Ctrl+C exits idle chat', async ({ page }) => {
@@ -254,7 +278,8 @@ test.describe('US3', () => {
     const input = page.getByLabel('Terminal command input');
     await input.fill('sudo hire-me');
     await input.press('Enter');
-    const progress = page.getByRole('progressbar').first();
+    // Animation frames are hidden from assistive technology; only the final output is announced.
+    const progress = page.locator('[aria-hidden="true"] [role="progressbar"]').first();
     await expect(progress).toHaveText(/^verifying credentials [█░]{20} \d+%$/);
     await expect(progress).toHaveAttribute('aria-valuemin', '0');
     await expect(progress).toHaveAttribute('aria-valuemax', '100');

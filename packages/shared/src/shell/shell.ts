@@ -11,6 +11,7 @@ import { parseShell, type Pipeline, type Stage } from './parser';
 import { suggestCommand } from './suggest';
 import { defaultUnknownCommandHandler } from './unknown';
 import { complete, type Completion } from './completion';
+import { tokenize } from './tokenizer';
 
 export interface ShellOptions {
   surface: Surface;
@@ -35,6 +36,19 @@ function failure(message: string): CommandResult {
 
 function findCommand(registry: CommandDefinition[], name: string): CommandDefinition | undefined {
   return registry.find((def) => def.name === name || def.aliases.includes(name));
+}
+
+// Routes on the leading command candidate without tokenizing the whole line, so free
+// text such as `what's his stack?` reaches the unknown-command hook instead of failing
+// as an unterminated quote. Operators end the candidate even without surrounding spaces.
+function routeWord(line: string, registry: CommandDefinition[]): string {
+  const raw = line.match(/^(?:\\.|[^\s|&;<>\\])*/)![0];
+  const word = raw.toLowerCase();
+  if (!raw || findCommand(registry, word)) return word;
+  const tokenized = tokenize(raw);
+  if ('error' in tokenized || tokenized.tokens.length !== 1) return word;
+  const name = tokenized.tokens[0].value.toLowerCase();
+  return findCommand(registry, name) ? name : word;
 }
 
 function mergeEffects(target: ShellResult, source: CommandResult): void {
@@ -118,8 +132,8 @@ export function createShell(options: ShellOptions): Shell {
         session.lastStatus = 'error';
         return failure('error: input too long (max 1000 characters)');
       }
-      const word = trimmed.match(/^\S+/)![0].toLowerCase();
-      if (!findCommand(registry, word)) {
+      const word = routeWord(trimmed, registry);
+      if (word && !findCommand(registry, word)) {
         const suggestion = /^\S+$/.test(trimmed) ? suggestCommand(word, registry) : undefined;
         const result = await unknown({ raw: line, word, suggestion }, {
           session, surface: options.surface, origin: options.origin, signal, fs: fs(),
@@ -137,6 +151,11 @@ export function createShell(options: ShellOptions): Shell {
       for (const pipeline of parsed.chain.pipelines) {
         const result = await runPipeline(pipeline, signal);
         if (result === 'cancelled' || signal.aborted) return { output: [], cancelled: true };
+        // A screen reset hides everything printed before it, as in a real terminal.
+        if (result.clear || result.welcome) {
+          merged.output = [];
+          delete merged.sequence;
+        }
         merged.output.push(...result.output);
         mergeEffects(merged, result);
         merged.status = result.status || 'ok';

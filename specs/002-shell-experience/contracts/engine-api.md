@@ -55,7 +55,8 @@ export { commandRegistry } from './commands/registry';
    - The pipeline status is the status of the last stage. `grep` with no matches gives
      status `error`, like exit code 1. `head`, `tail`, `sort` and `wc` always give `ok`.
 3. `&&` stops at the first pipeline with status `error`. Output and effects from the
-   pipelines that ran are merged.
+   pipelines that ran are merged, except that a pipeline with a `clear` or `welcome`
+   effect drops the output and `sequence` merged before it, as a screen reset would.
 4. **Cancellation.** If `signal.aborted` is true at any `await` boundary, `run` resolves
    `{ output: [], cancelled: true }` and discards any partial output. A `cd` that already
    completed keeps its effect.

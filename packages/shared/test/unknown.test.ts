@@ -24,4 +24,20 @@ describe('unknown input', () => {
     expect((await instance.run('help')).output.length).toBeGreaterThan(0);
     expect(hook).toHaveBeenCalledTimes(2);
   });
+
+  it('recognises commands joined to operators or written with quotes and escapes', async () => {
+    const hook = vi.fn(() => ({ output: [{ type: 'text' as const, content: 'handled' }] }));
+    const instance = createShell({ surface: 'web', origin: '', onUnknownCommand: hook });
+    const spaced = await instance.run('ls | grep md');
+    expect(await instance.run('ls|grep md')).toEqual(spaced);
+    const help = await instance.run('help');
+    for (const line of ['"help"', "'help'", 'he"lp"', 'he\lp']) {
+      expect((await instance.run(line)).output).toEqual(help.output);
+    }
+    expect((await instance.run('help&&about')).output.length).toBeGreaterThan(help.output.length);
+    expect(hook).not.toHaveBeenCalled();
+    await instance.run('yo|there');
+    expect(hook).toHaveBeenLastCalledWith({ raw: 'yo|there', word: 'yo', suggestion: undefined }, expect.anything());
+    expect((await instance.run('| grep x')).output).toEqual([{ type: 'error', content: "syntax error: missing command around '|'" }]);
+  });
 });

@@ -9,8 +9,11 @@ The input language accepted by `shell.run(line)` on every surface. The implement
    The web UI adds to history, not the shell.
 2. **Length check.** A line over 1,000 characters is rejected with
    `error: input too long (max 1000 characters)` and status `error`.
-3. **First-word route.** Split off the first run of non-whitespace characters and
-   lowercase it.
+3. **First-word route.** Split off the leading command candidate: the characters up to
+   the first whitespace or unescaped `|`, `&`, `;`, `<` or `>`, lowercased. If that is not
+   a registered name, tokenize the candidate alone (never the whole line); when it yields
+   one word that is a registered name (`"help"`, `he\lp`), use that. A line that starts
+   with an operator goes straight to the parser for its syntax error.
    - If it is not a registered name, alias or filter (hidden commands count), call
      `onUnknownCommand({ raw, word, suggestion? })`. Stop here; the line is never
      tokenized.

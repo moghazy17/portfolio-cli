@@ -1,4 +1,4 @@
-import type { CommandDefinition, CompletionSource } from '../types';
+import type { CommandDefinition, CompletionSource, FileSystem, ShellSession } from '../types';
 import { content } from '../content';
 import { themes } from '../theme';
 import { openTargets } from '../commands/utility';
@@ -11,7 +11,7 @@ export interface Completion {
   replacement?: string;
 }
 
-function sourceValues(source: CompletionSource, registry: CommandDefinition[]): string[] {
+function sourceValues(source: CompletionSource, registry: CommandDefinition[], current: string, session?: ShellSession, fs?: FileSystem): string[] {
   switch (source) {
     case 'projects': return content.resume.projects.map((item) => item.slug);
     case 'experience': return content.resume.work.map((item) => item.slug);
@@ -20,7 +20,18 @@ function sourceValues(source: CompletionSource, registry: CommandDefinition[]): 
     case 'open-targets': return Object.keys(openTargets);
     case 'commands': return registry.filter((def) => !def.hidden).map((def) => def.name);
     case 'path':
-    case 'dir': return [];
+    case 'dir': {
+      if (!session || !fs) return [];
+      const slash = current.lastIndexOf('/');
+      const typedPrefix = slash < 0 ? '' : current.slice(0, slash + 1);
+      const basename = current.slice(slash + 1).toLowerCase();
+      const parent = fs.resolve(session.cwd, typedPrefix || '.');
+      if (parent.node?.kind !== 'dir') return [];
+      return parent.node.children
+        .filter((node) => source === 'path' || node.kind === 'dir')
+        .filter((node) => node.name.toLowerCase().startsWith(basename))
+        .map((node) => `${typedPrefix}${node.name}${node.kind === 'dir' ? '/' : ''}`);
+    }
   }
 }
 
@@ -94,7 +105,7 @@ function longestPrefix(candidates: string[]): string {
   return prefix;
 }
 
-export function complete(line: string, cursor: number, registry: CommandDefinition[]): Completion {
+export function complete(line: string, cursor: number, registry: CommandDefinition[], session?: ShellSession, fs?: FileSystem): Completion {
   const end = Math.max(0, Math.min(cursor, line.length));
   const { words, current, start, afterPipe } = position(line.slice(0, end));
   const prefix = current.toLowerCase();
@@ -108,13 +119,14 @@ export function complete(line: string, cursor: number, registry: CommandDefiniti
     const positionals = def?.args?.positional || [];
     const index = words.length - 1;
     const spec = positionals[index] || (positionals.at(-1)?.variadic ? positionals.at(-1) : undefined);
-    values = spec?.complete ? sourceValues(spec.complete, registry).filter((value) => value.toLowerCase().startsWith(prefix)) : [];
+    values = spec?.complete ? sourceValues(spec.complete, registry, current, session, fs)
+      .filter((value) => spec.complete === 'path' || spec.complete === 'dir' || value.toLowerCase().startsWith(prefix)) : [];
   }
   const candidates = [...new Set(values)];
   const quoted = line[start] === '"' || line[start] === "'";
   const wrap = (value: string) => value.includes(' ') || quoted ? `"${value}"` : value;
   let replacement: string | undefined;
-  if (candidates.length === 1) replacement = `${wrap(candidates[0])} `;
+  if (candidates.length === 1) replacement = `${wrap(candidates[0])}${candidates[0].endsWith('/') ? '' : ' '}`;
   else if (candidates.length > 1) {
     const common = longestPrefix(candidates);
     if (common.length > current.length) replacement = wrap(common);

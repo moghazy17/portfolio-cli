@@ -151,3 +151,68 @@ test.describe('US1', () => {
     console.log(`SC-004 Tab ${tab.elapsed.toFixed(1)} ms; ArrowUp ${up.elapsed.toFixed(1)} ms`);
   });
 });
+
+test.describe('US2', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+  });
+
+  test('browses the filesystem and resets cwd on reload', async ({ page }) => {
+    const input = page.getByLabel('Terminal command input');
+    await input.fill('ls');
+    await input.press('Enter');
+    for (const entry of ['certifications/', 'experience/', 'projects/', 'about.md', 'resume.pdf']) {
+      await expect(page.getByText(entry, { exact: true }).first()).toBeVisible();
+    }
+
+    await input.fill('cd projects');
+    await input.press('Enter');
+    await expect(page.getByText('visitor@portfolio:~/projects$', { exact: true })).toHaveCount(2);
+    await input.fill('ls');
+    await input.press('Enter');
+    const id = itemIds(content).project[0];
+    await expect(page.getByText(`${id}.md`, { exact: true })).toBeVisible();
+    await input.fill(`cat ${id}.md`);
+    await input.press('Enter');
+    await expect(page.getByText(new RegExp(content.resume.projects[0].name)).first()).toBeVisible();
+
+    await input.fill('cd nowhere');
+    await input.press('Enter');
+    await expect(page.getByText('cd: no such file or directory: nowhere')).toBeVisible();
+    await input.fill('tree');
+    await input.press('Enter');
+    await expect(page.getByText(/\d+ directories, \d+ files/)).toBeVisible();
+
+    await input.fill('pwd');
+    await input.press('Enter');
+    await expect(page.getByText('/projects', { exact: true })).toBeVisible();
+    await input.fill('cat ../resume.pdf');
+    await input.press('Enter');
+    await expect(page.getByText("resume.pdf: PDF document — run 'resume' to download it")).toBeVisible();
+    await input.fill('cat ~/about.md | grep -i data');
+    await input.press('Enter');
+    await expect(page.getByText(/data/i).last()).toBeVisible();
+
+    const experienceId = itemIds(content).experience[0];
+    await input.fill(`cat ~/experience/${experienceId.slice(0, -1)}`);
+    await input.press('Tab');
+    await expect(input).toHaveValue(`cat ~/experience/${experienceId}.md `);
+    await input.press('Enter');
+    await expect(page.getByText(content.resume.work[0].name, { exact: false }).first()).toBeVisible();
+
+    await input.fill('mkdir x');
+    await input.press('Enter');
+    await expect(page.getByText("mkdir: read-only file system — this portfolio is look-but-don't-touch 🙂")).toBeVisible();
+    await input.fill('rm about.md');
+    await input.press('Enter');
+    await expect(page.getByText("rm: read-only file system — this portfolio is look-but-don't-touch 🙂")).toBeVisible();
+    await input.fill('rm -rf /');
+    await input.press('Enter');
+    await expect(page.getByText('Nice try. This portfolio is indestructible.')).toBeVisible();
+    await input.fill('cd');
+    await input.press('Enter');
+    await expect(page.getByText('visitor@portfolio:~$', { exact: true }).last()).toBeVisible();
+    await page.reload();
+    await expect(page.getByText('visitor@portfolio:~$', { exact: true }).last()).toBeVisible();
+  });
+});

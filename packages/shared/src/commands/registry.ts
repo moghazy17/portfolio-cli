@@ -27,6 +27,7 @@ import {
 import { chatCommand } from './chat';
 import { grepLines, headLines, tailLines, wcLines, sortLines } from '../shell/filters';
 import { renderSynopsis } from '../shell/args';
+import { catCommand, cdCommand, lsCommand, pwdCommand, readOnlyCommand, treeCommand } from './fs';
 import type { CommandContext } from '../types';
 
 function lineCount(ctx: CommandContext, name: 'head' | 'tail'): CommandResult {
@@ -195,6 +196,41 @@ export const commandRegistry: CommandDefinition[] = [
     aliases: ['cls'],
     execute: () => ({ output: [], clear: true }),
   },
+  {
+    name: 'ls', description: 'List files and folders', usage: 'ls [-a] [-l] [path…]', aliases: [],
+    args: {
+      flags: [
+        { short: 'a', long: 'all', description: 'Include . and ..' },
+        { short: 'l', long: 'long', description: 'Show type and size' },
+      ],
+      positional: [{ name: 'path', variadic: true, complete: 'path' }],
+    },
+    man: { description: 'List files and folders in the portfolio.', examples: ['ls', 'ls -l projects'] },
+    execute: lsCommand,
+  },
+  {
+    name: 'cd', description: 'Change current folder', usage: 'cd [path]', aliases: [],
+    args: { positional: [{ name: 'path', complete: 'dir' }] },
+    man: { description: 'Change the current folder.', examples: ['cd projects', 'cd ~'] },
+    execute: cdCommand,
+  },
+  {
+    name: 'pwd', description: 'Print current folder', usage: 'pwd', aliases: [],
+    man: { description: 'Print the absolute current folder path.', examples: ['pwd', 'cd projects && pwd'] },
+    execute: pwdCommand,
+  },
+  {
+    name: 'cat', description: 'Read a file', usage: 'cat <path…>', aliases: [],
+    args: { positional: [{ name: 'path', required: true, variadic: true, complete: 'path' }] },
+    man: { description: 'Show the contents of one or more files.', examples: ['cat about.md', 'cat projects/example.md'] },
+    execute: catCommand,
+  },
+  {
+    name: 'tree', description: 'Show folder tree', usage: 'tree [path]', aliases: [],
+    args: { positional: [{ name: 'path', complete: 'dir' }] },
+    man: { description: 'Show files and folders as a tree.', examples: ['tree', 'tree projects'] },
+    execute: treeCommand,
+  },
   // Easter eggs (hidden from help and menus)
   {
     name: 'sudo',
@@ -210,8 +246,12 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'rm',
     aliases: [],
     hidden: true,
-    execute: () => rmCommand(),
+    execute: (ctx) => rmCommand(ctx.args),
   },
+  ...['mkdir', 'touch', 'mv', 'cp', 'rmdir', 'nano', 'vim', 'vi', 'chmod'].map((name): CommandDefinition => ({
+    name, description: 'Read-only file system', usage: name, aliases: [], hidden: true,
+    execute: readOnlyCommand(name),
+  })),
   {
     name: 'neofetch',
     description: '???',

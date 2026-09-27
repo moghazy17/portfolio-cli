@@ -47,7 +47,7 @@ Automated: `npm test -- vfs vfs-commands item-ids registry-coverage` and
 
 | Type | Expect |
 |---|---|
-| `ls` | `certifications/ experience/ projects/ about.md resume.pdf` (folders colored) |
+| `ls` | One entry per line: `certifications/`, `experience/`, `projects/`, `about.md`, `resume.pdf` (folders colored) |
 | `cd projects && ls` | Prompt shows `~/projects`; one `<slug>.md` per project |
 | `cat <slug>.md` | Project details, then the write-up if `content/projects/<slug>/README.md` exists |
 | `cat ~/experience/<Tab>` | Completes a role file; `cat` shows company, title, dates, highlights |

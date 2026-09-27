@@ -3,7 +3,8 @@ import type {
   UnknownCommandHandler, VfsPath,
 } from '../types';
 import { commandRegistry } from '../commands/registry';
-import { placeholderFs } from '../vfs/placeholder';
+import { content } from '../content';
+import { buildFileSystem } from '../vfs';
 import { parseArgs, helpUsage, renderSynopsis } from './args';
 import { toLines } from './lines';
 import { parseShell, type Pipeline, type Stage } from './parser';
@@ -44,6 +45,7 @@ function mergeEffects(target: ShellResult, source: CommandResult): void {
 
 export function createShell(options: ShellOptions): Shell {
   const registry = options.registry || commandRegistry;
+  const fs = () => buildFileSystem(content);
   const session: ShellSession = { cwd: options.initialCwd || '/', lastStatus: 'ok' };
   const unknown = options.onUnknownCommand || defaultUnknownCommandHandler;
 
@@ -71,7 +73,7 @@ export function createShell(options: ShellOptions): Shell {
     const ctx: CommandContext = {
       args: parsed.args, flags: parsed.flags, argv: stage.argv,
       session, surface: options.surface, origin: options.origin,
-      signal, fs: placeholderFs, ...(stdin && { stdin }),
+      signal, fs: fs(), ...(stdin && { stdin }),
     };
     try {
       const result = await def.execute(ctx);
@@ -120,7 +122,7 @@ export function createShell(options: ShellOptions): Shell {
       if (!findCommand(registry, word)) {
         const suggestion = /^\S+$/.test(trimmed) ? suggestCommand(word, registry) : undefined;
         const result = await unknown({ raw: line, word, suggestion }, {
-          session, surface: options.surface, origin: options.origin, signal, fs: placeholderFs,
+          session, surface: options.surface, origin: options.origin, signal, fs: fs(),
         });
         if (signal.aborted) return { output: [], cancelled: true };
         session.lastStatus = result.status || 'ok';
@@ -152,8 +154,8 @@ export function createShell(options: ShellOptions): Shell {
 
   return {
     run,
-    complete: (line, cursor = line.length) => complete(line, cursor, registry),
-    prompt: () => ({ user: 'visitor', host: 'portfolio', cwd: placeholderFs.display(session.cwd) }),
+    complete: (line, cursor = line.length) => complete(line, cursor, registry, session, fs()),
+    prompt: () => ({ user: 'visitor', host: 'portfolio', cwd: fs().display(session.cwd) }),
     get session() { return session; },
   };
 }

@@ -26,6 +26,10 @@ function normalize<T>(value: T): T {
 
     const record = node as Record<string, unknown>;
     if (record.type === 'section') delete record.item;
+    if (record.type === 'table' && Array.isArray(record.rows)) {
+      record.rows = record.rows.filter((row) =>
+        !Array.isArray(row) || !/^(ls|cd|pwd|cat|tree)(\s|$)/.test(String(row[0])));
+    }
     Object.values(record).forEach(visit);
   }
 
@@ -34,8 +38,13 @@ function normalize<T>(value: T): T {
 }
 
 describe('legacy command output', () => {
+  const legacyCommands = new Set([
+    'help', 'about', 'education', 'experience', 'projects', 'skills',
+    'certifications', 'contact', 'open', 'timeline', 'theme', 'welcome',
+    'whoami', 'github', 'chat', 'clear', 'sudo', 'rm', 'neofetch', 'hello', 'exit',
+  ]);
   for (const command of commandRegistry) {
-    if (command.kind === 'filter') continue;
+    if (!legacyCommands.has(command.name)) continue;
     const inputs = [command.name, ...command.aliases].filter(
       (input) => input !== 'rm -rf /',
     );

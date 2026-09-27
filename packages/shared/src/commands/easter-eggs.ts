@@ -26,7 +26,10 @@ export function sudoCommand(args: string[]): CommandResult {
   };
 }
 
-export function rmCommand(): CommandResult {
+export function rmCommand(args: string[] = []): CommandResult {
+  if (args.length && !(args.length === 2 && /^-[rRfF]{2}$/.test(args[0]) && /r/i.test(args[0]) && /f/i.test(args[0]) && ['/', '/*', '~'].includes(args[1]))) {
+    return { output: [{ type: 'error', content: "rm: read-only file system — this portfolio is look-but-don't-touch 🙂" }], status: 'error' };
+  }
   return {
     output: [
       { type: 'text', content: 'rm: cannot remove \'/\': Permission denied', style: { color: 'error' } },

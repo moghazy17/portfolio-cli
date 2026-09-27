@@ -267,14 +267,14 @@ prompt shows the current folder, and paths complete on Tab.
 
 ### Tests for User Story 2 (write first, confirm they fail)
 
-- [ ] T043 [P] [US2] Write `packages/shared/test/vfs.test.ts` for `buildFileSystem(content)` with a fixture `Content`. Cover:
+- [X] T043 [P] [US2] Write `packages/shared/test/vfs.test.ts` for `buildFileSystem(content)` with a fixture `Content`. Cover:
   - The root lists `about.md`, `resume.pdf` (only when `cv.available`), `projects/`, `experience/` and `certifications/`, with folders first.
   - One `<id>.md` per item, and the names equal `itemIds`.
   - `resolve` handles `~`, `~/x`, `/`, `.`, `..` (clamped at the root), `//` and trailing `/`, is case-insensitive, and returns `ENOENT` or `ENOTDIR` without throwing.
   - `display('/projects')` is `~/projects`.
   - A project file's `render()` includes the write-up body when `writeups[slug]` exists, with Markdown headings rendered bold.
   - `resume.pdf` is `binary`.
-- [ ] T044 [P] [US2] Write `packages/shared/test/vfs-commands.test.ts` through `createShell`, using the exact messages in `contracts/commands.md`:
+- [X] T044 [P] [US2] Write `packages/shared/test/vfs-commands.test.ts` through `createShell`, using the exact messages in `contracts/commands.md`:
   - `pwd` at the root is `/`; `cd projects && pwd` is `/projects`, and `prompt().cwd` is `~/projects`.
   - `ls`; `ls -l`; `ls -a`; `ls projects experience` prints headers; `ls about.md` prints the name.
   - `cd` with no argument, `cd ~` and `cd /` go to the root; `cd nowhere` and `cd about.md` give errors and the cwd is unchanged; `cd a b` â†’ too many arguments.
@@ -282,14 +282,14 @@ prompt shows the current folder, and paths complete on Tab.
   - `tree` shows `â”œâ”€â”€`, `â””â”€â”€` and the `N directories, M files` footer.
   - `cat about.md | grep -i <word>` works.
   - Completion of `cat pro<Tab>` â†’ `projects/`, and `cd ~/exp<Tab>` â†’ `~/experience/` (folders only for `cd`).
-- [ ] T045 [P] [US2] Write `packages/shared/test/read-only.test.ts`. Cover:
+- [X] T045 [P] [US2] Write `packages/shared/test/read-only.test.ts`. Cover:
   - `mkdir x`, `touch x`, `mv a b`, `cp a b`, `rmdir x`, `nano x`, `vim x`, `vi x`, `chmod x` and `rm about.md` â†’ `<cmd>: read-only file system â€” â€¦` with status `error`.
   - `rm`, `rm -rf /`, `rm -fr /`, `rm -rf /*` and `rm -rf ~` â†’ exactly the legacy `rmCommand()` output.
   - None of these appears in `help`, completion, suggestions or `man`.
-- [ ] T046 [P] [US2] Create `packages/shared/test/registry-coverage.test.ts` with its SC-006 part:
+- [X] T046 [P] [US2] Create `packages/shared/test/registry-coverage.test.ts` with its SC-006 part:
   - For the real `content`, every project, work entry and certificate is listed by `ls` in its folder, and `cat` on it returns non-empty output that contains its title.
   - Registry names and aliases are unique, lowercase and contain no whitespace.
-- [ ] T047 [P] [US2] Add a `describe('US2')` block to `apps/web/e2e/shell.spec.ts`. Cover:
+- [X] T047 [P] [US2] Add a `describe('US2')` block to `apps/web/e2e/shell.spec.ts`. Cover:
   - `ls` shows the five root entries.
   - `cd projects` changes the visible prompt to `~/projects`, and `ls` lists `.md` files.
   - `cat <first>.md` shows the project title.
@@ -299,8 +299,8 @@ prompt shows the current folder, and paths complete on Tab.
 
 ### Implementation for User Story 2
 
-- [ ] T048 [P] [US2] Implement `packages/shared/src/vfs/path.ts` with `normalize(cwd, input)` â†’ an absolute `VfsPath` (`~` expansion, `.`, `..` clamped, repeated and trailing slash collapse) and `display(path)` (`/` â†’ `~`, `/x` â†’ `~/x`).
-- [ ] T049 [US2] Implement `packages/shared/src/vfs/build.ts` with `buildFileSystem(content)` per data-model "Virtual filesystem":
+- [X] T048 [P] [US2] Implement `packages/shared/src/vfs/path.ts` with `normalize(cwd, input)` â†’ an absolute `VfsPath` (`~` expansion, `.`, `..` clamped, repeated and trailing slash collapse) and `display(path)` (`/` â†’ `~`, `/x` â†’ `~/x`).
+- [X] T049 [US2] Implement `packages/shared/src/vfs/build.ts` with `buildFileSystem(content)` per data-model "Virtual filesystem":
   - Node names come from `itemIds`.
   - `about.md` renders the `aboutCommand()` output.
   - Project, experience and certification files render the same `SectionOutput` their list command emits for that item (factor out per-item section builders in `packages/shared/src/commands/cv.ts` so both share them, keeping legacy output identical). Projects append `writeups[slug].body` as lines: `#` headings become bold `text`, and other lines become `text`.
@@ -310,8 +310,8 @@ prompt shows the current folder, and paths complete on Tab.
   - Memoize per `content` object, and export it from the vfs barrel.
 
   T043 should now pass. Depends on T048.
-- [ ] T050 [US2] Supply `fs` to every `CommandContext`: `createShell` in `packages/shared/src/shell/shell.ts` gets it lazily from `buildFileSystem(content)`, and the T008 placeholder in `engine.ts` is replaced.
-- [ ] T051 [US2] Implement `packages/shared/src/commands/fs.ts` with `pwd`, `cd`, `ls` (`-a`, `-l`, several paths), `cat` (several paths, binary notice) and `tree` (box drawing and footer), using the exact messages in `contracts/commands.md`. `cd` updates `ctx.session.cwd` only on success and returns status `error` on failure.
+- [X] T050 [US2] Supply `fs` to every `CommandContext`: `createShell` in `packages/shared/src/shell/shell.ts` gets it lazily from `buildFileSystem(content)`, and the T008 placeholder in `engine.ts` is replaced.
+- [X] T051 [US2] Implement `packages/shared/src/commands/fs.ts` with `pwd`, `cd`, `ls` (`-a`, `-l`, several paths), `cat` (several paths, binary notice) and `tree` (box drawing and footer), using the exact messages in `contracts/commands.md`. `cd` updates `ctx.session.cwd` only on success and returns status `error` on failure.
 
   Register all five in `packages/shared/src/commands/registry.ts`:
   - `description` and full `args`: positional `path` with `complete: 'path'`, and `'dir'` for `cd`.
@@ -319,10 +319,10 @@ prompt shows the current folder, and paths complete on Tab.
   - `menu` not set, so the menu bar stays unchanged.
 
   T044 should now pass. Depends on T049 and T050.
-- [ ] T052 [US2] Add the read-only stubs and legacy `rm` handling. In `packages/shared/src/commands/fs.ts`, add a `readOnlyCommand(name)` factory, and register `mkdir`, `touch`, `mv`, `cp`, `rmdir`, `nano`, `vim`, `vi` and `chmod` as `hidden: true`. In `packages/shared/src/commands/easter-eggs.ts`, `rmCommand(args)` returns the legacy output for no arguments or the legacy `-rf`/`-fr` forms targeting `/`, `/*` or `~`, and the read-only message otherwise. Update the registry to pass `ctx.args`. T045 should now pass.
-- [ ] T053 [US2] Implement the `path` and `dir` completion sources in `packages/shared/src/shell/completion.ts`: resolve the partial's directory part against `session.cwd`, list the children, append `/` to folders (with no trailing space after a folder), and keep a typed `~/` or `../` prefix. T044 completion cases should now pass.
-- [ ] T054 [US2] Update `apps/web/components/CommandLine.tsx` and `apps/web/components/Terminal.tsx` to re-read `shell.prompt()` after every `run`, so the prompt and window title show the current folder.
-- [ ] T055 [US2] Run `npm test`, `npm run typecheck` and `npm run test:e2e -- -g "US2"`, and go through every quickstart US2 row by hand. Then add a temporary project to `content/resume.yaml`, run `npm run content:generate`, and confirm it appears in `ls ~/projects`. Revert the temporary project afterwards.
+- [X] T052 [US2] Add the read-only stubs and legacy `rm` handling. In `packages/shared/src/commands/fs.ts`, add a `readOnlyCommand(name)` factory, and register `mkdir`, `touch`, `mv`, `cp`, `rmdir`, `nano`, `vim`, `vi` and `chmod` as `hidden: true`. In `packages/shared/src/commands/easter-eggs.ts`, `rmCommand(args)` returns the legacy output for no arguments or the legacy `-rf`/`-fr` forms targeting `/`, `/*` or `~`, and the read-only message otherwise. Update the registry to pass `ctx.args`. T045 should now pass.
+- [X] T053 [US2] Implement the `path` and `dir` completion sources in `packages/shared/src/shell/completion.ts`: resolve the partial's directory part against `session.cwd`, list the children, append `/` to folders (with no trailing space after a folder), and keep a typed `~/` or `../` prefix. T044 completion cases should now pass.
+- [X] T054 [US2] Update `apps/web/components/CommandLine.tsx` and `apps/web/components/Terminal.tsx` to re-read `shell.prompt()` after every `run`, so the prompt and window title show the current folder.
+- [X] T055 [US2] Run `npm test`, `npm run typecheck` and `npm run test:e2e -- -g "US2"`, and go through every quickstart US2 row by hand. Then add a temporary project to `content/resume.yaml`, run `npm run content:generate`, and confirm it appears in `ls ~/projects`. Revert the temporary project afterwards.
 
 **Checkpoint**: US1 and US2 both work on their own.
 

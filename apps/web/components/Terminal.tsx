@@ -14,7 +14,7 @@ const menuItems = getMenuItems();
 
 export default function Terminal() {
   const {
-    history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat,
+    history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat, conversationRef,
     prompt, running, skip, sequencePlaying, finishSequence,
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp, historyDown, resetHistoryCursor,
@@ -132,7 +132,7 @@ export default function Terminal() {
         ))}
 
         {mode === 'chat' ? (
-          <ChatRenderer onExit={exitChat} />
+          <ChatRenderer onExit={exitChat} conversationRef={conversationRef} theme={theme} />
         ) : (
           <CommandLine
             onSubmit={handleCommand}

@@ -15,7 +15,8 @@
 | 1 | T002–T015 Setup + Foundational | ✅ reviewed and committed. astra stopped by the owner; sol hit the Codex usage limit; the orchestrator finished the audit | (this commit) |
 | 2 | T016–T036 US1 inventory | queued | — |
 | — | T037 US1 manual verification | orchestrator (needs network + token) | — |
-| 3 | T038–T056 US2 in-shell assistant | queued | — |
+| 2b | US2 client slice: T038, T040, T042, T045–T048, T053–T055 (T039/T044 minus the `github` exclusion part) | ✅ Sonnet agent (isolated worktree), reviewed and merged | 7243fac, 8a6a121 |
+| 3 | US2 server slice: T041, T043, T049–T052, T056 | queued (after run 2) | — |
 | 4 | T057–T073 US3 guardrails + evals | queued | — |
 | — | T074 run golden evals | orchestrator (needs API key) | — |
 | 5 | T075–T078 Polish | queued | — |
@@ -32,6 +33,11 @@
   - `@ai-sdk/provider` is declared as a direct dependency (`fallback.ts` imports its types).
   - Added 3 tests: an error after metadata only switches to the fallback; held metadata parts are replayed; no unhandled rejection.
 - **Gates**: typecheck clean; 36 test files and 280 tests pass (baseline 32 / 218).
+
+### Run 2b (Sonnet agent, US2 client slice)
+- **Reviewed**: the handler routing (a quote-aware pipe scan; `what's a|b` counts as piped), the allowlist (rejects hidden commands, resolves aliases, one pipeline of at most 4 stages), the client (checks the shape of every data part; transport and HTTP errors become one fixed error notice, and server text is never shown), and the web hook (drops events after a cancel; memory keeps only finished answers, last 5 exchanges). There's also a dim `^C` on cancelled answers, and Ctrl+L aborts the answer in flight. Neither was asked for, but I kept both as sensible.
+- **Gates** after the fast-forward merge: typecheck clean; 40 test files and 301 tests.
+- **Known limit**: `DefaultChatTransport` throws away the HTTP status, so a 403 and a 500 show the same generic error notice. That's acceptable: limits come back as 200 notice streams by design.
 
 ## Needs your eyes
 

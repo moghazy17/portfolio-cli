@@ -281,7 +281,7 @@ sources line. Then check:
 
 ### Tests for User Story 2 (write first, confirm they fail)
 
-- [ ] T038 [P] [US2] Write `packages/shared/test/assistant-handler.test.ts` covering every row of the routing table in contracts/shell-integration.md:
+- [X] T038 [P] [US2] Write `packages/shared/test/assistant-handler.test.ts` covering every row of the routing table in contracts/shell-integration.md:
   - curl → default not-found.
   - `projcts` → suggestion, no `ask`.
   - A single unknown word with no suggestion (`kafka`) → `ask`.
@@ -296,7 +296,7 @@ sources line. Then check:
   - Every command marked `assistant: true`, run with no args and with `--help` through `createShell({ surface: 'web' })`, returns no effect fields.
   - An inline snapshot of the sorted allowlist equals research R7's list.
   - `fetchGitHubData()`, with a mocked `fetch` returning a repo that has topic `portfolio-exclude`, omits it from `ownRepos`, `topRepos`, `topLanguages` and `totalStars`. So `github` output, whether typed or run by the assistant, never names it (FR-006).
-- [ ] T040 [P] [US2] Write `packages/shared/test/assistant-client.test.ts` for `askAssistant()` with an injected `fetch` that returns recorded UI-message-stream SSE bodies:
+- [X] T040 [P] [US2] Write `packages/shared/test/assistant-client.test.ts` for `askAssistant()` with an injected `fetch` that returns recorded UI-message-stream SSE bodies:
   - It maps `data-command`, text deltas, `data-sources`, `data-notice` and `data-decline` to `AssistantEvent`s in order, ending with `done`.
   - Text is sanitized, and a secret split across two deltas is redacted.
   - Abort mid-stream stops yielding without throwing.
@@ -310,7 +310,7 @@ sources line. Then check:
   - History is trimmed to 10 text-only messages.
   - `data-sources` contains only commands run and evidence pairs whose repo appears in the final text, falling back to the first 3.
   - An aborted signal stops further steps.
-- [ ] T042 [P] [US2] Write `packages/shared/test/assistant-ssh-parity.test.ts`. Drive `createShell({ surface: 'ssh', onUnknownCommand: createAssistantUnknownHandler() })` and `askAssistant({ surface: 'ssh' })` against the same recorded stream as the web case. Assert:
+- [X] T042 [P] [US2] Write `packages/shared/test/assistant-ssh-parity.test.ts`. Drive `createShell({ surface: 'ssh', onUnknownCommand: createAssistantUnknownHandler() })` and `askAssistant({ surface: 'ssh' })` against the same recorded stream as the web case. Assert:
   - identical routing decisions
   - an identical `AssistantEvent` sequence
   - an identical `formatSourcesLine()` output (SC-010 at engine level)
@@ -331,7 +331,7 @@ sources line. Then check:
   - `help`, `about`, `education`, `experience`, `projects`, `skills`, `certifications`, `contact`, `timeline`, `whoami`, `github`, `man`
   - `ls`, `cat`, `tree`, `pwd`
   - `grep`, `head`, `tail`, `wc`, `sort`
-- [ ] T045 [US2] Implement `packages/shared/src/assistant/allowlist.ts` with `validateAssistantCommandLine(line, registry)`:
+- [X] T045 [US2] Implement `packages/shared/src/assistant/allowlist.ts` with `validateAssistantCommandLine(line, registry)`:
   - At most 200 characters.
   - Parse with `parseShell`.
   - Exactly one pipeline, of at most 4 stages.
@@ -339,9 +339,9 @@ sources line. Then check:
   - Returns `{ ok: true } | { ok: false, reason, detail }`.
 
   With T044, this makes T039 pass.
-- [ ] T046 [US2] Implement `packages/shared/src/assistant/handler.ts` with `createAssistantUnknownHandler()`, following the routing table in contracts/shell-integration.md. Delegate to `defaultUnknownCommandHandler`, and detect an unquoted `|` with a small quote-aware scan (not the tokenizer, which rejects apostrophes). T038 now passes
-- [ ] T047 [P] [US2] Implement `packages/shared/src/assistant/sources.ts` with `formatSourcesLine({ commands, evidence, repos })`, which returns `sources: a · b · repo/file · repo`, or `''` when empty
-- [ ] T048 [US2] Implement `packages/shared/src/assistant/client.ts` with `askAssistant(options)`, following contracts/shell-integration.md:
+- [X] T046 [US2] Implement `packages/shared/src/assistant/handler.ts` with `createAssistantUnknownHandler()`, following the routing table in contracts/shell-integration.md. Delegate to `defaultUnknownCommandHandler`, and detect an unquoted `|` with a small quote-aware scan (not the tokenizer, which rejects apostrophes). T038 now passes
+- [X] T047 [P] [US2] Implement `packages/shared/src/assistant/sources.ts` with `formatSourcesLine({ commands, evidence, repos })`, which returns `sources: a · b · repo/file · repo`, or `''` when empty
+- [X] T048 [US2] Implement `packages/shared/src/assistant/client.ts` with `askAssistant(options)`, following contracts/shell-integration.md:
   - Use `DefaultChatTransport` from `ai`, with `api` set to the endpoint and `body: { surface }`.
   - Pass the headers and fetch options through.
   - Map the returned `UIMessageChunk` stream to `AssistantEvent`s.
@@ -378,7 +378,7 @@ sources line. Then check:
   - Pass `req.signal`.
   - Keep `classifyError` / `logChatEvent` error handling as a `data-notice {kind:'error'}`.
   - Return `createUIMessageStreamResponse`.
-- [ ] T053 [US2] Update `apps/web/hooks/useTerminal.ts`:
+- [X] T053 [US2] Update `apps/web/hooks/useTerminal.ts`:
   - Create the shell with `onUnknownCommand: createAssistantUnknownHandler()`.
   - On `result.ask`:
     - Push the input to history.
@@ -388,14 +388,14 @@ sources line. Then check:
   - `cancel()` aborts the controller and marks the entry `cancelled`.
   - Expose `conversationRef` so chat mode can share it.
   - Add the `AssistantEntryState` type from data-model.md §4.
-- [ ] T054 [P] [US2] Create `apps/web/components/AssistantAnswer.tsx`. It renders `AssistantEntryState` parts:
+- [X] T054 [P] [US2] Create `apps/web/components/AssistantAnswer.tsx`. It renders `AssistantEntryState` parts:
   - Command parts: a dim `↳ {commandLine}` header, then `<OutputRenderer output={…} />`.
   - Text in the existing text style.
   - Sources through `formatSourcesLine`, dim.
   - Notices in the error or dim style.
   - A `thinking…` indicator whose pulse is disabled under `prefers-reduced-motion`.
   - `aria-busy="true"` on the answer container while the status is `thinking` or `streaming`, and `"false"` on `done` or `cancelled` (Principle VI: the finished answer is announced once).
-- [ ] T055 [US2] Update `apps/web/components/Terminal.tsx` to render history entries that have `assistant` state through `AssistantAnswer`, inside the existing `role="log"` region
+- [X] T055 [US2] Update `apps/web/components/Terminal.tsx` to render history entries that have `assistant` state through `AssistantAnswer`, inside the existing `role="log"` region
 - [ ] T056 [US2] Update `apps/web/components/ChatRenderer.tsx`:
   - Configure `useChat` with a `DefaultChatTransport` using `body: { surface: 'web' }`.
   - Render assistant messages by converting their parts (data-command, text, data-sources, data-notice, data-decline) to `AssistantEntryState.parts` and passing them to `AssistantAnswer`.

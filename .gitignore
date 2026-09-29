@@ -40,3 +40,9 @@ apps/web/public/cv/
 test-results/
 playwright-report/
 .inventory/
+
+# Local agent tooling and personal notes (not project code)
+.agents/
+skills-lock.json
+.mcp.json
+plan.md

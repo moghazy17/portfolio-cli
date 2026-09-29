@@ -17,7 +17,8 @@
 | — | T037 US1 manual verification | orchestrator (needs network + token) | — |
 | 2b | US2 client slice: T038, T040, T042, T045–T048, T053–T055 (T039/T044 minus the `github` exclusion part) | ✅ Sonnet agent (isolated worktree), reviewed and merged | 7243fac, 8a6a121 |
 | 3 | US2 server slice: T041, T043, T049–T052, T056 | queued (after run 2) | — |
-| 4 | T057–T073 US3 guardrails + evals | queued | — |
+| 4a | US3 independent slice: T059–T061, T067–T070, T072, T073, T062 (golden.yaml only) | ✅ Sonnet agent (isolated worktree), reviewed and merged | c83c0b0, 3671dc5, 9ddae40 (+ barrel commit) |
+| 4b | US3 rest: T057, T058, T062 runner, T063–T066, T071 | queued (after runs 2–3) | — |
 | — | T074 run golden evals | orchestrator (needs API key) | — |
 | 5 | T075–T078 Polish | queued | — |
 | — | T079 quickstart + dispatch the inventory workflow | orchestrator / owner | — |
@@ -38,6 +39,18 @@
 - **Reviewed**: the handler routing (a quote-aware pipe scan; `what's a|b` counts as piped), the allowlist (rejects hidden commands, resolves aliases, one pipeline of at most 4 stages), the client (checks the shape of every data part; transport and HTTP errors become one fixed error notice, and server text is never shown), and the web hook (drops events after a cancel; memory keeps only finished answers, last 5 exchanges). There's also a dim `^C` on cancelled answers, and Ctrl+L aborts the answer in flight. Neither was asked for, but I kept both as sensible.
 - **Gates** after the fast-forward merge: typecheck clean; 40 test files and 301 tests.
 - **Known limit**: `DefaultChatTransport` throws away the HTTP status, so a 403 and a 500 show the same generic error notice. That's acceptable: limits come back as 200 notice streams by design.
+
+### Run 4a (Sonnet agent, US3 independent slice)
+- **Reviewed**:
+  - Relay identity: the relay header is honored only with a valid bearer (SHA-256 then `timingSafeEqual`) and a valid IP.
+  - Limits: 15/h per visitor, then the daily cap. They fail **closed** when Redis errors and are off when Redis is unset.
+  - Question log: `EXPIREAT` at day start + 30 days, and entries carry no identifying fields.
+  - Stats endpoint: a 10/min per-IP limit is checked before the token.
+  - Eval fixtures: 6 neutral repos, and `golden.yaml` has 18 cases.
+- **Orchestrator follow-up**: exported `resolveVisitorIp`, `classifyOutcome` and `buildLogEntry` from the server barrel, and replaced `question-log.ts`'s duplicate type with the shared one.
+- **Gates**: 42 test files and 322 tests; typecheck clean.
+- **Decided for you**: the daily-cap wording is "The assistant has reached its daily question limit — try again tomorrow. Commands like `projects` still work."
+- **For the eval runner (run 4b)**: the fixture dates sit around 2026-09-28, so the runner must freeze "now" near that date.
 
 ## Needs your eyes
 

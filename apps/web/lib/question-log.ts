@@ -1,13 +1,7 @@
+import type { QuestionLogEntry } from '@ahmed-moghazy/shared/assistant-server';
 import { redis } from './redis';
 
-// Mirrors the entry built by buildLogEntry(); it holds nothing that identifies a visitor.
-export interface QuestionLogEntry {
-  at: string;
-  question: string;
-  outcome: 'answered' | 'refused' | 'no_evidence' | 'error' | 'limited';
-  sources: { commands: string[]; evidence: string[] };
-  surface: 'web' | 'ssh';
-}
+export type { QuestionLogEntry };
 
 const KEY_PREFIX = 'assistant:log:';
 const RETENTION_DAYS = 30;

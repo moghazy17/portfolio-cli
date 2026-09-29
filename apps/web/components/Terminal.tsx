@@ -1,6 +1,7 @@
 'use client';
 
 import { getMenuItems } from '@ahmed-moghazy/shared';
+import AssistantAnswer from './AssistantAnswer';
 import CommandLine from './CommandLine';
 import OutputRenderer from './OutputRenderer';
 import SequencePlayer from './SequencePlayer';
@@ -114,7 +115,9 @@ export default function Terminal() {
               </span>
               <span style={{ color: 'var(--fg)' }}>{entry.input}</span>
             </div>
-            {entry.sequence && !entry.sequenceDone && entry.sequenceId !== undefined ? (
+            {entry.assistant ? (
+              <AssistantAnswer state={entry.assistant} theme={theme} />
+            ) : entry.sequence && !entry.sequenceDone && entry.sequenceId !== undefined ? (
               <SequencePlayer
                 steps={entry.sequence}
                 final={entry.output}

@@ -1,0 +1,114 @@
+{
+  "currentRepos": [
+    {
+      "name": "atlas-pipeline",
+      "fork": false,
+      "topics": [
+        "streaming",
+        "data"
+      ],
+      "pushedAt": "2026-09-20T14:12:00Z",
+      "archived": false
+    },
+    {
+      "name": "lattice-notes",
+      "fork": false,
+      "topics": [
+        "web",
+        "notes"
+      ],
+      "pushedAt": "2026-09-26T09:30:00Z",
+      "archived": false
+    },
+    {
+      "name": "ember-vision",
+      "fork": false,
+      "topics": [
+        "ml",
+        "vision"
+      ],
+      "pushedAt": "2026-06-02T18:45:00Z",
+      "archived": false
+    },
+    {
+      "name": "orbit-scheduler",
+      "fork": false,
+      "topics": [
+        "scheduler"
+      ],
+      "pushedAt": "2026-09-27T21:05:00Z",
+      "archived": false
+    },
+    {
+      "name": "willow-etl",
+      "fork": false,
+      "topics": [
+        "etl"
+      ],
+      "pushedAt": "2026-03-15T07:20:00Z",
+      "archived": false
+    },
+    {
+      "name": "quiet-harbor",
+      "fork": false,
+      "topics": [
+        "systems",
+        "portfolio-exclude"
+      ],
+      "pushedAt": "2026-09-25T11:00:00Z",
+      "archived": false
+    },
+    {
+      "name": "fork-sandbox",
+      "fork": true,
+      "topics": [],
+      "pushedAt": "2026-09-29T08:00:00Z",
+      "archived": false
+    }
+  ],
+  "recentActivity": [
+    {
+      "repo": "orbit-scheduler",
+      "lastActivity": "2026-09-27T21:05:00Z",
+      "pushes": 6,
+      "kinds": [
+        "push",
+        "release"
+      ]
+    },
+    {
+      "repo": "lattice-notes",
+      "lastActivity": "2026-09-26T09:30:00Z",
+      "pushes": 3,
+      "kinds": [
+        "push"
+      ]
+    },
+    {
+      "repo": "atlas-pipeline",
+      "lastActivity": "2026-09-20T14:12:00Z",
+      "pushes": 2,
+      "kinds": [
+        "push",
+        "created"
+      ]
+    }
+  ],
+  "codeHits": [
+    {
+      "repo": "lattice-notes",
+      "path": "src/queue/worker.ts",
+      "fragment": "import { Worker } from \"bullmq\"; // background jobs for note indexing"
+    },
+    {
+      "repo": "orbit-scheduler",
+      "path": "internal/worker/run.go",
+      "fragment": "func (w *Worker) Run(ctx context.Context) error { for job := range w.jobs {"
+    },
+    {
+      "repo": "quiet-harbor",
+      "path": "src/main.rs",
+      "fragment": "use tokio::runtime::Builder; fn main() { let rt = Builder::new_multi_thread()"
+    }
+  ]
+}

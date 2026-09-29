@@ -1,37 +1,31 @@
 <!--
 Sync Impact Report
 ==================
-Version change: (template, unversioned) → 1.0.0
-Bump rationale: initial ratification; all placeholders replaced with concrete principles.
+Version change: 1.0.0 → 1.1.0
+Bump rationale: MINOR — the Platform & Surface Constraints "AI" rule is materially expanded:
+  the provider changes from Gemini-only to OpenAI primary with a Gemini fallback, and
+  fallback behavior is now required for visitor-facing AI.
 
-Modified principles: n/a (first version)
-Added principles:
-  I. Single Source of Truth
-  II. Render-Agnostic Core
-  III. Simplicity First
-  IV. Honest AI
-  V. Security by Default
-  VI. Accessibility & Motion
-  VII. Performance Budgets
-  VIII. Layered Testing
-  IX. Independently Shippable User Stories
-  X. Green Gate Before Merge
-Added sections: Platform & Surface Constraints; Development Workflow & Quality Gates; Governance
+Modified principles: none
+Modified sections:
+  Platform & Surface Constraints → AI: "Gemini through the Vercel AI SDK" →
+  "OpenAI (primary) with Gemini fallback, both through the Vercel AI SDK".
+Added sections: none
 Removed sections: none
 
 Templates:
-  ✅ .specify/templates/plan-template.md — "Constitution Check" gate is generic and is filled
-     per feature from this file; no edit needed.
-  ✅ .specify/templates/spec-template.md — already requires prioritized, independently
-     testable user stories (Principle IX); no edit needed.
-  ✅ .specify/templates/tasks-template.md — "tests are OPTIONAL" note amended to point at
-     Principle VIII, which makes tests mandatory for engine, web, SSH and AI work.
-  ✅ .specify/templates/commands/*.md — directory not present; nothing to check.
-  ⚠ CLAUDE.md — still says CV data lives in packages/shared/src/data.ts. Correct for the
-     current code; update when Spec 001 migrates content to /content.
-  ⚠ README.md — still documents npm install and data.ts (tracked in plan.md Phase 0).
+  ✅ .specify/templates/plan-template.md — generic Constitution Check; no edit needed.
+  ✅ .specify/templates/spec-template.md — provider-agnostic; no edit needed.
+  ✅ .specify/templates/tasks-template.md — no provider references; no edit needed.
+  ✅ specs/003-github-aware-assistant/plan.md + research.md R16 — updated to the new rule.
+  ⚠ CLAUDE.md — env var table needs the Gemini fallback key once Spec 003 implements it.
+  ⚠ plan.md (root roadmap) — still says "Keep Gemini"; untracked working note, update by hand.
 
-Deferred TODOs: none.
+Deferred TODOs: none. The Gemini fallback model is configured as gemini-3.5-flash-lite
+  (ASSISTANT_FALLBACK_MODEL), which is configuration, not constitution text.
+
+History:
+  1.0.0 (2026-09-26) — initial ratification of Principles I–X and all sections.
 -->
 
 # Portfolio CLI Constitution
@@ -151,7 +145,11 @@ cheap, automated check.
   `apps/web` (Next.js on Vercel); SSH server in `apps/ssh` (Node + `ssh2` + Ink on Fly.io).
 - **Content**: `/content/resume.yaml`, `/content/projects/<slug>/README.md`,
   `/content/cv/latest.pdf`, validated with zod in `packages/shared`.
-- **AI**: Gemini through the Vercel AI SDK, called only from server routes or CI.
+- **AI**: OpenAI is the primary provider and Google Gemini the fallback, both through the
+  Vercel AI SDK, called only from server routes or CI. Visitor-facing AI (chat and the
+  shell assistant) MUST fall back to Gemini when OpenAI fails or is out of quota, and MUST
+  degrade to a clear "unavailable" message if both fail. CI jobs (e.g. CV sync, evals) MAY
+  use the primary provider only. Model ids are configuration, not code.
 - **State**: Upstash Redis for cache, inventory, presence, guestbook and rate limits.
   Features MUST degrade gracefully when Redis env vars are absent in local development.
 - Adding a surface, host or datastore beyond these requires a Principle III justification.
@@ -180,4 +178,4 @@ cheap, automated check.
   principles; reviewers confirm compliance before merge. Violations are allowed only when
   recorded in the plan's Complexity Tracking table.
 
-**Version**: 1.0.0 | **Ratified**: 2026-09-26 | **Last Amended**: 2026-09-26
+**Version**: 1.1.0 | **Ratified**: 2026-09-26 | **Last Amended**: 2026-09-30

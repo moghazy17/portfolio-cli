@@ -120,5 +120,5 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-`specs/002-shell-experience/plan.md` (Spec 002 — Shell experience)
+`specs/003-github-aware-assistant/plan.md` (Spec 003 — GitHub-aware assistant)
 <!-- SPECKIT END -->

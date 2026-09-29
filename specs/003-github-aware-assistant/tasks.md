@@ -314,7 +314,7 @@ sources line. Then check:
   - identical routing decisions
   - an identical `AssistantEvent` sequence
   - an identical `formatSourcesLine()` output (SC-010 at engine level)
-- [ ] T043 [P] [US2] Write `apps/web/e2e/assistant.spec.ts`. Route-stub `/api/chat` with recorded UI-message streams and cover:
+- [X] T043 [P] [US2] Write `apps/web/e2e/assistant.spec.ts`. Route-stub `/api/chat` with recorded UI-message streams and cover:
   - A question at the prompt shows `thinking…`, then `↳ projects | grep -i rag`, the command output, the summary and a `sources:` line.
   - `projcts` shows "did you mean" and makes no request to `/api/chat`.
   - `who is he | grep python` shows not-found and makes no request.
@@ -396,7 +396,7 @@ sources line. Then check:
   - A `thinking…` indicator whose pulse is disabled under `prefers-reduced-motion`.
   - `aria-busy="true"` on the answer container while the status is `thinking` or `streaming`, and `"false"` on `done` or `cancelled` (Principle VI: the finished answer is announced once).
 - [X] T055 [US2] Update `apps/web/components/Terminal.tsx` to render history entries that have `assistant` state through `AssistantAnswer`, inside the existing `role="log"` region
-- [ ] T056 [US2] Update `apps/web/components/ChatRenderer.tsx`:
+- [X] T056 [US2] Update `apps/web/components/ChatRenderer.tsx`:
   - Configure `useChat` with a `DefaultChatTransport` using `body: { surface: 'web' }`.
   - Render assistant messages by converting their parts (data-command, text, data-sources, data-notice, data-decline) to `AssistantEntryState.parts` and passing them to `AssistantAnswer`.
   - Seed and append the shared `conversationRef` from `useTerminal`, passed through `Terminal.tsx` props.

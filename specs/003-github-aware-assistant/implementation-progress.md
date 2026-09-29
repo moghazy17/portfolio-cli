@@ -16,7 +16,8 @@
 | 2 | T016–T036 US1 inventory | queued | — |
 | — | T037 US1 manual verification | orchestrator (needs network + token) | — |
 | 2b | US2 client slice: T038, T040, T042, T045–T048, T053–T055 (T039/T044 minus the `github` exclusion part) | ✅ Sonnet agent (isolated worktree), reviewed and merged | 7243fac, 8a6a121 |
-| 3 | US2 server slice: T041, T043, T049–T052, T056 | queued (after run 2) | — |
+| 3a | US2 web slice: T056 chat renderer, T043 e2e | ✅ Sonnet agent (isolated worktree); the orchestrator re-ran the build and Playwright (33/33) | b1bc704 |
+| 3b | US2 server slice: T041, T049–T052 | queued (after run 2) | — |
 | 4a | US3 independent slice: T059–T061, T067–T070, T072, T073, T062 (golden.yaml only) | ✅ Sonnet agent (isolated worktree), reviewed and merged | c83c0b0, 3671dc5, 9ddae40 (+ barrel commit) |
 | 4b | US3 rest: T057, T058, T062 runner, T063–T066, T071 | queued (after runs 2–3) | — |
 | — | T074 run golden evals | orchestrator (needs API key) | — |
@@ -51,6 +52,13 @@
 - **Gates**: 42 test files and 322 tests; typecheck clean.
 - **Decided for you**: the daily-cap wording is "The assistant has reached its daily question limit — try again tomorrow. Commands like `projects` still work."
 - **For the eval runner (run 4b)**: the fixture dates sit around 2026-09-28, so the runner must freeze "now" near that date.
+
+### Run 3a (Sonnet agent, chat renderer and e2e)
+- **Reviewed**:
+  - Chat mode now uses the same endpoint, body and `AssistantAnswer` rendering as in-shell answers, and shares the session conversation.
+  - The e2e tests stub `/api/chat` with UI-message SSE. The three mid-stream tests use a controllable `fetch` stub (`route.fulfill` can't stream).
+- **Verified by the orchestrator in the worktree**: `build:web` succeeds and Playwright passes 33/33.
+- **Polish item**: the data-part validation in `ChatRenderer` duplicates the private `dataEvent` in `client.ts`. Export one shared parser and use it in both.
 
 ## Needs your eyes
 

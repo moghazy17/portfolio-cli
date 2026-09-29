@@ -35,7 +35,7 @@
 
 ## Needs your eyes
 
-- `legacy-output.test.ts.snap` keeps coming back with only line-ending changes after test runs on Windows. Each commit restores it. Consider adding `*.snap text eol=lf` to `.gitattributes`.
+- ~~Snapshot line-ending churn on Windows~~: fixed by adding `*.snap text eol=lf` to `.gitattributes`, at the owner's request.
 
 ## End-of-run checklist
 

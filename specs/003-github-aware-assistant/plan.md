@@ -49,6 +49,9 @@ uses `octokit`.
 - **Question log**: anonymous, kept 30 days (clarification Q2).
 - **Evals**: an 18-question golden eval with mocked tools and deterministic assertions.
 
+**Glossary**: *inventory* (plan, tasks, code) is the spec's *knowledge base*, and an
+*inventory snapshot* is one complete build of it.
+
 ## Technical Context
 
 **Language/Version**: TypeScript 5.7 (strict). Next.js 15 / React 18 on Vercel. Node 20 for scripts, CI and tests.
@@ -125,7 +128,7 @@ No `NEEDS CLARIFICATION` items remain. All were resolved in [research.md](./rese
 | III | Simplicity first | ✅ | ✅ with justification | No new service or datastore: Redis, Vercel and Actions already exist. Three small dependencies (`octokit`, `smol-toml`, `@ai-sdk/google`) are justified below. No vector DB. There is one endpoint for both modes |
 | IV | Honest AI | ✅ | ✅ | Citations come only from tool results (R15). "No public evidence found" wording and README-only wording are asserted by evals. `untrusted_text` framing, read-only tools, `decline` for off-topic requests, and injection evals |
 | V | Security by default | ✅ | ✅ | The GitHub token and API keys are server- or CI-only. The chat endpoint is rate-limited per visitor, capped daily, and fails closed. The relay IP is honored only with a bearer secret (constant-time compare). Secrets are redacted on ingestion and output. `run_command` is allowlisted and blocks effects. `search_code` input is character-restricted. The stats and log endpoint is token-guarded, and the log stores no IPs |
-| VI | Accessibility & motion | ✅ | ✅ | Answers append to the existing `role="log" aria-live="polite"` region. The thinking indicator honors `prefers-reduced-motion`, with no pulse when reduced. Everything is keyboard-only; Ctrl+C cancels |
+| VI | Accessibility & motion | ✅ | ✅ | Answers append to the existing `role="log" aria-live="polite"` region, with `aria-busy="true"` while streaming, so screen readers read the finished answer once instead of every fragment. The thinking indicator honors `prefers-reduced-motion`, with no pulse when reduced. Everything is keyboard-only; Ctrl+C cancels |
 | VII | Performance budgets | ✅ | ✅ | No new client libraries: the client uses `ai`'s transport, which is already bundled for `useChat`. Nothing is added to the critical path, because the assistant runs only after unknown input |
 | VIII | Layered testing | ✅ | ✅ | Vitest unit and wiring tests, Playwright with a stubbed stream, and the golden eval set (≥ 15 questions, all required categories) in CI. SSH smoke is N/A until `apps/ssh` exists; an engine-level parity test stands in for it |
 | IX | Independent stories | ✅ | ✅ | **US1** ships the inventory, `lookup_tech`, `list_repos` and `get_repo` into the existing chat mode (testable through `chat`). **US2** adds the handler, `ask`, the client, `run_command` and the web rendering. It works without the inventory, because tools report `unavailable`. **US3** adds live tools, `decline`, limits, the log and evals. The per-visitor limiter that already exists stays in place until US3 replaces it |

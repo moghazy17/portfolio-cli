@@ -111,7 +111,10 @@ untouched and writes `inventory:v1:meta.ok = false`.
 ## 3. Exclusion tag
 
 The spec entity *Exclusion tag*. It is a GitHub topic, `portfolio-exclude`, defined once
-as `EXCLUDE_TOPIC` in `packages/shared/src/inventory/constants.ts`.
+as `EXCLUDE_TOPIC` in the client-safe `packages/shared/src/exclusion.ts`, and re-exported
+by `src/inventory/constants.ts`.
+- **Site-wide**: `fetchGitHubData()`, which backs the `github` command, drops tagged
+  repos.
 - **Build time**: the inventory drops tagged repos.
 - **Read time**: live tools drop repos that are tagged in the 10-minute-cached current
   repo list (research R9).
@@ -178,6 +181,7 @@ The spec entity *Visitor allowance*. It is Redis state owned by `@upstash/rateli
 | `rl:assistant:visitor` | sliding window | visitor IP (relay-aware, FR-027a) | 15 per 1 h |
 | `rl:assistant:global` | fixed window | `global` | `ASSISTANT_DAILY_CAP` (default 1,000) per 1 d |
 | `rl:assistant:search` | sliding window | `global` | 8 per 1 min (GitHub code-search guard) |
+| `rl:chat-stats` | sliding window | caller IP | 10 per 1 min (stats and log endpoint, Constitution V) |
 
 ## 7. Question log entry (Redis `assistant:log:<YYYY-MM-DD>`, list)
 
@@ -194,8 +198,10 @@ interface QuestionLogEntry {
 ```
 
 - It never contains an IP, an identity hash, a session id or a user agent.
-- Each day's key has a TTL of 31 days, so entries are gone by day 31 (the spec says
-  "deleted after 30 days").
+- Too-long questions (over 500 characters) are not logged, so the outcome list has no
+  value for them.
+- Each day's key has `EXPIREAT` set to its UTC day start + 30 days, so every entry is gone
+  within 30 days (FR-020a).
 - It is readable only through the token-guarded `/api/chat-stats?log=1`.
 
 ## 8. Live GitHub caches (Redis)
@@ -210,10 +216,19 @@ interface QuestionLogEntry {
 ```ts
 interface RecentActivity {
   repo: string;
-  lastActivity: string;
+  lastActivity: string;               // from currentRepos().pushedAt (authoritative, 10 min fresh)
   pushes: number;
   kinds: Array<'push' | 'created' | 'release' | 'public'>;
 }
+```
+
+```ts
+interface LiveRepo { name: string; fork: boolean; topics: string[]; pushedAt: string; archived: boolean }
+interface LiveRepoDetail extends LiveRepo {
+  url: string; description: string | null; languages: string[];
+  readmeExcerpt: string | null;          // redacted, ≤ 3,000 chars
+}
+interface CodeHit { repo: string; path: string; fragment: string }   // fragment redacted, ≤ 160 chars
 ```
 
 The existing `github:profile` key used by `github-cache.ts` is kept for the `github`

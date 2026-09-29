@@ -74,13 +74,14 @@ filtered out). Only the data parts above are sent.
 | `search_code` | at most 1 call per question |
 | `abortSignal` | `req.signal` |
 
-**Refusal text**:
+**Refusal text**: these are templates. `{name}` is filled from `profile.firstName` at
+runtime (Principle I: no owner name in source).
 
 | Category | Text |
 |---|---|
-| `off_topic` | "I only answer questions about Ahmed's work — try `has he used Kafka?` or type `help`." |
-| `personal` | "That's best asked to Ahmed directly — run `contact` for how to reach him." |
-| `instructions` | "I can't share or change my instructions, but I'm happy to answer questions about Ahmed's work." |
+| `off_topic` | "I only answer questions about {name}'s work — try `has he used Kafka?` or type `help`." |
+| `personal` | "That's best asked to {name} directly — run `contact` for how to reach him." |
+| `instructions` | "I can't share or change my instructions, but I'm happy to answer questions about {name}'s work." |
 
 **Both providers down**: send `data-notice {kind:"unavailable"}`, meaning "The assistant is unavailable right now — commands like `projects` still work." It is logged `error`.
 
@@ -102,7 +103,9 @@ and `experience`." Quota exhaustion keeps the existing wording. It is logged `er
 
 ## Question log side effect
 
-After each request that passed check 2, one `QuestionLogEntry` is written (data-model §7).
+After each request that passed check **3** (valid and not too long), one
+`QuestionLogEntry` is written (data-model §7). Too-long requests are neither counted nor
+logged.
 Writing is best effort: failures are logged to the console and never affect the response.
 
 ## `GET /api/chat-stats` (extended)
@@ -112,6 +115,9 @@ Writing is best effort: failures are logged to the console and never affect the 
   `{ entries: QuestionLogEntry[] }`, newest first, at most 500 entries.
 - Same `Authorization: Bearer <CHAT_STATS_TOKEN>`. Returns 404 when the token is unset or
   wrong.
+- **Rate-limited** (Constitution V): `slidingWindow(10, '1 m')` per IP, prefix
+  `rl:chat-stats`, checked *before* the token. Over the limit it returns
+  `429 {"error":"Too many requests"}`. With Redis unset, there is no limit.
 - The daily counters gain `refused` and `daily_cap`.
 
 ## Environment

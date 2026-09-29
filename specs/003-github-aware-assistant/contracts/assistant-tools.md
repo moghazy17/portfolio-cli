@@ -101,6 +101,10 @@ input:  {}
 output: { since: string /* now − 30 d */, activity: RecentActivity[] /* ≤ 10, newest first */ }
 ```
 
+The repo set and `lastActivity` come from `live.currentRepos()` `pushedAt` (10-minute
+cache). Events (which can lag hours) only enrich `pushes` and `kinds`. A repo pushed
+recently appears even if no event for it has arrived yet.
+
 ## `search_code` (last resort)
 
 ```ts

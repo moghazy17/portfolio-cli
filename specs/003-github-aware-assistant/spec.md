@@ -198,6 +198,6 @@ The assistant knows what Ahmed has been working on lately (recent pushes, new re
 - Session memory lasts only for the current browser tab or SSH session. After the session, only anonymous usage counts and the 30-day anonymous question log (FR-020a) remain.
 - The SSH surface is delivered by the separate access-surfaces feature (planned as the SSH server on its own host). This feature puts all assistant behavior in the shared shell so SSH gets it without extra work; SSH acceptance scenarios are verified once that surface exists. If the SSH surface isn't live when this ships, the web surface alone is the release gate.
 - The curl surface does not get AI answers in this feature.
-- The existing unknown-input hook from the shell-experience feature is the integration point; no changes to the parser or existing commands are expected.
+- The existing unknown-input hook from the shell-experience feature is the integration point. Changes to the shell are additive only: one new effect and one registry flag, with no parser changes.
 - The existing AI provider, usage report and caching service are reused; no new paid service is introduced. Semantic/vector search over code is out of scope and deferred unless evaluations show knowledge-base answers failing.
 - Ahmed's featured projects and CV content remain the primary source for experience claims; GitHub evidence supplements them for technologies and recent work.

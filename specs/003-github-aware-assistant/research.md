@@ -234,6 +234,13 @@ rendering differs (FR-022, SC-010).
 - `ls`, `cat`, `tree`, `pwd`
 - `grep`, `head`, `tail`, `wc`, `sort`
 
+**Exclusion in `github`**: the `github` command lists top repos from `fetchGitHubData()`,
+which today has no exclusion filter. `fetchGitHubData()` now drops repos carrying the
+exclusion topic (the REST repos list includes `topics`). This protects the command
+wherever it runs: typed by a visitor, run by the assistant, or used in the prompt
+context. `EXCLUDE_TOPIC` lives in the client-safe `packages/shared/src/exclusion.ts`, and
+`src/inventory/constants.ts` re-exports it. This keeps the bundle boundary (T014) intact.
+
 **Not allowlisted**: `cd` (session state), `theme`, `clear`, `welcome`, `open`, `resume`,
 `chat`, `sudo`, `rm`, `neofetch`, `hello`, `exit` and all hidden commands (FR-016).
 
@@ -266,8 +273,11 @@ narrow output (clarification Q1). The registry stays the single source of what i
 
 Budgets (FR-018, FR-029):
 - A shared per-request counter allows **at most 5 tool calls** of any kind except
-  `decline`. Once it is reached, `prepareStep` returns `activeTools: ['decline']` and
-  `toolChoice: 'none'`, so the model must answer.
+  `decline`. Once it is reached, `prepareStep` returns `activeTools: ['decline']` with
+  `toolChoice: 'auto'`. The model can then only answer in text or decline. Never use
+  `toolChoice: 'none'`: it would also disable `decline`. As a second guard, each tool's
+  `execute` checks the counter and returns `{ budgetExhausted: true }`, which covers
+  parallel calls within the step that crosses the limit.
 - `stopWhen: [stepCountIs(6), hasToolCall('decline')]`.
 - `maxOutputTokens: 400` per step.
 - Each tool's model-facing result is capped at 2,000 characters.
@@ -301,7 +311,12 @@ Budgets (FR-018, FR-029):
   live answers respect a newly added `portfolio-exclude` tag immediately (edge case), even
   before the next rebuild.
 - **`recent_activity`**:
-  - Source: `GET /users/{u}/events/public` (at most 3 pages).
+  - **Primary recency source**: `pushed_at` from `currentRepos()` (10-minute cache). Every
+    included repo pushed in the last 30 days is listed with that date. This is what makes
+    SC-006 hold: GitHub's events API can lag from 30 s to several hours, so it can't be the
+    source of truth for "recent".
+  - Events add detail only (push counts, releases, new repos). Source:
+    `GET /users/{u}/events/public` (at most 3 pages).
   - Keeps PushEvent, CreateEvent (repository), ReleaseEvent and PublicEvent from the last
     30 days, grouped per repo as `{ repo, lastActivity, pushes, kinds }`.
   - Filters out excluded repos and forks.
@@ -397,7 +412,9 @@ can't be guaranteed if it is skipped during outages.
 **Decision**: `apps/web/lib/question-log.ts` writes one entry per question to the Redis
 list `assistant:log:<YYYY-MM-DD>`:
 - An `LPUSH` of `{ at, question, outcome, sources, surface }`.
-- `EXPIRE` of 31 days on each day's key.
+- `EXPIREAT` set to that day's UTC midnight + 30 days, so no entry outlives 30 days
+  (FR-020a). A per-write `EXPIRE` would push the expiry later on every write and keep
+  early entries around for up to 31 days.
 - No IP, identity hash or session id is stored.
 - Question text is passed through `redactSecrets()`.
 
@@ -452,12 +469,17 @@ without a cleanup job.
      - `decline` called
      - sources contain a repo/file pair
      - summary lines ≤ 8
+   - Command cases also assert `maxTotalLines: 22` for the whole answer at 80 columns,
+     including command output (SC-008).
+   - The runner records time-to-first-event and total time per case, and prints p50/p90.
+     This is informational for SC-007 (targets: p90 first event ≤ 3 s, total ≤ 15 s), not
+     a pass condition, because CI latency is noisy.
    - Pass bar: overall ≥ 95%, and 100% for the excluded and injection categories (SC-004).
    - Run with `npm run eval:assistant -w @ahmed-moghazy/shared`, using a separate
      `vitest.evals.config.ts`.
    - Workflow: `assistant-eval.yml`. It triggers on PRs touching `packages/shared/src/assistant/**`,
-     `packages/shared/src/inventory/**`, `packages/shared/evals/**` or
-     `apps/web/app/api/chat/**`, weekly, and on `workflow_dispatch`. When
+     `packages/shared/src/inventory/**`, `packages/shared/evals/**`,
+     `apps/web/app/api/chat/**` or `content/**`, weekly, and on `workflow_dispatch`. When
      `OPENAI_API_KEY` is absent (fork PRs), it skips with a notice, following the
      `cv-eval.yml` pattern.
 
@@ -582,8 +604,10 @@ gate, because visitors reach Gemini only during OpenAI incidents.
   arrives in under 3 seconds (SC-007).
 - Ctrl+C aborts the controller. The shared client then aborts the fetch, the server's
   `req.signal` aborts `streamText`, and no further steps run (FR-019).
-- The terminal log is already `role="log" aria-live="polite"`. Answers append into it, so
-  screen readers hear them.
+- The terminal log is already `role="log" aria-live="polite"`. Answers append into it. To
+  stop screen readers announcing every streamed fragment, the answer container has
+  `aria-busy="true"` while it is `thinking` or `streaming`, and `aria-busy="false"` on
+  `done` or `cancelled`. The finished answer is then read once (Principle VI).
 - `ChatRenderer` renders the same parts from `useChat` messages through `AssistantAnswer`,
   so both modes look the same (FR-021).
 

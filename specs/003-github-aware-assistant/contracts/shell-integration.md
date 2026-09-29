@@ -57,7 +57,7 @@ so the wording matches on all surfaces.
 |---|---|
 | Web (`useTerminal`) | On `result.ask`: push a history entry in `thinking` state and iterate `askAssistant()`. Keep the conversation (≤ 5 exchanges) for the session. Cancel on Ctrl+C. Push the question into command history like any input |
 | Web (`ChatRenderer`) | Render `useChat` message parts through `AssistantAnswer`. Send `surface: 'web'`. Share the session conversation with the in-shell answers |
-| SSH (future `apps/ssh`) | Same as the web `useTerminal` row, using an Ink renderer for events. Send relay headers and `surface: 'ssh'` |
+| SSH (future `apps/ssh`) | Same as the web `useTerminal` row, using an Ink renderer for events. Send relay headers and `surface: 'ssh'`. Wrap text and command output to the session's current column count, and re-wrap on resize (FR-013). The web wraps with CSS |
 | curl | Nothing. The handler falls back to not-found (rule 1) |
 
 ## Rendering (all surfaces)

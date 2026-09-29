@@ -1,5 +1,5 @@
 import { streamText, convertToModelMessages } from 'ai';
-import { openai } from '@ai-sdk/openai';
+import { createAssistantModel } from '@ahmed-moghazy/shared/assistant-server';
 import { NextResponse } from 'next/server';
 import { Ratelimit } from '@upstash/ratelimit';
 import { buildSystemPrompt, cvData } from '@ahmed-moghazy/shared';
@@ -85,7 +85,7 @@ export async function POST(req: Request) {
   const modelMessages = await convertToModelMessages(messages);
 
   const result = streamText({
-    model: openai('gpt-6-luna'),
+    model: createAssistantModel(process.env, { onFallback: () => logChatEvent('fallback') }),
     system: systemPrompt,
     messages: modelMessages,
     onError: async ({ error }) => {

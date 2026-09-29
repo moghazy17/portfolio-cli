@@ -39,3 +39,4 @@ apps/web/public/cv/
 .cv-sync/
 test-results/
 playwright-report/
+.inventory/

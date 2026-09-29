@@ -49,13 +49,13 @@ tested and merged on its own (Principle IX).
 
 **Purpose**: Dependencies, package wiring and env templates.
 
-- [ ] T001 Add dependencies to `packages/shared/package.json`: `octokit`, `smol-toml` and `@ai-sdk/google` (all server/CI-only). Run `npm install` from the repo root and commit the updated `package-lock.json`
-- [ ] T002 In `packages/shared/package.json`:
+- [X] T001 Add dependencies to `packages/shared/package.json`: `octokit`, `smol-toml` and `@ai-sdk/google` (all server/CI-only). Run `npm install` from the repo root and commit the updated `package-lock.json`
+- [X] T002 In `packages/shared/package.json`:
   - Add the subpath export `"./assistant-server": "./src/assistant/server/index.ts"`.
   - Add the scripts `"inventory:build": "tsx scripts/build-inventory.ts"` and `"eval:assistant": "vitest run --config vitest.evals.config.ts"`.
   - Create `packages/shared/vitest.evals.config.ts`: node environment, `include: ['evals/**/*.eval.ts']`, `testTimeout: 60000`, `maxWorkers: 2`.
-- [ ] T003 [P] Add `.inventory/` to the root `.gitignore`. That file has an unrelated uncommitted change (the `Ahmed_Moghazy.pdf` line); stage only your hunk with `git add -p`
-- [ ] T004 [P] Add the new variables to `apps/web/.env.example`, with empty values and one-line comments: `GH_INVENTORY_TOKEN`, `ASSISTANT_MODEL`, `GOOGLE_GENERATIVE_AI_API_KEY`, `ASSISTANT_FALLBACK_MODEL`, `ASSISTANT_DAILY_CAP`, `ASSISTANT_RELAY_TOKEN`, `INVENTORY_FILE` (see contracts/chat-api.md §Environment)
+- [X] T003 [P] Add `.inventory/` to the root `.gitignore`. That file has an unrelated uncommitted change (the `Ahmed_Moghazy.pdf` line); stage only your hunk with `git add -p`
+- [X] T004 [P] Add the new variables to `apps/web/.env.example`, with empty values and one-line comments: `GH_INVENTORY_TOKEN`, `ASSISTANT_MODEL`, `GOOGLE_GENERATIVE_AI_API_KEY`, `ASSISTANT_FALLBACK_MODEL`, `ASSISTANT_DAILY_CAP`, `ASSISTANT_RELAY_TOKEN`, `INVENTORY_FILE` (see contracts/chat-api.md §Environment)
 
 ---
 
@@ -67,7 +67,7 @@ model (Constitution 1.1.0), and the server subpath boundary.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T005 [P] Write `packages/shared/test/assistant-fallback.test.ts` using `MockLanguageModelV3`. It must cover:
+- [X] T005 [P] Write `packages/shared/test/assistant-fallback.test.ts` using `MockLanguageModelV3`. It must cover:
   - The primary succeeds, so the fallback is never called.
   - The primary throws a 429, a 503, a network error or an `insufficient_quota` error before its first chunk, so the fallback serves the request.
   - The primary gives no first chunk within 8 s (use fake timers), so it switches.
@@ -75,29 +75,29 @@ model (Constitution 1.1.0), and the server subpath boundary.
   - It is sticky: after a switch, later `doStream` calls on the same wrapper instance go straight to the fallback.
   - The circuit breaker skips the primary for 60 s after a failure.
   - With no fallback configured, it is a pure pass-through.
-- [ ] T006 [P] Write `packages/shared/test/assistant-sanitize.test.ts`:
+- [X] T006 [P] Write `packages/shared/test/assistant-sanitize.test.ts`:
   - `redactSecrets()` masks each pattern in research R10 (`ghp_…`, `github_pat_…`, `sk-…`, `AKIA…`, `xox…`, PEM blocks, JWT-shaped strings, `password|secret|token = value`) and leaves normal prose, URLs and version numbers alone.
   - `sanitizeAssistantText()` strips `**`, `__`, leading `#` headers and code fences, and keeps `•` bullets.
-- [ ] T007 [P] Write `packages/shared/test/shell-ask-effect.test.ts`:
+- [X] T007 [P] Write `packages/shared/test/shell-ask-effect.test.ts`:
   - A custom `onUnknownCommand` that returns `{ output: [], ask: { question } }` makes `shell.run()` return `ask` unchanged.
   - A known command never produces `ask`.
   - `ask` is kept by `mergeEffects`.
-- [ ] T008 Update `packages/shared/src/types.ts`: add `ask?: { question: string }` to `CommandResult` and `assistant?: boolean` to `CommandDefinition`, with doc comments. Add `'ask'` to `effectKeys` in `packages/shared/src/shell/shell.ts`. T007 now passes
-- [ ] T009 [P] Create `packages/shared/src/assistant/types.ts` with the client-safe types from data-model.md §4: `AssistantSurface`, `AssistantTurn`, `AssistantEvent`, `NoticeKind`, and a `DeclineCategory` union
-- [ ] T010 [P] Implement `packages/shared/src/assistant/sanitize.ts`:
+- [X] T008 Update `packages/shared/src/types.ts`: add `ask?: { question: string }` to `CommandResult` and `assistant?: boolean` to `CommandDefinition`, with doc comments. Add `'ask'` to `effectKeys` in `packages/shared/src/shell/shell.ts`. T007 now passes
+- [X] T009 [P] Create `packages/shared/src/assistant/types.ts` with the client-safe types from data-model.md §4: `AssistantSurface`, `AssistantTurn`, `AssistantEvent`, `NoticeKind`, and a `DeclineCategory` union
+- [X] T010 [P] Implement `packages/shared/src/assistant/sanitize.ts`:
   - `redactSecrets(text)` masks each match as `[redacted]`.
   - `sanitizeAssistantText(text)`.
   - `createStreamingRedactor()`, which keeps a carry-over buffer of the last 64 characters so a secret split across deltas is still caught. It returns `{ push(delta): string, flush(): string }`.
 
   T006 now passes.
-- [ ] T011 Implement `packages/shared/src/assistant/server/fallback.ts` with `createFallbackModel({ primary, fallback?, firstChunkTimeoutMs = 8000, breakerMs = 60000, onFallback? })`. It returns a language-model object that implements the SDK v3 model interface and delegates `doGenerate` and `doStream` as specified in research R16. `onFallback(reason)` is used for logging. T005 now passes
-- [ ] T012 Create `packages/shared/src/assistant/server/model.ts` with `createAssistantModel(env = process.env, hooks?)`:
+- [X] T011 Implement `packages/shared/src/assistant/server/fallback.ts` with `createFallbackModel({ primary, fallback?, firstChunkTimeoutMs = 8000, breakerMs = 60000, onFallback? })`. It returns a language-model object that implements the SDK v3 model interface and delegates `doGenerate` and `doStream` as specified in research R16. `onFallback(reason)` is used for logging. T005 now passes
+- [X] T012 Create `packages/shared/src/assistant/server/model.ts` with `createAssistantModel(env = process.env, hooks?)`:
   - Primary: `openai(env.ASSISTANT_MODEL || 'gpt-6-luna')`.
   - Fallback: `google(env.ASSISTANT_FALLBACK_MODEL || 'gemini-3.5-flash-lite')`, only when `GOOGLE_GENERATIVE_AI_API_KEY` is set.
   - Both are wrapped with `createFallbackModel`.
-- [ ] T013 Create `packages/shared/src/assistant/server/index.ts`, a barrel re-exporting the server modules (`createFallbackModel`, `createAssistantModel` for now; later tasks add to it). Create `packages/shared/src/assistant/index.ts`, a client-safe barrel (types and sanitize for now), and export it from `packages/shared/src/index.ts`
-- [ ] T014 [P] Write `packages/shared/test/assistant-bundle-boundary.test.ts`. It statically walks the import graph from `packages/shared/src/index.ts` by reading the source files and following relative imports. It asserts that no reachable file imports `zod`, `octokit`, `smol-toml`, `@ai-sdk/openai`, `@ai-sdk/google`, `@upstash/*`, or anything under `src/assistant/server/` or `src/inventory/`
-- [ ] T015 Move the existing chat route onto the fallback model:
+- [X] T013 Create `packages/shared/src/assistant/server/index.ts`, a barrel re-exporting the server modules (`createFallbackModel`, `createAssistantModel` for now; later tasks add to it). Create `packages/shared/src/assistant/index.ts`, a client-safe barrel (types and sanitize for now), and export it from `packages/shared/src/index.ts`
+- [X] T014 [P] Write `packages/shared/test/assistant-bundle-boundary.test.ts`. It statically walks the import graph from `packages/shared/src/index.ts` by reading the source files and following relative imports. It asserts that no reachable file imports `zod`, `octokit`, `smol-toml`, `@ai-sdk/openai`, `@ai-sdk/google`, `@upstash/*`, or anything under `src/assistant/server/` or `src/inventory/`
+- [X] T015 Move the existing chat route onto the fallback model:
   - In `apps/web/app/api/chat/route.ts`, replace `openai('gpt-6-luna')` with `createAssistantModel(process.env, { onFallback: () => logChatEvent('fallback') })` from `@ahmed-moghazy/shared/assistant-server`.
   - In `apps/web/lib/chat-log.ts`, add `'fallback'` to `ChatEventKind` and to the `getChatStats` daily counts.
   - This ships the fallback on its own, before any story work.

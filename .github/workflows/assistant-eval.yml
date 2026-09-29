@@ -1,0 +1,48 @@
+name: Assistant eval
+
+on:
+  pull_request:
+    paths:
+      - 'packages/shared/src/assistant/**'
+      - 'packages/shared/src/inventory/**'
+      - 'packages/shared/evals/**'
+      - 'apps/web/app/api/chat/**'
+      - 'content/**'
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    steps:
+      - id: key
+        env:
+          KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: echo "has_key=${{ env.KEY != '' }}" >> "$GITHUB_OUTPUT"
+      - if: steps.key.outputs.has_key == 'true'
+        uses: actions/checkout@v4
+      - if: steps.key.outputs.has_key == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - if: steps.key.outputs.has_key == 'true'
+        run: npm ci
+      - if: steps.key.outputs.has_key == 'true'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ASSISTANT_MODEL: ${{ vars.ASSISTANT_MODEL }}
+        run: npm run eval:assistant -w @ahmed-moghazy/shared
+      - if: steps.key.outputs.has_key == 'true' && github.event_name == 'schedule'
+        continue-on-error: true
+        env:
+          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          ASSISTANT_FALLBACK_MODEL: ${{ vars.ASSISTANT_FALLBACK_MODEL }}
+        run: npm run eval:assistant -w @ahmed-moghazy/shared -- --provider fallback
+      - if: steps.key.outputs.has_key != 'true'
+        run: |
+          echo "Assistant eval skipped: no API key (fork PR)" >> "$GITHUB_STEP_SUMMARY"

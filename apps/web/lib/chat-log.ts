@@ -5,7 +5,9 @@ import { APICallError, RetryError } from 'ai';
 // rate_limited   — blocked by our own per-IP limiter (Upstash)
 // quota_exceeded — the model provider rejected the request for quota or rate limits
 // error          — any other model/provider failure
-export type ChatEventKind = 'requests' | 'rate_limited' | 'quota_exceeded' | 'error' | 'fallback';
+// refused        — the assistant declined the question (off topic, personal, instructions)
+// daily_cap      — blocked by the site-wide daily question cap
+export type ChatEventKind = 'requests' | 'rate_limited' | 'quota_exceeded' | 'error' | 'fallback' | 'refused' | 'daily_cap';
 
 const STATS_PREFIX = 'chat:stats:';
 const EVENTS_KEY = 'chat:events';
@@ -77,6 +79,8 @@ export async function getChatStats(days: number) {
       quota_exceeded: Number(counts.quota_exceeded ?? 0),
       error: Number(counts.error ?? 0),
       fallback: Number(counts.fallback ?? 0),
+      refused: Number(counts.refused ?? 0),
+      daily_cap: Number(counts.daily_cap ?? 0),
     };
   });
   const recentEvents = results[dates.length] as unknown[];

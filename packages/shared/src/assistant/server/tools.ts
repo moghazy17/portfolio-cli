@@ -59,13 +59,19 @@ export function capResult(value: object): Record<string, unknown> {
 
 export function createAssistantTools(deps: AssistantDeps, budget = createToolBudget(), now: () => Date = () => new Date()) {
   let searched = false;
-  const current = async () => deps.live ? deps.live.currentRepos() : null;
+  // The live list only refreshes exclusions made since the last build. When GitHub is down,
+  // the snapshot (which already dropped excluded repos at build time) is used on its own.
+  const current = async () => {
+    if (!deps.live) return null;
+    try { return await deps.live.currentRepos(); } catch { return null; }
+  };
   const included = (repos: LiveRepo[]) => new Set(repos.filter((repo) => !isExcludedRepo(repo)).map((repo) => repo.name));
   const available = async () => {
     const snapshot = await deps.inventory();
     if (!snapshot) return null;
-    if (!deps.live) return snapshot;
-    const allowed = included(await deps.live.currentRepos());
+    const live = await current();
+    if (!live) return snapshot;
+    const allowed = included(live);
     const repos = Object.fromEntries(Object.entries(snapshot.repos).filter(([name]) => allowed.has(name)));
     const techs = Object.fromEntries(Object.entries(snapshot.techs).map(([id, tech]) => [id, { ...tech, evidence: tech.evidence.filter((item) => allowed.has(item.repo)) }]).filter(([, tech]) => (tech as InventorySnapshot['techs'][string]).evidence.length));
     return { ...snapshot, repos, techs,
@@ -134,9 +140,12 @@ export function createAssistantTools(deps: AssistantDeps, budget = createToolBud
     get_repo: tool({
       description: 'Get one included public repository with code evidence and a quoted untrusted description and README excerpt.',
       inputSchema: z.object({ name: z.string().min(1).max(100) }),
-      execute: async ({ name }) => execute(async () => {
+      execute: async ({ name: asked }) => execute(async () => {
         const snapshot = await available();
         const allowed = await current();
+        // Visitors rarely type a repo name in its exact case; resolve to the canonical name.
+        const known = [...Object.keys(snapshot?.repos ?? {}), ...(allowed ?? []).map((repo) => repo.name)];
+        const name = known.find((candidate) => candidate.toLowerCase() === asked.toLowerCase()) ?? asked;
         if (allowed && !included(allowed).has(name)) return { notFound: true };
         const repo = snapshot?.repos[name];
         if (repo) return { name: repo.name, url: repo.url, lastActivity: repo.lastActivity, archived: repo.archived,

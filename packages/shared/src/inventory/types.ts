@@ -40,6 +40,7 @@ export interface InventorySnapshot {
   techs: Record<TechId, TechEntry>;
   packages: Record<string, EvidenceItem[]>;
   readmeMentions: Record<TechId, ReadmeMention[]>;
+  aliasIndex?: Record<string, TechId>;        // lowercased id, label and non-glob aliases → id
   stats: {
     repoCount: number;
     techCount: number;

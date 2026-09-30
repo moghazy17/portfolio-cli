@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Ratelimit } from '@upstash/ratelimit';
+import { resolveVisitorIp } from '@ahmed-moghazy/shared/assistant-server';
 import { getChatStats } from '../../../lib/chat-log';
 import { getQuestionLog } from '../../../lib/question-log';
 import { redis } from '../../../lib/redis';
@@ -14,11 +15,6 @@ const ratelimit = redis
     })
   : null;
 
-function callerIp(req: Request): string {
-  return req.headers.get('x-real-ip')?.trim()
-    || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
-    || 'unknown';
-}
 
 // Private usage report. Call with: Authorization: Bearer <CHAT_STATS_TOKEN>
 // Add ?log=1&days=N (1-30) for the anonymous question log instead.
@@ -26,7 +22,7 @@ export async function GET(req: Request) {
   // Limit by caller before the token check, so the token can't be guessed at speed.
   if (ratelimit) {
     try {
-      const { success } = await ratelimit.limit(callerIp(req));
+      const { success } = await ratelimit.limit(resolveVisitorIp(req.headers, undefined));
       if (!success) {
         return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
       }

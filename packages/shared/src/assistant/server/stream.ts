@@ -44,6 +44,8 @@ export interface AssistantFinish {
   sources: AssistantSources;
   notice?: NoticeKind;
   error: boolean;
+  /** The visitor cancelled; the answer is partial and should not be logged as an outcome. */
+  aborted: boolean;
 }
 
 const refusalText = {
@@ -192,7 +194,7 @@ export function createAssistantStream({ messages, surface, deps, model, signal, 
         repos: [...new Set([...repos, ...citedRepos])],
       };
       if (!signal?.aborted && (sources.commands.length || sources.evidence.length || sources.repos.length)) writer.write({ type: 'data-sources', data: sources });
-      await onFinish?.({ toolCalls, text, sources, ...(error && { notice: emittedOutput ? 'error' : 'unavailable' }), error });
+      await onFinish?.({ toolCalls, text, sources, ...(error && { notice: emittedOutput ? 'error' : 'unavailable' }), error, aborted: Boolean(signal?.aborted) });
     },
   });
 }

@@ -38,10 +38,27 @@ describe('inventory builder', () => {
       repos: [
         repo('script-app', { languages: {}, readme: 'Written in JavaScript with a MongoDB store.' }),
         repo('jvm-app', { languages: {}, readme: 'A small Java service.' }),
-        repo('w-edge', { languages: {}, readme: 'w/java and go;wiring' }),
+        repo('w-edge', { languages: {}, readme: 'w/java and Go;wiring' }),
       ] });
     expect(built.readmeMentions.java?.map((entry) => entry.repo).sort()).toEqual(['jvm-app', 'w-edge']);
     expect(built.readmeMentions.go?.map((entry) => entry.repo)).toEqual(['w-edge']);
+  });
+
+  it('ignores everyday words that happen to be technology ids', () => {
+    const built = buildInventory({ owner: 'example', generatedAt: date,
+      aliases: {
+        go: { label: 'Go', category: 'language', aliases: [] },
+        git: { label: 'Git', category: 'tooling', aliases: [] },
+        'next.js': { label: 'Next.js', category: 'web', aliases: ['next'] },
+      },
+      repos: [repo('notes', { languages: {}, readme: "Let's go! Run git clone first. Next steps: read the docs." })] });
+    expect(built.readmeMentions).toEqual({});
+  });
+
+  it('indexes every name of a technology for lookups', () => {
+    const built = buildInventory({ owner: 'example', generatedAt: date,
+      aliases: { postgres: { label: 'PostgreSQL', category: 'data', aliases: ['psycopg2', 'pg-*'] } }, repos: [] });
+    expect(built.aliasIndex).toEqual({ postgres: 'postgres', postgresql: 'postgres', psycopg2: 'postgres' });
   });
   it('rejects corruption and oversized snapshots', () => {
     const bad = buildInventory(input);

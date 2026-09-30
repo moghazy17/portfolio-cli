@@ -4,6 +4,9 @@ export interface LiveRepo {
   topics: string[];
   pushedAt: string;
   archived: boolean;
+  /** From the cached repo list, so a detail lookup needs no extra request. */
+  url?: string;
+  description?: string | null;
 }
 
 export interface LiveRepoDetail extends LiveRepo {

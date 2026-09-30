@@ -22,11 +22,24 @@ const kindRank: Record<EvidenceItem['kind'], number> = {
 const evidenceSort = (a: EvidenceItem, b: EvidenceItem) =>
   b.lastActivity.localeCompare(a.lastActivity) || a.repo.localeCompare(b.repo);
 const objectSorted = <T>(entries: [string, T][]) => Object.fromEntries(entries.sort(([a], [b]) => a.localeCompare(b))) as Record<string, T>;
-const mention = (text: string, term: string) => {
+// Ids and aliases that are also everyday English or shell words ("let's go", "git clone",
+// "next steps") would turn most READMEs into false mentions, so they only count through
+// their properly capitalised label.
+const COMMON_WORD_TERMS = new Set(['go', 'r', 'c', 'next', 'express', 'spark', 'git', 'rest', 'flask', 'dash', 'make', 'swift', 'bash']);
+const mention = (text: string, term: string, caseSensitive: boolean) => {
   if (term.includes('*')) return false;
   const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(`(?<![\\w])${escaped}(?![\\w])`, 'i').test(text);
+  return new RegExp(`(?<![\\w])${escaped}(?![\\w])`, caseSensitive ? '' : 'i').test(text);
 };
+const mentionsTech = (text: string, id: string, label: string, aliases: string[]) =>
+  mention(text, label, true)
+  || [id, ...aliases].some((term) => term.length >= 3 && !COMMON_WORD_TERMS.has(term.toLowerCase()) && mention(text, term, false));
+// Every name a visitor might use for a technology, lowercased, pointing at its id.
+const buildAliasIndex = (techs: TechAliasMap) => Object.fromEntries(Object.entries(techs)
+  .flatMap(([id, entry]) => [id, entry.label, ...entry.aliases]
+    .filter((term) => !term.includes('*'))
+    .map((term) => [term.toLowerCase(), id] as [string, string]))
+  .sort(([a], [b]) => a.localeCompare(b)));
 
 export function buildInventory(input: BuildInput): InventorySnapshot {
   const aliases = compileAliases(input.aliases);
@@ -65,7 +78,7 @@ export function buildInventory(input: BuildInput): InventorySnapshot {
     for (const [id, item] of candidates) techEvidence.set(id, [...(techEvidence.get(id) ?? []), item]);
     const excerpt = readme ? redactSecrets(readme.slice(0, README_CHARS)) : null;
     if (excerpt) for (const [id, entry] of Object.entries(aliases.techs)) {
-      if ([id, entry.label, ...entry.aliases].some((term) => mention(excerpt, term))) {
+      if (mentionsTech(excerpt, id, entry.label, entry.aliases)) {
         readmeMentions.set(id, [...(readmeMentions.get(id) ?? []), { repo: meta.name, lastActivity: meta.pushedAt }]);
       }
     }
@@ -84,6 +97,7 @@ export function buildInventory(input: BuildInput): InventorySnapshot {
     version: 1, generatedAt: input.generatedAt, owner: input.owner,
     repos: objectSorted(Object.entries(repos)), techs,
     packages: objectSorted([...packages].map(([name, evidence]) => [name, evidence.sort(evidenceSort)])),
+    aliasIndex: buildAliasIndex(aliases.techs),
     readmeMentions: objectSorted([...readmeMentions].map(([id, entries]) => [id, entries.sort((a, b) => b.lastActivity.localeCompare(a.lastActivity) || a.repo.localeCompare(b.repo))])),
     stats: { repoCount: Object.keys(repos).length, techCount: Object.keys(techs).length,
       topLanguages: [...languageTotals].map(([name, entry]) => ({ name, bytesShare: totalBytes ? entry.bytes / totalBytes : 0, repos: entry.repos }))

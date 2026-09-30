@@ -116,6 +116,20 @@
   6. **(medium)** Single-line `require` in `go.mod` was dropped. **Fixed**, with a test.
 - **Gates**: 378 tests (6 new regression tests); build; Playwright 33/33; golden evals 18/18 re-run after the fixes.
 
+### `/code-review high`: 10 findings, 9 fixed
+1. Chat mode resent full command output, so long chats hit the 64 KB cap. **Fixed**: `toRequestMessages` sends only the last 10 messages, as text.
+2. A GitHub outage made the inventory tools "unavailable". **Fixed**: they fall back to the snapshot, which already excludes tagged repos.
+3. `get_repo` was case-sensitive. **Fixed**: the name resolves to its canonical spelling.
+4. README mentions matched common words (go, git, next, express). **Fixed**: labels match case-sensitively, and ids and aliases skip short or common-word terms.
+5. README-only technologies were found only by exact id. **Fixed**: a new `aliasIndex` in the snapshot (optional, so existing snapshots still load).
+6. The inventory store kept a failure for 5 minutes and never logged schema failures. **Fixed**: failures now expire after 30 s, and schema failures are logged at most once a minute.
+7. Text streamed before `decline`. **Kept as a known limit**: holding back text would stop normal answers streaming.
+8. Cancelled questions were logged as "answered". **Fixed**: `onFinish` reports `aborted`, and the route skips logging them.
+9. `get_repo`'s live path made an extra uncached GitHub call, and search read the cache twice. **Fixed**.
+10. IP resolution, the error text and the 500-character limit were duplicated. **Fixed**: shared helpers and constants.
+- **Also**: a CI eval flake ("Show me his projects" restated the output) led to a stricter no-restating prompt rule. The CI eval runs also caught content not being generated first, fixed in `4d83ee8`.
+- **Gates**: 385 tests; build; Playwright 33/33; golden evals 18/18 on 2 runs.
+
 ## Needs your eyes
 
 - **Eval assertion change**: screen fit is scored in aggregate (SC-008 wording) instead of per case. Everything else in `golden.yaml` is unchanged apart from the YAML quoting fix. Revert it if you want the strict per-case cap back.

@@ -3,7 +3,7 @@
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, type UIMessage } from 'ai';
 import { useState, useRef, useEffect, useMemo, KeyboardEvent, MutableRefObject } from 'react';
-import { formatSourcesLine, parseAssistantDataPart, profile, redactSecrets, sanitizeAssistantText } from '@ahmed-moghazy/shared';
+import { formatSourcesLine, parseAssistantDataPart, profile, redactSecrets, sanitizeAssistantText, toRequestMessages } from '@ahmed-moghazy/shared';
 import type { AssistantTurn, Theme } from '@ahmed-moghazy/shared';
 import AssistantAnswer from './AssistantAnswer';
 import type { AssistantEntryState } from '../hooks/useTerminal';
@@ -68,7 +68,11 @@ function getErrorText(error: Error): string {
 
 export default function ChatRenderer({ onExit, conversationRef, theme }: Props) {
   const transport = useMemo(
-    () => new DefaultChatTransport<UIMessage>({ api: '/api/chat', body: { surface: 'web' } }),
+    () => new DefaultChatTransport<UIMessage>({
+      api: '/api/chat',
+      // Only recent text goes on the wire; command output stays in the rendered transcript.
+      prepareSendMessagesRequest: ({ messages }) => ({ body: { messages: toRequestMessages(messages), surface: 'web' } }),
+    }),
     [],
   );
   const [seed] = useState(() => toMessages(conversationRef.current));

@@ -27,6 +27,8 @@ interface RepoPayload {
   topics?: string[];
   pushed_at: string | null;
   archived: boolean;
+  html_url: string;
+  description: string | null;
 }
 
 interface EventPayload {
@@ -84,6 +86,8 @@ async function loadRepos(): Promise<LiveRepo[]> {
       topics: repo.topics ?? [],
       pushedAt: repo.pushed_at ?? '',
       archived: repo.archived,
+      url: repo.html_url,
+      description: repo.description,
     })));
     if (batch.length < 100) break;
   }
@@ -139,18 +143,15 @@ async function loadRepo(name: string): Promise<LiveRepoDetail | null> {
   const listed = (await currentRepos()).find((repo) => repo.name.toLowerCase() === name.toLowerCase());
   if (!listed || isExcludedRepo(listed)) return null;
 
-  const [detailRes, languagesRes, readme] = await Promise.all([
-    github(`/repos/${OWNER}/${listed.name}`),
+  const [languagesRes, readme] = await Promise.all([
     github(`/repos/${OWNER}/${listed.name}/languages`),
     cached(`gh:readme:v1:${listed.name}`, DAY_SEC, () => loadReadme(listed.name)),
   ]);
-  if (!detailRes.ok) return null;
-  const detail: { html_url: string; description: string | null } = await detailRes.json();
   const languages: Record<string, number> = languagesRes.ok ? await languagesRes.json() : {};
   return {
     ...listed,
-    url: detail.html_url,
-    description: detail.description,
+    url: listed.url ?? `https://github.com/${OWNER}/${listed.name}`,
+    description: listed.description ?? null,
     languages: Object.keys(languages),
     readmeExcerpt: readme.text,
   };
@@ -192,7 +193,12 @@ async function searchCode(terms: string): Promise<CodeHit[] | { rateLimited: tru
     const { success } = await searchLimiter.limit('global');
     if (!success) return { rateLimited: true };
   }
-  return cached(key, DAY_SEC, () => loadSearch(normalized));
+  // The cache was already checked above, so load and store directly.
+  const hits = await loadSearch(normalized);
+  if (redis) {
+    try { await redis.set(key, hits, { ex: DAY_SEC }); } catch { /* the next search just runs live */ }
+  }
+  return hits;
 }
 
 export function createLiveGitHub() {

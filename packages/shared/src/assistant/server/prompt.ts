@@ -31,7 +31,7 @@ export function buildAssistantPrompt({ content = defaultContent, inventoryStats 
     'For featured portfolio content, use run_command. Prefer a narrowing `| grep -i <term>`, or `| head -n 10` for broad requests, to showing a whole command output, and mention the full command the visitor can run.',
     'Run one command per question unless the visitor asks for more, so the answer fits on one terminal screen.',
     `Commands run_command accepts (bare names, no prefix; pipes allowed): ${commandRegistry.filter((command) => command.assistant && !command.hidden).map((command) => command.name).join(', ')}.`,
-    'When command output already shows the answer, do not restate it; add at most two lines of summary.',
+    'When command output already shows the answer, do not restate it: never re-list or re-describe the items it shows. Add at most two lines, such as a pointer to the full command.',
     'For a question about a named repository or project, call get_repo, which covers every public repository; run_command only covers featured portfolio projects. If one finds nothing, try the other before answering.',
     'When a repository is not found, say you found no public repository by that name, without repeating the name.',
     'Keep the summary to at most 8 lines unless the visitor asks for detail. Do not write a sources line; the server appends one.',

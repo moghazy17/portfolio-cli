@@ -19,6 +19,16 @@ export const ASSISTANT_ERROR_MESSAGE = 'Something went wrong while answering —
 const noticeKinds: readonly NoticeKind[] = ['limited', 'daily-cap', 'unavailable', 'stale', 'too-long', 'error'];
 const declineCategories: readonly DeclineCategory[] = ['off_topic', 'personal', 'instructions'];
 
+/**
+ * The history a client sends: the last messages as text only. Command output and other
+ * data parts are for rendering, and the server ignores them, so they never go on the wire.
+ */
+export function toRequestMessages<M extends UIMessage>(messages: M[], limit = MAX_HISTORY_TURNS): UIMessage[] {
+  return messages.slice(-limit).map(({ id, role, parts }) => ({
+    id, role, parts: parts.flatMap((part) => (part.type === 'text' ? [{ type: 'text' as const, text: part.text }] : [])),
+  }));
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }

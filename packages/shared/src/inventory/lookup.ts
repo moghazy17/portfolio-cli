@@ -24,6 +24,7 @@ export function lookupTech(snapshot: InventorySnapshot, query: string, now = new
   if (!matches.length) {
     // A package name the owner actually depends on, e.g. "kafka-python" → Kafka.
     matches = techs.filter((tech) => tech.evidence.some((item) => item.match.toLowerCase() === q));
+    if (!matches.length && snapshot.aliasIndex?.[q] && snapshot.techs[snapshot.aliasIndex[q]]) matches = [snapshot.techs[snapshot.aliasIndex[q]]];
     if (matches.length) via = 'alias';
   }
   const words = q.split(/\s+/).filter(Boolean);
@@ -44,7 +45,9 @@ export function lookupTech(snapshot: InventorySnapshot, query: string, now = new
   }
   const evidence = (matches.length ? matches.flatMap((tech) => tech.evidence) : packageEvidence)
     .sort((a, b) => b.lastActivity.localeCompare(a.lastActivity) || a.repo.localeCompare(b.repo));
-  const readmeOnly = evidence.length ? [] : (snapshot.readmeMentions[q] ?? matches.flatMap((tech) => snapshot.readmeMentions[tech.id] ?? []))
+  // README-only technologies have no code evidence, so they are found by any of their names.
+  const readmeId = snapshot.aliasIndex?.[q] ?? q;
+  const readmeOnly = evidence.length ? [] : (snapshot.readmeMentions[readmeId] ?? matches.flatMap((tech) => snapshot.readmeMentions[tech.id] ?? []))
     .sort((a, b) => b.lastActivity.localeCompare(a.lastActivity)).slice(0, 3);
   const slim = (item: EvidenceItem) => ({ repo: item.repo, file: item.file, lastActivity: item.lastActivity, kind: item.kind });
   return {

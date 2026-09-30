@@ -57,3 +57,24 @@ describe('live assistant tools', () => {
     expect(await run(failed.recent_activity, {})).toEqual({ unavailable: true, what: 'github' });
   });
 });
+
+describe('degraded live GitHub', () => {
+  const snapshotRepo = (name: string) => ({ meta: { name, description: null, topics: [], fork: false, archived: false,
+    pushedAt: '2026-09-01T00:00:00Z', htmlUrl: `https://github.com/example/${name}` }, languages: {}, readme: null,
+    manifests: [{ path: 'requirements.txt', content: 'kafka-python', skimmed: false }] });
+
+  it('answers from the snapshot when the live repo list fails', async () => {
+    const { buildInventory } = await import('../src/inventory/build');
+    const inventory = buildInventory({ owner: 'example', generatedAt: '2026-09-01T00:00:00Z',
+      aliases: { kafka: { label: 'Kafka', category: 'data', aliases: ['kafka-python'] } }, repos: [snapshotRepo('Stream-App')] });
+    const failing = { ...live, currentRepos: async () => { throw new Error('GitHub API error (HTTP 503)'); } };
+    const tools = createAssistantTools({ inventory: async () => inventory, live: failing });
+    expect(await run(tools.lookup_tech, { query: 'kafka' })).toMatchObject({ evidence: [{ repo: 'Stream-App', file: 'requirements.txt' }] });
+    expect(await run(tools.get_repo, { name: 'stream-app' })).toMatchObject({ name: 'Stream-App' });
+  });
+
+  it('resolves a repo name typed in a different case', async () => {
+    const tools = createAssistantTools(deps());
+    expect(await run(tools.get_repo, { name: 'LAGGING' })).toMatchObject({ name: 'lagging' });
+  });
+});

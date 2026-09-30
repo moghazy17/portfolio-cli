@@ -1,5 +1,6 @@
 import { createUIMessageStream, createUIMessageStreamResponse, type UIMessage } from 'ai';
 import { buildLogEntry, classifyOutcome, createAssistantModel, createAssistantStream, resolveVisitorIp } from '@ahmed-moghazy/shared/assistant-server';
+import { ASSISTANT_ERROR_MESSAGE, MAX_QUESTION_LENGTH } from '@ahmed-moghazy/shared';
 import { NextResponse } from 'next/server';
 import { getInventory } from '../../../lib/inventory-store';
 import { classifyError, logChatEvent } from '../../../lib/chat-log';
@@ -16,7 +17,6 @@ const ALLOWED_ORIGINS = [
 
 // Ten short turns plus a question fit easily; anything larger is not a real conversation.
 const MAX_BODY_CHARS = 64 * 1024;
-const ERROR_MESSAGE = 'Something went wrong while answering — try again, or explore with `projects` and `experience`.';
 
 export async function POST(req: Request) {
   const origin = req.headers.get('origin');
@@ -51,8 +51,8 @@ export async function POST(req: Request) {
   if (!question) {
     return NextResponse.json({ error: 'Empty question' }, { status: 400 });
   }
-  if (question.length > 500) {
-    const stream = createUIMessageStream({ execute: ({ writer }) => writer.write({ type: 'data-notice', data: { kind: 'too-long', message: 'Question too long (max 500 characters).' } }) });
+  if (question.length > MAX_QUESTION_LENGTH) {
+    const stream = createUIMessageStream({ execute: ({ writer }) => writer.write({ type: 'data-notice', data: { kind: 'too-long', message: `Question too long (max ${MAX_QUESTION_LENGTH} characters).` } }) });
     return createUIMessageStreamResponse({ stream });
   }
 
@@ -79,9 +79,10 @@ export async function POST(req: Request) {
       void logChatEvent(kind, { status, message });
       return kind === 'quota_exceeded'
         ? "The AI has hit its free usage limit for now. Try again later, or explore with commands like 'projects' and 'experience'."
-        : ERROR_MESSAGE;
+        : ASSISTANT_ERROR_MESSAGE;
     },
     onFinish: async (result) => {
+      if (result.aborted) return;
       const outcome = classifyOutcome({ notice: result.notice, error: result.error, toolCalls: result.toolCalls });
       await logQuestion(buildLogEntry({ question, outcome, sources: result.sources, surface: body.surface as 'web' | 'ssh', at: new Date() }));
       if (outcome === 'refused') await logChatEvent('refused');

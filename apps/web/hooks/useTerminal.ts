@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import {
-  askAssistant, createAssistantUnknownHandler, createShell, formatSourcesLine, themes, welcomeCommand,
+  ASSISTANT_ERROR_MESSAGE, askAssistant, createAssistantUnknownHandler, createShell, formatSourcesLine, themes, welcomeCommand,
 } from '@ahmed-moghazy/shared';
 import type {
   AssistantEvent, AssistantTurn, CommandOutput, Completion, HistoryEntry, NoticeKind, SequenceStep,
@@ -29,7 +29,6 @@ interface TerminalEntry extends HistoryEntry {
 }
 
 const MAX_EXCHANGES = 5;
-const ERROR_MESSAGE = 'Something went wrong while answering — try again, or explore with `projects` and `experience`.';
 
 function applyEvent(state: AssistantEntryState, event: AssistantEvent): AssistantEntryState {
   if (state.status === 'cancelled' || state.status === 'done') return state;
@@ -139,7 +138,7 @@ export function useTerminal() {
       }
     } catch {
       if (!controller.signal.aborted) {
-        apply({ type: 'notice', kind: 'error', message: ERROR_MESSAGE });
+        apply({ type: 'notice', kind: 'error', message: ASSISTANT_ERROR_MESSAGE });
         apply({ type: 'done' });
       }
     }

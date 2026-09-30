@@ -1,4 +1,5 @@
 import { redactSecrets } from '../sanitize';
+import { MAX_QUESTION_LENGTH } from '../handler';
 import type { AssistantEvent, AssistantSurface, NoticeKind } from '../types';
 
 export type QuestionOutcome = 'answered' | 'refused' | 'no_evidence' | 'error' | 'limited';
@@ -20,7 +21,6 @@ export interface OutcomeFacts {
   toolCalls: { name: string; citable: boolean }[];
 }
 
-const MAX_QUESTION_LENGTH = 500;
 
 /** The first matching rule wins: limited, error, refused, no_evidence, answered. */
 export function classifyOutcome({ notice, error, toolCalls }: OutcomeFacts): QuestionOutcome {

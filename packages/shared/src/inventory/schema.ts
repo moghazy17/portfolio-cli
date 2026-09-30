@@ -20,6 +20,7 @@ export const InventorySnapshotSchema = z.object({
   })),
   packages: z.record(z.string(), z.array(evidence)),
   readmeMentions: z.record(z.string(), z.array(z.object({ repo: z.string(), lastActivity: z.iso.datetime() }))),
+  aliasIndex: z.record(z.string(), z.string()).optional(),
   stats: z.object({ repoCount: z.number(), techCount: z.number(), topLanguages: z.array(z.object({
     name: z.string(), bytesShare: z.number(), repos: z.number(),
   })) }),

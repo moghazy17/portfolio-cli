@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { askAssistant } from '../src/assistant/client';
+import { askAssistant, toRequestMessages } from '../src/assistant/client';
 import type { AssistantEvent, AssistantTurn } from '../src/assistant/types';
 
 type Chunk = Record<string, unknown>;
@@ -140,5 +140,21 @@ describe('askAssistant', () => {
       ...history.slice(2).map((turn) => [turn.role, turn.text]),
       ['user', 'what RAG work?'],
     ]);
+  });
+});
+
+describe('toRequestMessages', () => {
+  it('sends only the last ten messages, as text parts', () => {
+    const messages = Array.from({ length: 14 }, (_, index) => ({
+      id: `m${index}`, role: index % 2 ? 'assistant' as const : 'user' as const,
+      parts: [
+        { type: 'text' as const, text: `turn ${index}` },
+        { type: 'data-command' as const, data: { output: 'x'.repeat(50_000) } },
+      ],
+    }));
+    const sent = toRequestMessages(messages as never);
+    expect(sent.map((message) => message.id)).toEqual(messages.slice(-10).map((message) => message.id));
+    expect(JSON.stringify(sent)).not.toContain('data-command');
+    expect(JSON.stringify(sent).length).toBeLessThan(2_000);
   });
 });

@@ -36,6 +36,16 @@ describe('inventory lookup', () => {
     expect(result.matchedTech?.id).toBe('kafka');
     expect(result.evidence[0].repo).toBe('alpha');
   });
+  it('finds README-only technologies by label or alias, not just id', () => {
+    const readmeOnly = buildInventory({ owner: 'example', generatedAt: '2026-01-01T00:00:00.000Z',
+      aliases: { postgres: { label: 'PostgreSQL', category: 'data', aliases: ['psycopg2'] } },
+      repos: [{ meta: { name: 'delta', description: null, topics: [], fork: false, archived: false,
+        pushedAt: '2026-01-01T00:00:00.000Z', htmlUrl: 'https://github.com/example/delta' },
+      languages: {}, readme: 'Stores notes in PostgreSQL.', manifests: [] }] });
+    for (const query of ['postgres', 'PostgreSQL', 'psycopg2']) {
+      expect(lookupTech(readmeOnly, query).readmeOnly.map((entry) => entry.repo), query).toEqual(['delta']);
+    }
+  });
   it('separates readme mentions and marks old snapshots stale', () => {
     const result = lookupTech(snapshot, 'qdrant', new Date('2026-03-01'));
     expect(result.evidence).toEqual([]);

@@ -239,3 +239,21 @@ describe('sources for repository listings', () => {
     expect(sources?.repos).toEqual(['alpha-app']);
   });
 });
+
+describe('cancelled answers', () => {
+  it('reports aborted to onFinish so the question is not logged as answered', async () => {
+    const controller = new AbortController();
+    const model = new MockLanguageModelV3({ doStream: async () => ({ stream: new ReadableStream({ start(stream) {
+      stream.enqueue({ type: 'text-start', id: 't' });
+      stream.enqueue({ type: 'text-delta', id: 't', delta: 'Partial answer that keeps going and going for a while longer' });
+      controller.abort();
+      stream.enqueue({ type: 'text-end', id: 't' });
+      stream.enqueue({ type: 'finish', finishReason: 'stop', usage: { inputTokens: { total: 1 }, outputTokens: { total: 1 } } });
+      stream.close();
+    } }) }) });
+    const onFinish = vi.fn();
+    const stream = createAssistantStream({ messages: [question], surface: 'web', deps: { inventory: async () => null }, model, signal: controller.signal, onFinish });
+    for await (const part of stream) void part;
+    expect(onFinish).toHaveBeenCalledWith(expect.objectContaining({ aborted: true }));
+  });
+});

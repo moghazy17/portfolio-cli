@@ -56,6 +56,21 @@ function duplicateSlugIssues(
 
 export function validateContent(loaded: LoadedContent): ContentIssue[] {
   const issues = [...loaded.issues];
+  if (loaded.techAliases) {
+    const owners = new Map<string, string>();
+    for (const [id, entry] of Object.entries(loaded.techAliases)) {
+      for (const alias of [id, ...entry.aliases]) {
+        const prior = owners.get(alias);
+        if (prior && prior !== id) {
+          const path = [id, 'aliases'];
+          issues.push({ severity: 'error', file: 'content/tech-aliases.yaml', path: pathText(path),
+            message: `alias "${alias}" appears under both ${prior} and ${id}`,
+            ...locationFor(loaded, 'content/tech-aliases.yaml', path) });
+        }
+        owners.set(alias, id);
+      }
+    }
+  }
   const resume = loaded.resume;
   if (!resume) return issues;
 

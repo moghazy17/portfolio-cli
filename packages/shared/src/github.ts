@@ -1,4 +1,5 @@
 import { cvData } from './content';
+import { isExcludedRepo } from './exclusion';
 
 export const GITHUB_USERNAME = cvData.contact.github.replace('https://github.com/', '');
 export const GITHUB_API_BASE = 'https://api.github.com';
@@ -17,6 +18,7 @@ export interface GitHubRepo {
   language: string | null;
   fork: boolean;
   description: string | null;
+  topics?: string[];
 }
 
 export interface GitHubStats {
@@ -53,7 +55,7 @@ export async function fetchGitHubData(signal?: AbortSignal): Promise<GitHubStats
   const user: GitHubUser = await userRes.json();
   const repos: GitHubRepo[] = await reposRes.json();
 
-  const ownRepos = repos.filter((r) => !r.fork);
+  const ownRepos = repos.filter((r) => !isExcludedRepo(r));
   const totalStars = ownRepos.reduce((sum, r) => sum + r.stargazers_count, 0);
 
   const langCount: Record<string, number> = {};

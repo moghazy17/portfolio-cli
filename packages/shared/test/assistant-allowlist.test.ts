@@ -3,12 +3,29 @@ import { commandRegistry } from '../src/commands/registry';
 import { createShell } from '../src/shell/shell';
 import { validateAssistantCommandLine } from '../src/assistant/allowlist';
 import type { CommandDefinition } from '../src/types';
+import { fetchGitHubData } from '../src/github';
 
 const effectKeys = ['clear', 'mode', 'openUrl', 'theme', 'welcome', 'download', 'sequence', 'ask'];
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe('assistant command allowlist', () => {
+  it('omits excluded repositories from every GitHub aggregate', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => ({
+      ok: true,
+      json: async () => url.includes('/repos?')
+        ? [
+            { name: 'visible', stargazers_count: 2, language: 'Python', fork: false, topics: [] },
+            { name: 'hidden', stargazers_count: 100, language: 'Rust', fork: false, topics: ['portfolio-exclude'] },
+          ]
+        : { public_repos: 2, followers: 0, following: 0, bio: null, created_at: '2020-01-01' },
+    })));
+    const stats = await fetchGitHubData();
+    expect(stats.ownRepos.map((repo) => repo.name)).toEqual(['visible']);
+    expect(stats.topRepos.map((repo) => repo.name)).toEqual(['visible']);
+    expect(stats.topLanguages).toEqual([{ language: 'Python', count: 1 }]);
+    expect(stats.totalStars).toBe(2);
+  });
   it('accepts read-only commands, pipelines and aliases', () => {
     for (const line of ['projects', 'projects | grep -i rag | head -n 3', 'cat about.md', 'proj | wc -l']) {
       expect(validateAssistantCommandLine(line, commandRegistry)).toEqual({ ok: true });

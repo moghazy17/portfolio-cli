@@ -1,9 +1,8 @@
-import { streamText, convertToModelMessages } from 'ai';
-import { createAssistantModel } from '@ahmed-moghazy/shared/assistant-server';
+import { streamText, convertToModelMessages, stepCountIs } from 'ai';
+import { createAssistantModel, buildAssistantPrompt, createAssistantTools, createToolBudget } from '@ahmed-moghazy/shared/assistant-server';
 import { NextResponse } from 'next/server';
 import { Ratelimit } from '@upstash/ratelimit';
-import { buildSystemPrompt, cvData } from '@ahmed-moghazy/shared';
-import { getGitHubData } from '../../../lib/github-cache';
+import { getInventory } from '../../../lib/inventory-store';
 import { redis } from '../../../lib/redis';
 import { classifyError, logChatEvent } from '../../../lib/chat-log';
 
@@ -75,12 +74,9 @@ export async function POST(req: Request) {
 
   await logChatEvent('requests');
 
-  const githubData = await getGitHubData();
-
-  const systemPrompt = buildSystemPrompt(
-    cvData,
-    githubData ?? undefined,
-  );
+  const inventory = await getInventory();
+  const systemPrompt = buildAssistantPrompt({ inventoryStats: inventory
+    ? { ...inventory.stats, generatedAt: inventory.generatedAt } : null });
 
   const modelMessages = await convertToModelMessages(messages);
 
@@ -88,6 +84,9 @@ export async function POST(req: Request) {
     model: createAssistantModel(process.env, { onFallback: () => logChatEvent('fallback') }),
     system: systemPrompt,
     messages: modelMessages,
+    tools: createAssistantTools({ inventory: getInventory }, createToolBudget()),
+    stopWhen: stepCountIs(6),
+    maxOutputTokens: 400,
     onError: async ({ error }) => {
       const { kind, status, message } = classifyError(error);
       await logChatEvent(kind, { status, message });

@@ -3,3 +3,8 @@ export { createAssistantModel } from './model';
 export { resolveVisitorIp } from './identity';
 export { classifyOutcome, buildLogEntry } from './outcome';
 export type { QuestionOutcome, QuestionLogEntry, OutcomeFacts } from './outcome';
+export { createAssistantTools, createToolBudget, capResult } from './tools';
+export type { AssistantDeps, ToolBudget } from './tools';
+export { buildAssistantPrompt } from './prompt';
+export { InventorySnapshotSchema, checkInvariants } from '../../inventory/schema';
+export type { InventorySnapshot } from '../../inventory/types';

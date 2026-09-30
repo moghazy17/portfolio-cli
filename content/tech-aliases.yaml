@@ -1,0 +1,324 @@
+python:
+  label: Python
+  category: language
+  aliases: [python]
+typescript:
+  label: TypeScript
+  category: language
+  aliases: [typescript]
+javascript:
+  label: JavaScript
+  category: language
+  aliases: [javascript]
+go:
+  label: Go
+  category: language
+  aliases: [go]
+rust:
+  label: Rust
+  category: language
+  aliases: [rust]
+java:
+  label: Java
+  category: language
+  aliases: [java]
+scala:
+  label: Scala
+  category: language
+  aliases: [scala]
+c++:
+  label: C++
+  category: language
+  aliases: [c++]
+c#:
+  label: C#
+  category: language
+  aliases: [c#]
+r:
+  label: R
+  category: language
+  aliases: [r]
+sql:
+  label: SQL
+  category: language
+  aliases: [sql]
+pytorch:
+  label: PyTorch
+  category: ai
+  aliases: [torch, torchvision, torchaudio]
+tensorflow:
+  label: TensorFlow
+  category: ai
+  aliases: [tensorflow, tensorflow-*]
+keras:
+  label: Keras
+  category: ai
+  aliases: [keras]
+scikit-learn:
+  label: scikit-learn
+  category: ai
+  aliases: [scikit-learn, sklearn]
+xgboost:
+  label: XGBoost
+  category: ai
+  aliases: [xgboost]
+lightgbm:
+  label: LightGBM
+  category: ai
+  aliases: [lightgbm]
+catboost:
+  label: CatBoost
+  category: ai
+  aliases: [catboost]
+huggingface:
+  label: Hugging Face
+  category: ai
+  aliases: [datasets, huggingface-hub]
+transformers:
+  label: Transformers
+  category: ai
+  aliases: [transformers]
+mlflow:
+  label: MLflow
+  category: ai
+  aliases: [mlflow]
+wandb:
+  label: Weights and Biases
+  category: ai
+  aliases: [wandb]
+jax:
+  label: JAX
+  category: ai
+  aliases: [jax, jaxlib]
+optuna:
+  label: Optuna
+  category: ai
+  aliases: [optuna]
+langchain:
+  label: LangChain
+  category: ai
+  aliases: [langchain, 'langchain-*', '@langchain/*']
+llamaindex:
+  label: LlamaIndex
+  category: ai
+  aliases: [llama-index, 'llama-index-*']
+openai:
+  label: OpenAI API
+  category: ai
+  aliases: [openai, '@ai-sdk/openai']
+anthropic:
+  label: Anthropic API
+  category: ai
+  aliases: [anthropic, '@ai-sdk/anthropic']
+ollama:
+  label: Ollama
+  category: ai
+  aliases: [ollama]
+spacy:
+  label: spaCy
+  category: ai
+  aliases: [spacy]
+nltk:
+  label: NLTK
+  category: ai
+  aliases: [nltk]
+opencv:
+  label: OpenCV
+  category: ai
+  aliases: [opencv-python, opencv-contrib-python]
+faiss:
+  label: FAISS
+  category: ai
+  aliases: [faiss-cpu, faiss-gpu, faiss]
+chroma:
+  label: Chroma
+  category: ai
+  aliases: [chromadb]
+pinecone:
+  label: Pinecone
+  category: ai
+  aliases: [pinecone, pinecone-client]
+qdrant:
+  label: Qdrant
+  category: ai
+  aliases: [qdrant-client, qdrant/qdrant]
+weaviate:
+  label: Weaviate
+  category: ai
+  aliases: [weaviate-client]
+pgvector:
+  label: pgvector
+  category: ai
+  aliases: [pgvector]
+pandas:
+  label: pandas
+  category: data
+  aliases: [pandas]
+numpy:
+  label: NumPy
+  category: data
+  aliases: [numpy]
+scipy:
+  label: SciPy
+  category: data
+  aliases: [scipy]
+polars:
+  label: Polars
+  category: data
+  aliases: [polars]
+spark:
+  label: Apache Spark
+  category: data
+  aliases: [pyspark, 'org.apache.spark:*']
+kafka:
+  label: Kafka
+  category: data
+  aliases: [kafka-python, confluent-kafka, kafkajs, 'org.apache.kafka:*', bitnami/kafka, 'confluentinc/*']
+airflow:
+  label: Apache Airflow
+  category: data
+  aliases: [apache-airflow, 'apache-airflow-*']
+dbt:
+  label: dbt
+  category: data
+  aliases: [dbt-core, 'dbt-*']
+postgres:
+  label: PostgreSQL
+  category: data
+  aliases: [postgres, postgres:latest, psycopg2, psycopg]
+mysql:
+  label: MySQL
+  category: data
+  aliases: [mysql, mysqlclient]
+mongodb:
+  label: MongoDB
+  category: data
+  aliases: [mongodb, pymongo, mongoose]
+redis:
+  label: Redis
+  category: data
+  aliases: [redis, '@upstash/redis']
+elasticsearch:
+  label: Elasticsearch
+  category: data
+  aliases: [elasticsearch, '@elastic/elasticsearch']
+snowflake:
+  label: Snowflake
+  category: data
+  aliases: [snowflake-connector-python]
+bigquery:
+  label: BigQuery
+  category: data
+  aliases: [google-cloud-bigquery]
+duckdb:
+  label: DuckDB
+  category: data
+  aliases: [duckdb]
+react:
+  label: React
+  category: web
+  aliases: [react, react-dom]
+next.js:
+  label: Next.js
+  category: web
+  aliases: [next]
+vue:
+  label: Vue
+  category: web
+  aliases: [vue]
+angular:
+  label: Angular
+  category: web
+  aliases: ['@angular/*']
+fastapi:
+  label: FastAPI
+  category: web
+  aliases: [fastapi]
+flask:
+  label: Flask
+  category: web
+  aliases: [flask]
+django:
+  label: Django
+  category: web
+  aliases: [django]
+express:
+  label: Express
+  category: web
+  aliases: [express]
+celery:
+  label: Celery
+  category: web
+  aliases: [celery]
+node.js:
+  label: Node.js
+  category: web
+  aliases: [node]
+streamlit:
+  label: Streamlit
+  category: web
+  aliases: [streamlit]
+gradio:
+  label: Gradio
+  category: web
+  aliases: [gradio]
+docker:
+  label: Docker
+  category: infra
+  aliases: [docker, docker/build-push-action]
+kubernetes:
+  label: Kubernetes
+  category: infra
+  aliases: [kubernetes, kubectl, k8s]
+terraform:
+  label: Terraform
+  category: infra
+  aliases: [terraform, hashicorp/setup-terraform]
+github-actions:
+  label: GitHub Actions
+  category: infra
+  aliases: [actions/checkout, actions/setup-node, actions/setup-python]
+aws:
+  label: AWS
+  category: infra
+  aliases: [boto3, aws-sdk, '@aws-sdk/*']
+gcp:
+  label: Google Cloud
+  category: infra
+  aliases: [google-cloud-storage, google-cloud-aiplatform]
+azure:
+  label: Azure
+  category: infra
+  aliases: [azure-identity, '@azure/*']
+cloudflare:
+  label: Cloudflare
+  category: infra
+  aliases: [wrangler, '@cloudflare/workers-types']
+vercel:
+  label: Vercel
+  category: infra
+  aliases: ['@vercel/*', vercel]
+git:
+  label: Git
+  category: tooling
+  aliases: [git]
+pytest:
+  label: pytest
+  category: tooling
+  aliases: [pytest]
+vitest:
+  label: Vitest
+  category: tooling
+  aliases: [vitest]
+playwright:
+  label: Playwright
+  category: tooling
+  aliases: [playwright, '@playwright/test']
+jest:
+  label: Jest
+  category: tooling
+  aliases: [jest]
+eslint:
+  label: ESLint
+  category: tooling
+  aliases: [eslint]

@@ -9,8 +9,10 @@ import {
   ResumeSchema,
   SiteSchema,
   WriteupFrontMatterSchema,
+  TechAliasMapSchema,
   type Content,
   type Resume,
+  type TechAliasMap,
 } from './schema';
 
 export interface ContentIssue {
@@ -33,6 +35,7 @@ export interface LoadedContent {
   issues: ContentIssue[];
   contentDir: string;
   resume?: Resume;
+  techAliases?: TechAliasMap;
   writeupFolders: string[];
   sources: Map<string, SourceDocument>;
 }
@@ -193,15 +196,23 @@ export async function loadContent(rootDir: string): Promise<LoadedContent> {
   const sources = new Map<string, SourceDocument>();
   const resumeFile = join(resolvedContentDir, 'resume.yaml');
   const siteFile = join(resolvedContentDir, 'site.yaml');
+  const aliasesFile = join(resolvedContentDir, 'tech-aliases.yaml');
   const resumeSource = await parseYamlFile(resumeFile, resolvedContentDir, issues);
   const siteSource = await parseYamlFile(siteFile, resolvedContentDir, issues);
+  const aliasesSource = await parseYamlFile(aliasesFile, resolvedContentDir, issues);
   const resumeDisplay = displayPath(resolvedContentDir, resumeFile);
   const siteDisplay = displayPath(resolvedContentDir, siteFile);
+  const aliasesDisplay = displayPath(resolvedContentDir, aliasesFile);
   if (resumeSource) sources.set(resumeDisplay, resumeSource);
   if (siteSource) sources.set(siteDisplay, siteSource);
+  if (aliasesSource) sources.set(aliasesDisplay, aliasesSource);
 
   const resumeValue = resumeSource?.document.toJS();
   const siteValue = siteSource?.document.toJS();
+  const aliasesResult = aliasesSource ? TechAliasMapSchema.safeParse(aliasesSource.document.toJS()) : undefined;
+  if (aliasesResult && !aliasesResult.success) {
+    issues.push(...zodIssues(aliasesResult.error.issues, aliasesDisplay, aliasesSource!));
+  }
   const resumeResult = resumeSource
     ? ResumeSchema.safeParse(resumeValue)
     : undefined;
@@ -282,6 +293,7 @@ export async function loadContent(rootDir: string): Promise<LoadedContent> {
     issues,
     contentDir: resolvedContentDir,
     resume,
+    techAliases: aliasesResult?.success ? aliasesResult.data : undefined,
     writeupFolders,
     sources,
   };

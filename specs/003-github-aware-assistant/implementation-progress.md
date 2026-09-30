@@ -13,8 +13,8 @@
 |---|---|---|---|
 | 0 | T001 deps (`octokit`, `smol-toml`, `@ai-sdk/google@^3`, `@ai-sdk/provider`) | done by orchestrator | (with run 1) |
 | 1 | T002–T015 Setup + Foundational | ✅ reviewed and committed. astra stopped by the owner; sol hit the Codex usage limit; the orchestrator finished the audit | (this commit) |
-| 2 | T016–T036 US1 inventory | queued | — |
-| — | T037 US1 manual verification | orchestrator (needs network + token) | — |
+| 2 | T016–T036 US1 inventory (+ `github` exclusion from T039/T044) | ✅ Codex `gpt-6-sol`, reviewed + 4 orchestrator fixes, committed | (this commit) |
+| — | T037 US1 manual verification | ✅ real GitHub build: 15 repos, 3 forks skipped, 21 techs, 131 raw packages, 74 KB, 6 s | (this commit) |
 | 2b | US2 client slice: T038, T040, T042, T045–T048, T053–T055 (T039/T044 minus the `github` exclusion part) | ✅ Sonnet agent (isolated worktree), reviewed and merged | 7243fac, 8a6a121 |
 | 3a | US2 web slice: T056 chat renderer, T043 e2e | ✅ Sonnet agent (isolated worktree); the orchestrator re-ran the build and Playwright (33/33) | b1bc704 |
 | 3b | US2 server slice: T041, T049–T052 | queued (after run 2) | — |
@@ -60,8 +60,19 @@
 - **Verified by the orchestrator in the worktree**: `build:web` succeeds and Playwright passes 33/33.
 - **Polish item**: the data-part validation in `ChatRenderer` duplicates the private `dataEvent` in `client.ts`. Export one shared parser and use it in both.
 
+### Run 2 (Codex `gpt-6-sol`, US1 inventory)
+- **Codex delivered** T016–T036 and the `github` exclusion filter in about 15 minutes: 48 files, 352 tests, content validates.
+- **Orchestrator fixes**, each with a regression test that failed first:
+  1. `build.ts`: the README-mention regex was built inside a template string, where `\w` turns into a plain `w`. So "java" matched inside "javascript" and "go" inside "mongodb".
+  2. `lookup.ts`: the category stage matched single words by substring against package names, so a query like "lib" could return evidence. That's a false "has used", which breaks the honesty rule. It now has an exact package-alias stage, and the multi-word category stage uses whole words from the id or label only.
+  3. `build-inventory.ts`: the exclusion check was case-sensitive and duplicated. It now uses the shared `isExcludedRepo`.
+  4. `inventory/github.ts`: octokit's throttling plugin requires `onRateLimit` and `onSecondaryRateLimit` handlers and crashed without them. **Only the real T037 run caught this.** The handlers now retry twice, then fail.
+- **T037, a real run** (local file only; no Redis was written): 15 repos, 3 forks skipped, 0 excluded, 21 technologies, 131 raw packages, 74 KB, 6 s. Spot checks: `langchain`/`react`/`fastapi` resolve to real repo and file evidence; `kafka`/`docker`/`scikit-learn` return no evidence ("no public evidence found").
+- **Gates**: 48 files and 355 tests; typecheck clean.
+
 ## Needs your eyes
 
+- **No repo is tagged `portfolio-exclude` yet.** Tag any repo you don't want mentioned before the first production inventory run.
 - ~~Snapshot line-ending churn on Windows~~: fixed by adding `*.snap text eol=lf` to `.gitattributes`, at the owner's request.
 
 ## End-of-run checklist

@@ -470,7 +470,7 @@ sources line. Then check:
 
 ### Implementation for User Story 3
 
-- [ ] T063 [US3] Implement `apps/web/lib/github-live.ts` with octokit and `GH_INVENTORY_TOKEN`: `currentRepos()`, `recentActivity()`, `repo(name)` and `searchCode(query)`, using the Redis caches and TTLs from data-model.md Â§8:
+- [X] T063 [US3] Implement `apps/web/lib/github-live.ts` with octokit and `GH_INVENTORY_TOKEN`: `currentRepos()`, `recentActivity()`, `repo(name)` and `searchCode(query)`, using the Redis caches and TTLs from data-model.md Â§8:
   - `currentRepos`: `gh:repos:v1`, 10 min.
   - `recentActivity`: `gh:activity:v1`, 60 min. The repo set and dates come from `currentRepos()` `pushedAt` over the last 30 days. It then reads at most 3 pages of public events, keeping push/create/release/public events, only to add `pushes` and `kinds` per repo.
   - `repo(name)`: README in `gh:readme:v1:<repo>`, 24 h.
@@ -527,7 +527,7 @@ sources line. Then check:
   - Architecture: `src/assistant/` (client-safe) vs `src/assistant/server/` (`@ahmed-moghazy/shared/assistant-server`), `src/inventory/`, the `ask` effect, and `content/tech-aliases.yaml`.
   - Commands: `npm run inventory:build`, `npm run eval:assistant`.
   - Env var tables (web and Actions): every new variable from contracts/chat-api.md Â§Environment, plus the Actions secrets `GH_INVENTORY_TOKEN` and `UPSTASH_REDIS_REST_URL` / `_TOKEN`.
-- [ ] T076 [P] Extend `packages/shared/test/no-hardcoded-content.test.ts` (if its file globs don't already reach them) to cover `src/assistant/**` and `src/inventory/**`
+- [X] T076 [P] Extend `packages/shared/test/no-hardcoded-content.test.ts` (if its file globs don't already reach them) to cover `src/assistant/**` and `src/inventory/**`
 - [ ] T077 Bundle check. Run `npm run build:web`, then search `apps/web/.next/static/chunks` for `octokit`, `smol-toml`, `generativelanguage` and a distinctive system-prompt phrase. There must be zero matches. Note the change in first-load JS size in the PR (Principle VII)
 - [ ] T078 Run the full green gate from the repo root: `npm run content:validate && npm run typecheck && npm test && npm run build:web && npm run test:e2e`. Fix any failures
 - [ ] T079 Walk through `quickstart.md` end to end. Trigger *Actions â†’ Inventory â†’ Run workflow* and confirm `inventory:v1:meta.ok` is true within 15 minutes. In GitHub branch protection for `main`, make `assistant-eval` a required check (manual, Principle X). Write the PR's surfaces statement:

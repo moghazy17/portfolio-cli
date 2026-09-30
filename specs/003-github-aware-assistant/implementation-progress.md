@@ -17,7 +17,8 @@
 | — | T037 US1 manual verification | ✅ real GitHub build: 15 repos, 3 forks skipped, 21 techs, 131 raw packages, 74 KB, 6 s | (this commit) |
 | 2b | US2 client slice: T038, T040, T042, T045–T048, T053–T055 (T039/T044 minus the `github` exclusion part) | ✅ Sonnet agent (isolated worktree), reviewed and merged | 7243fac, 8a6a121 |
 | 3a | US2 web slice: T056 chat renderer, T043 e2e | ✅ Sonnet agent (isolated worktree); the orchestrator re-ran the build and Playwright (33/33) | b1bc704 |
-| 3b | US2 server slice: T041, T049–T052 | queued (after run 2) | — |
+| 3b | US2 server slice: T041, T049–T052 | ✅ Codex `gpt-6-sol`, reviewed + 2 fixes | 786aab2 |
+| 4c | T063 live GitHub helpers, T076 check, shared data-part parser | ✅ Sonnet agent, reviewed, cherry-picked | (cherry-pick of 97bcd08) |
 | 4a | US3 independent slice: T059–T061, T067–T070, T072, T073, T062 (golden.yaml only) | ✅ Sonnet agent (isolated worktree), reviewed and merged | c83c0b0, 3671dc5, 9ddae40 (+ barrel commit) |
 | 4b | US3 rest: T057, T058, T062 runner, T063–T066, T071 | queued (after runs 2–3) | — |
 | — | T074 run golden evals | orchestrator (needs API key) | — |
@@ -69,6 +70,17 @@
   4. `inventory/github.ts`: octokit's throttling plugin requires `onRateLimit` and `onSecondaryRateLimit` handlers and crashed without them. **Only the real T037 run caught this.** The handlers now retry twice, then fail.
 - **T037, a real run** (local file only; no Redis was written): 15 repos, 3 forks skipped, 0 excluded, 21 technologies, 131 raw packages, 74 KB, 6 s. Spot checks: `langchain`/`react`/`fastapi` resolve to real repo and file evidence; `kafka`/`docker`/`scikit-learn` return no evidence ("no public evidence found").
 - **Gates**: 48 files and 355 tests; typecheck clean.
+
+### Run 3b (Codex, US2 server) and 4c (Sonnet, live GitHub helpers)
+- **Codex**: `run_command` (validated, 5 s timeout, blocks effects); `createAssistantStream` (text-only history, budget gate, tool parts never reach the client, sources built from tool results, `onFinish` facts); and the route on top of it.
+  - **Fixes**: forward the `finish` part, and an empty question now returns 400 instead of the "too long" notice.
+- **Sonnet**: `github-live.ts`:
+  - It uses plain `fetch` with Redis caching.
+  - `repo()` only uses names from the real repo list, so no arbitrary paths.
+  - Search terms are checked against a strict character list, and `rl:assistant:search` limits it to 8 per minute.
+  - Excluded repos are filtered and text is redacted.
+  - The shared `parseAssistantDataPart` replaces the duplicate in `ChatRenderer`. T076 needed no change.
+- **Gates**: 49 files and 363 tests; typecheck; `build:web`; Playwright 33/33.
 
 ## Needs your eyes
 

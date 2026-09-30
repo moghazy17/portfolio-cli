@@ -28,6 +28,11 @@ export interface AssistantDeps {
   onCommand?: (command: { id: string; commandLine: string; output: CommandOutput[]; status: 'ok' | 'error' }) => void;
 }
 
+/** Redacts every string inside structured command output. */
+export function redactOutput(output: CommandOutput[]): CommandOutput[] {
+  return JSON.parse(JSON.stringify(output), (_key, value) => (typeof value === 'string' ? redactSecrets(value) : value)) as CommandOutput[];
+}
+
 export function createToolBudget(max = 5) {
   let used = 0;
   return { get used() { return used; }, get exhausted() { return used >= max; }, take() {
@@ -102,9 +107,12 @@ export function createAssistantTools(deps: AssistantDeps, budget = createToolBud
           return { ok: false, reason: 'effect_blocked', detail: 'Command produced an unsupported effect.' };
         }
         const status = result.status === 'error' ? 'error' : 'ok';
-        if (status === 'ok' || result.output.length) deps.onCommand?.({ id: crypto.randomUUID(), commandLine, output: result.output, status });
-        if (status === 'error') return { ok: false, reason: 'failed', detail: toLines(result.output).map((line) => line.text).join('\n').slice(0, 1800) };
-        return { ok: true, commandLine, text: toLines(result.output).map((line) => line.text).join('\n').slice(0, 1800) };
+        // Some command output comes from outside (e.g. the GitHub profile bio), so it is
+        // redacted before either the model or the visitor sees it.
+        const output = redactOutput(result.output);
+        if (status === 'ok' || output.length) deps.onCommand?.({ id: crypto.randomUUID(), commandLine, output, status });
+        if (status === 'error') return { ok: false, reason: 'failed', detail: toLines(output).map((line) => line.text).join('\n').slice(0, 1800) };
+        return { ok: true, commandLine, text: toLines(output).map((line) => line.text).join('\n').slice(0, 1800) };
       })(),
     }),
     lookup_tech: tool({

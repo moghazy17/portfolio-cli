@@ -102,6 +102,20 @@
 - **Result**: 18/18 cases on three consecutive runs. One-screen share 89–100%. First-event p90 3.6–5.6 s (target 3 s, informational); total p90 about 7 s (target 15 s).
 - **Gemini fallback (`gemini-3.5-flash-lite`, advisory)**: 15/18. No leaks and no injected claims. The failures were an empty answer, a skipped lookup on the concept question, and a name-format mismatch.
 
+### Review round (after opening PR #11)
+- **`/security-review`**: no high-confidence vulnerabilities. It verified:
+  - the command allowlist, and that no GitHub path or host can be steered
+  - no secret exfiltration and no excluded or private repo leaks
+  - the relay IP trust, stats-endpoint auth, XSS and the CI workflows
+- **Codex `gpt-6-astra` read-only review**: 6 findings. 5 were accepted and fixed; 1 was debated and **withdrawn by astra**.
+  1. **(high)** `@upstash/ratelimit` resolves `success: true, reason: "timeout"` on a Redis stall. **Fixed**: timeouts on either limiter now return `unavailable`, so the limits really fail closed.
+  2. **(high)** Client-supplied history had no size bound. **Fixed**: `boundHistory` caps each earlier message at 1,500 characters and the history at 6,000 in total (the newest are kept), and the route rejects bodies over 64 KB (413).
+  3. **(high, contested)** Content commands ignore `portfolio-exclude`. **Withdrawn**: resume content is owner-authored and reviewed; the tag governs GitHub-derived knowledge; and resume projects have no repo identity.
+  4. **(medium)** Redaction was client-only for model text, and missing for command output. **Fixed**: a streaming redactor runs on the server for model text, and `redactOutput` redacts command output before both the model and the visitor see it.
+  5. **(medium)** No sources line for `list_repos`, `get_repo` or README-only answers. **Fixed**: those repos are now cited (the ones the answer mentions, otherwise the first three).
+  6. **(medium)** Single-line `require` in `go.mod` was dropped. **Fixed**, with a test.
+- **Gates**: 378 tests (6 new regression tests); build; Playwright 33/33; golden evals 18/18 re-run after the fixes.
+
 ## Needs your eyes
 
 - **Eval assertion change**: screen fit is scored in aggregate (SC-008 wording) instead of per case. Everything else in `golden.yaml` is unchanged apart from the YAML quoting fix. Revert it if you want the strict per-case cap back.

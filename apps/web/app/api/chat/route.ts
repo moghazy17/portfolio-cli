@@ -14,6 +14,8 @@ const ALLOWED_ORIGINS = [
   'http://localhost:3000',
 ];
 
+// Ten short turns plus a question fit easily; anything larger is not a real conversation.
+const MAX_BODY_CHARS = 64 * 1024;
 const ERROR_MESSAGE = 'Something went wrong while answering — try again, or explore with `projects` and `experience`.';
 
 export async function POST(req: Request) {
@@ -24,7 +26,9 @@ export async function POST(req: Request) {
 
   let body: { messages?: unknown; surface?: unknown };
   try {
-    body = await req.json();
+    const raw = await req.text();
+    if (raw.length > MAX_BODY_CHARS) return NextResponse.json({ error: 'Request too large' }, { status: 413 });
+    body = JSON.parse(raw);
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }

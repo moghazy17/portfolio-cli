@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { MockLanguageModelV3 } from 'ai/test';
 import type { UIMessage } from 'ai';
-import { createAssistantStream } from '../src/assistant/server/stream';
-import { createAssistantTools, createToolBudget } from '../src/assistant/server/tools';
+import { boundHistory, createAssistantStream } from '../src/assistant/server/stream';
+import { createAssistantTools, createToolBudget, redactOutput } from '../src/assistant/server/tools';
 import { commandRegistry } from '../src/commands/registry';
 import { buildInventory } from '../src/inventory/build';
 
@@ -158,5 +158,84 @@ describe('assistant stream', () => {
     expect(JSON.stringify(model.doStreamCalls[0].prompt)).not.toContain('secret');
     expect(JSON.stringify(model.doStreamCalls[0].prompt)).not.toContain('turn 0');
     expect(onFinish).toHaveBeenCalledWith(expect.objectContaining({ text: 'Answer', error: false }));
+  });
+});
+
+describe('history bounds', () => {
+  const text = (message: UIMessage) => (message.parts[0] as { text: string }).text;
+  const msg = (id: string, role: 'user' | 'assistant', body: string): UIMessage => ({ id, role, parts: [{ type: 'text', text: body }] });
+
+  it('caps each earlier message and the total, keeping the question intact', () => {
+    const question = msg('q', 'user', 'What has he built with RAG?');
+    const bounded = boundHistory([msg('a', 'user', 'x'.repeat(100_000)), msg('b', 'assistant', 'y'.repeat(100_000)), question]);
+    expect(bounded.at(-1)).toEqual(question);
+    for (const message of bounded.slice(0, -1)) expect(text(message).length).toBeLessThanOrEqual(1500);
+    expect(bounded.reduce((sum, message) => sum + text(message).length, 0)).toBeLessThanOrEqual(6000);
+  });
+
+  it('drops the oldest turns first when the total is too large', () => {
+    const turns = Array.from({ length: 9 }, (_, index) => msg(`t${index}`, index % 2 ? 'assistant' : 'user', `${index}`.repeat(1500)));
+    const bounded = boundHistory([...turns, msg('q', 'user', 'latest?')]);
+    expect(bounded.at(-1)?.id).toBe('q');
+    expect(bounded[0].id).not.toBe('t0');
+    expect(bounded.map((message) => message.id)).toEqual([...turns.slice(-bounded.length + 1).map((m) => m.id), 'q']);
+  });
+});
+
+describe('server-side redaction', () => {
+  it('redacts a secret split across model text deltas before it leaves the server', async () => {
+    const secret = `ghp_${'a'.repeat(36)}`;
+    const model = new MockLanguageModelV3({ doStream: async () => ({
+      stream: new ReadableStream({ start(controller) {
+        controller.enqueue({ type: 'text-start', id: 't' });
+        controller.enqueue({ type: 'text-delta', id: 't', delta: `The token is ${secret.slice(0, 10)}` });
+        controller.enqueue({ type: 'text-delta', id: 't', delta: `${secret.slice(10)} as found.` });
+        controller.enqueue({ type: 'text-end', id: 't' });
+        controller.enqueue({ type: 'finish', finishReason: 'stop', usage: { inputTokens: { total: 1 }, outputTokens: { total: 1 } } });
+        controller.close();
+      } }),
+    }) });
+    const onFinish = vi.fn();
+    const stream = createAssistantStream({ messages: [question], surface: 'web', deps: { inventory: async () => null }, model, onFinish });
+    let emitted = '';
+    for await (const part of stream) if (part.type === 'text-delta') emitted += part.delta;
+    expect(emitted).toBe('The token is [redacted] as found.');
+    expect(onFinish.mock.calls[0][0].text).toBe(emitted);
+  });
+
+  it('redacts secrets inside structured command output', () => {
+    const secret = `ghp_${'b'.repeat(36)}`;
+    const output = redactOutput([{ type: 'table', headers: ['k', 'v'], rows: [['bio', `hi ${secret}`]] } as never]);
+    expect(JSON.stringify(output)).not.toContain(secret);
+    expect(JSON.stringify(output)).toContain('[redacted]');
+  });
+});
+
+describe('sources for repository listings', () => {
+  it('cites repos returned by list_repos that the answer mentions', async () => {
+    const inventory = buildInventory({ owner: 'example', generatedAt: new Date().toISOString(), aliases: {},
+      repos: [
+        { meta: { name: 'alpha-app', description: null, topics: [], fork: false, archived: false, pushedAt: '2026-09-01T00:00:00Z', htmlUrl: 'https://github.com/example/alpha-app' }, languages: {}, readme: null, manifests: [] },
+        { meta: { name: 'beta-app', description: null, topics: [], fork: false, archived: false, pushedAt: '2026-08-01T00:00:00Z', htmlUrl: 'https://github.com/example/beta-app' }, languages: {}, readme: null, manifests: [] },
+      ] });
+    let call = 0;
+    const model = new MockLanguageModelV3({ doStream: async () => ({
+      stream: new ReadableStream({ start(controller) {
+        if (call++ === 0) {
+          controller.enqueue({ type: 'tool-call', toolCallId: 'l1', toolName: 'list_repos', input: '{}' });
+          controller.enqueue({ type: 'finish', finishReason: 'tool-calls', usage: { inputTokens: { total: 1 }, outputTokens: { total: 1 } } });
+        } else {
+          controller.enqueue({ type: 'text-start', id: 't' });
+          controller.enqueue({ type: 'text-delta', id: 't', delta: 'The most recent is alpha-app.' });
+          controller.enqueue({ type: 'text-end', id: 't' });
+          controller.enqueue({ type: 'finish', finishReason: 'stop', usage: { inputTokens: { total: 1 }, outputTokens: { total: 1 } } });
+        }
+        controller.close();
+      } }),
+    }) });
+    const stream = createAssistantStream({ messages: [question], surface: 'web', deps: { inventory: async () => inventory }, model });
+    let sources: { repos: string[] } | undefined;
+    for await (const part of stream) if (part.type === 'data-sources') sources = part.data as { repos: string[] };
+    expect(sources?.repos).toEqual(['alpha-app']);
   });
 });

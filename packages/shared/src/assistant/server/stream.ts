@@ -1,10 +1,36 @@
 import { convertToModelMessages, createUIMessageStream, hasToolCall, stepCountIs, streamText, type LanguageModel, type UIMessage } from 'ai';
 import type { AssistantSurface, NoticeKind } from '../types';
 import { ASSISTANT_ERROR_MESSAGE } from '../client';
+import { createStreamingRedactor } from '../sanitize';
 import { profile } from '../../content';
 import { STALE_AFTER_MS } from '../../inventory/constants';
 import { buildAssistantPrompt } from './prompt';
 import { createAssistantTools, createToolBudget, type AssistantDeps } from './tools';
+
+const MAX_HISTORY_MESSAGES = 10;
+const MAX_MESSAGE_CHARS = 1500;
+const MAX_HISTORY_CHARS = 6000;
+
+/**
+ * Text-only history, bounded in size as well as count so a short question cannot carry an
+ * arbitrarily large prompt: earlier messages are cut to 1,500 characters and the oldest are
+ * dropped until the whole history fits in 6,000. The newest message is the question itself,
+ * already capped by the route.
+ */
+export function boundHistory(messages: UIMessage[]): UIMessage[] {
+  const recent = messages.filter((message) => message.role === 'user' || message.role === 'assistant')
+    .slice(-MAX_HISTORY_MESSAGES)
+    .map((message, index, all) => {
+      const text = message.parts.flatMap((part) => (part.type === 'text' ? [part.text] : [])).join('\n');
+      const capped = index === all.length - 1 ? text : text.slice(0, MAX_MESSAGE_CHARS);
+      return { ...message, parts: [{ type: 'text' as const, text: capped }] };
+    });
+  let total = recent.reduce((sum, message) => sum + (message.parts[0] as { text: string }).text.length, 0);
+  while (recent.length > 1 && total > MAX_HISTORY_CHARS) {
+    total -= (recent.shift()!.parts[0] as { text: string }).text.length;
+  }
+  return recent;
+}
 
 export interface AssistantSources {
   commands: string[];
@@ -38,12 +64,12 @@ export function createAssistantStream({ messages, surface, deps, model, signal, 
 }) {
   return createUIMessageStream({
     execute: async ({ writer }) => {
-      const history = messages.filter((message) => message.role === 'user' || message.role === 'assistant')
-        .slice(-10).map((message) => ({ ...message, parts: message.parts.filter((part) => part.type === 'text') }));
+      const history = boundHistory(messages);
       const budget = createToolBudget();
       const commands: string[] = [];
       const pairs: AssistantSources['evidence'] = [];
       const repos: string[] = [];
+      const repoCandidates: string[] = [];
       const toolCalls: AssistantFinish['toolCalls'] = [];
       let text = '';
       let error = false;
@@ -82,6 +108,14 @@ export function createAssistantStream({ messages, surface, deps, model, signal, 
             if (Array.isArray(output?.hits)) for (const entry of output.hits) {
               if (entry && typeof entry === 'object' && 'repo' in entry && 'path' in entry && typeof entry.repo === 'string' && typeof entry.path === 'string') pairs.push({ repo: entry.repo, file: entry.path });
             }
+            // Listings, repo details and README-only matches cite the repository itself.
+            if (Array.isArray(output?.repos)) for (const entry of output.repos) {
+              if (entry && typeof entry === 'object' && 'name' in entry && typeof entry.name === 'string') repoCandidates.push(entry.name);
+            }
+            if (typeof output?.name === 'string' && typeof output?.url === 'string') repoCandidates.push(output.name);
+            if (Array.isArray(output?.readmeOnly)) for (const entry of output.readmeOnly) {
+              if (entry && typeof entry === 'object' && 'repo' in entry && typeof entry.repo === 'string') repoCandidates.push(entry.repo);
+            }
           }
           for (const call of step.toolCalls) {
             if (call.toolName === 'decline') {
@@ -102,15 +136,37 @@ export function createAssistantStream({ messages, surface, deps, model, signal, 
           }
         },
       });
+      // Model text is redacted here, not only in clients, so every consumer of the endpoint
+      // gets the same guarantee. The redactor holds back a short tail, flushed at text-end.
+      const redactors = new Map<string, ReturnType<typeof createStreamingRedactor>>();
+      const redactorFor = (id: string) => {
+        let redactor = redactors.get(id);
+        if (!redactor) { redactor = createStreamingRedactor(); redactors.set(id, redactor); }
+        return redactor;
+      };
       try {
         for await (const part of result.toUIMessageStream({ sendReasoning: false, onError: (cause) => onError?.(cause) ?? ASSISTANT_ERROR_MESSAGE })) {
           if (signal?.aborted) break;
-          if (part.type === 'text-delta' && !declined) text += part.delta;
           if (part.type === 'error') {
             error = true;
             writer.write({ type: 'data-notice', data: { kind: emittedOutput ? 'error' : 'unavailable', message: emittedOutput ? (part.errorText || ASSISTANT_ERROR_MESSAGE) : UNAVAILABLE_MESSAGE } });
-          } else if (part.type === 'start' || part.type === 'text-start' || part.type === 'text-delta' || part.type === 'text-end' || part.type === 'finish') {
-            if (part.type === 'text-delta' && !declined) emittedOutput = true;
+          } else if (part.type === 'text-delta') {
+            if (declined) continue;
+            const delta = redactorFor(part.id).push(part.delta);
+            if (!delta) continue;
+            text += delta;
+            emittedOutput = true;
+            writer.write({ ...part, delta });
+          } else if (part.type === 'text-end') {
+            if (declined) continue;
+            const rest = redactorFor(part.id).flush();
+            if (rest) {
+              text += rest;
+              emittedOutput = true;
+              writer.write({ type: 'text-delta', id: part.id, delta: rest });
+            }
+            writer.write(part);
+          } else if (part.type === 'start' || part.type === 'text-start' || part.type === 'finish') {
             if (!declined || part.type === 'start') writer.write(part);
           }
         }
@@ -127,10 +183,13 @@ export function createAssistantStream({ messages, surface, deps, model, signal, 
         writer.write({ type: 'finish' });
       }
       const mentioned = pairs.filter(({ repo }) => text.toLowerCase().includes(repo.toLowerCase()));
+      const uniqueCandidates = [...new Set(repoCandidates)];
+      const mentionedRepos = uniqueCandidates.filter((repo) => text.toLowerCase().includes(repo.toLowerCase()));
+      const citedRepos = mentionedRepos.length ? mentionedRepos : uniqueCandidates.slice(0, 3);
       const sources: AssistantSources = {
         commands: [...new Set(commands)],
         evidence: [...new Map((mentioned.length ? mentioned : pairs.slice(0, 3)).map((item) => [`${item.repo}/${item.file}`, item])).values()],
-        repos: [...new Set(repos)],
+        repos: [...new Set([...repos, ...citedRepos])],
       };
       if (!signal?.aborted && (sources.commands.length || sources.evidence.length || sources.repos.length)) writer.write({ type: 'data-sources', data: sources });
       await onFinish?.({ toolCalls, text, sources, ...(error && { notice: emittedOutput ? 'error' : 'unavailable' }), error });

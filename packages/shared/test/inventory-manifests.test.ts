@@ -8,6 +8,7 @@ const cases: Array<[string, string, string[]]> = [
   ['Pipfile', '[packages]\nflask = "*"\n[dev-packages]\npytest = "*"', ['flask', 'pytest']],
   ['environment.yml', 'dependencies:\n  - numpy=1\n  - pip:\n    - requests>=2', ['numpy', 'requests']],
   ['go.mod', 'module example.com/x\nrequire (\n github.com/acme/lib v1.2.3\n)', ['github.com/acme/lib']],
+  ['go.mod', 'module example.com/y\n\ngo 1.22\n\nrequire github.com/segmentio/kafka-go v0.4.47\nrequire github.com/acme/other v1.0.0 // indirect\nreplace github.com/acme/other => ../other\n', ['github.com/acme/other', 'github.com/segmentio/kafka-go']],
   ['Cargo.toml', '[dependencies]\nserde = "1"\n[dev-dependencies]\nproptest = "1"', ['proptest', 'serde']],
   ['pom.xml', '<dependency><groupId>org.apache.kafka</groupId><artifactId>kafka-clients</artifactId></dependency>', ['org.apache.kafka:kafka-clients']],
   ['build.gradle.kts', 'implementation("org.apache.kafka:kafka-clients:3.0")', ['org.apache.kafka:kafka-clients']],

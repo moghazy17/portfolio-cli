@@ -32,8 +32,19 @@ const globalLimiter = redis
 export async function checkAssistantLimits(ip: string): Promise<AssistantLimitResult> {
   if (!visitorLimiter || !globalLimiter) return { ok: true };
 
+  const unavailable: AssistantLimitResult = {
+    ok: false,
+    notice: {
+      kind: 'unavailable',
+      message: 'The assistant is unavailable right now — commands like `projects` still work.',
+    },
+  };
+
   try {
     const visitor = await visitorLimiter.limit(ip);
+    // On a Redis timeout the library answers success with reason "timeout"; that is not a
+    // counted request, so it must not pass.
+    if (visitor.reason === 'timeout') return unavailable;
     if (!visitor.success) {
       const retryAfterSec = Math.max(1, Math.ceil((visitor.reset - Date.now()) / 1000));
       const minutes = Math.max(1, Math.ceil(retryAfterSec / 60));
@@ -48,6 +59,7 @@ export async function checkAssistantLimits(ip: string): Promise<AssistantLimitRe
     }
 
     const global = await globalLimiter.limit('global');
+    if (global.reason === 'timeout') return unavailable;
     if (!global.success) {
       return {
         ok: false,
@@ -60,12 +72,6 @@ export async function checkAssistantLimits(ip: string): Promise<AssistantLimitRe
     return { ok: true };
   } catch (err) {
     console.error('[assistant] limiter unavailable, refusing the question:', err);
-    return {
-      ok: false,
-      notice: {
-        kind: 'unavailable',
-        message: 'The assistant is unavailable right now — commands like `projects` still work.',
-      },
-    };
+    return unavailable;
   }
 }

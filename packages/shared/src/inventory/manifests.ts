@@ -33,7 +33,8 @@ export function parseManifest(path: string, content: string): Match[] {
       matches = (yaml.dependencies ?? []).flatMap((item) => typeof item === 'string' ? [item] : item.pip ?? [])
         .map(dependency).filter((v): v is string => Boolean(v));
     } else if (name === 'go.mod') {
-      matches = [...content.matchAll(/^\s*([^\s()]+)\s+v\d+[^\s]*/gm)].map((match) => match[1]);
+      // Both `require (…)` block entries and single-line `require <module> <version>`.
+      matches = [...content.matchAll(/^\s*(?:require\s+)?([^\s()]+)\s+v\d+[^\s]*/gm)].map((match) => match[1]);
     } else if (name === 'Cargo.toml') {
       const toml = parseToml(content) as Record<string, unknown>;
       matches = [...values(toml.dependencies), ...values(toml['dev-dependencies'])];

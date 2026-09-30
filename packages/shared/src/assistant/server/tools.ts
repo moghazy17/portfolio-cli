@@ -1,5 +1,10 @@
 import { tool } from 'ai';
 import { z } from 'zod';
+import { validateAssistantCommandLine } from '../allowlist';
+import { commandRegistry } from '../../commands/registry';
+import { createShell } from '../../shell/shell';
+import { toLines } from '../../shell/lines';
+import type { CommandOutput, ShellResult } from '../../types';
 import { isExcludedRepo } from '../../exclusion';
 import { listRepos, lookupTech } from '../../inventory/lookup';
 import type { InventorySnapshot } from '../../inventory/types';
@@ -9,6 +14,8 @@ export interface AssistantDeps {
   live?: { currentRepos(): Promise<Array<{ name: string; fork?: boolean; topics?: string[] }>> };
   surface?: 'web' | 'ssh';
   origin?: string;
+  signal?: AbortSignal;
+  onCommand?: (command: { id: string; commandLine: string; output: CommandOutput[]; status: 'ok' | 'error' }) => void;
 }
 
 export function createToolBudget(max = 5) {
@@ -55,6 +62,39 @@ export function createAssistantTools(deps: AssistantDeps, budget = createToolBud
     catch { return { unavailable: true, what: deps.live ? 'github' : 'inventory' }; }
   };
   return {
+    run_command: tool({
+      description: 'Run one allowed portfolio command or a short pipeline to show sourced portfolio content.',
+      inputSchema: z.object({ commandLine: z.string().min(1).max(200) }),
+      execute: async ({ commandLine }) => execute(async () => {
+        const validation = validateAssistantCommandLine(commandLine, commandRegistry);
+        if (!validation.ok) return { ok: false, reason: validation.reason === 'syntax' ? 'parse_error' : 'not_allowed', detail: validation.detail };
+        const timeout = AbortSignal.timeout(5000);
+        const signal = deps.signal ? AbortSignal.any([deps.signal, timeout]) : timeout;
+        let onAbort: () => void = () => undefined;
+        const cancelled = new Promise<ShellResult>((resolve) => {
+          onAbort = () => resolve({ output: [], cancelled: true });
+          signal.addEventListener('abort', onAbort, { once: true });
+          if (signal.aborted) onAbort();
+        });
+        let result: ShellResult;
+        try {
+          result = await Promise.race([
+            createShell({ surface: deps.surface ?? 'web', origin: deps.origin ?? '' }).run(commandLine, { signal }),
+            cancelled,
+          ]);
+        } finally {
+          signal.removeEventListener('abort', onAbort);
+        }
+        if (signal.aborted || result.cancelled) return { ok: false, reason: 'failed', detail: 'Command timed out or was cancelled.' };
+        if (['clear', 'mode', 'openUrl', 'theme', 'welcome', 'download', 'sequence', 'ask'].some((key) => key in result)) {
+          return { ok: false, reason: 'effect_blocked', detail: 'Command produced an unsupported effect.' };
+        }
+        const status = result.status === 'error' ? 'error' : 'ok';
+        if (status === 'ok' || result.output.length) deps.onCommand?.({ id: crypto.randomUUID(), commandLine, output: result.output, status });
+        if (status === 'error') return { ok: false, reason: 'failed', detail: toLines(result.output).map((line) => line.text).join('\n').slice(0, 1800) };
+        return { ok: true, commandLine, text: toLines(result.output).map((line) => line.text).join('\n').slice(0, 1800) };
+      })(),
+    }),
     lookup_tech: tool({
       description: 'Find code-level technology evidence, including repo, file and last activity. README mentions are separate from code evidence.',
       inputSchema: z.object({ query: z.string().min(1).max(60) }),

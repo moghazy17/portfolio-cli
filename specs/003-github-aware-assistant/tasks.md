@@ -302,7 +302,7 @@ sources line. Then check:
   - Abort mid-stream stops yielding without throwing.
   - HTTP 403 and 500, and network errors, become `notice {kind:'error'}` followed by `done`.
   - The request body carries `surface`, the history (â‰¤ 10 turns) and the question.
-- [ ] T041 [P] [US2] Write `packages/shared/test/assistant-stream.test.ts`: `createAssistantStream()` with `MockLanguageModelV3` scripted tool calls and mocked deps. Assert that:
+- [X] T041 [P] [US2] Write `packages/shared/test/assistant-stream.test.ts`: `createAssistantStream()` with `MockLanguageModelV3` scripted tool calls and mocked deps. Assert that:
   - `run_command` emits a `data-command` part with structured `CommandOutput[]`, and the model only sees plain text.
   - A disallowed command returns `not_allowed`.
   - A result with effects returns `effect_blocked` and emits no part.
@@ -349,13 +349,13 @@ sources line. Then check:
   - Handle abort and errors as specified.
 
   Export the handler, client, sources and types from `packages/shared/src/assistant/index.ts`. T040 now passes.
-- [ ] T049 [US2] Add `run_command` to `packages/shared/src/assistant/server/tools.ts`:
+- [X] T049 [US2] Add `run_command` to `packages/shared/src/assistant/server/tools.ts`:
   - Validate with `validateAssistantCommandLine`.
   - Run through `createShell({ surface: deps.surface, origin: deps.origin }).run(line, { signal })` with a 5-second timeout.
   - Block results carrying any effect key.
   - Return plain text to the model through `toLines()`, capped at 2,000 characters.
   - Report the structured `CommandOutput[]` through a `deps.onCommand({ id, commandLine, output, status })` callback.
-- [ ] T050 [US2] Implement `packages/shared/src/assistant/server/stream.ts` with `createAssistantStream({ messages, surface, deps, model, signal, onFinish })`:
+- [X] T050 [US2] Implement `packages/shared/src/assistant/server/stream.ts` with `createAssistantStream({ messages, surface, deps, model, signal, onFinish })`:
   - Normalize history: text parts only, the last 10 messages.
   - Use `createUIMessageStream`, running `streamText` inside it with the model, the prompt, the tools, `stopWhen: [stepCountIs(6), hasToolCall('decline')]`, `maxOutputTokens: 400`, a `prepareStep` budget gate (once the budget is spent: `activeTools: ['decline']` with `toolChoice: 'auto'`; never `'none'`, which would also disable `decline`), and `abortSignal`.
   - Emit `data-command` from `onCommand`.
@@ -364,14 +364,14 @@ sources line. Then check:
   - Call `onFinish({ toolCalls, text, sources })`.
 
   Export it from `src/assistant/server/index.ts`. T041 now passes.
-- [ ] T051 [US2] Extend `packages/shared/src/assistant/server/prompt.ts`:
+- [X] T051 [US2] Extend `packages/shared/src/assistant/server/prompt.ts`:
   - A compact content index built from `content`: project ids and names, companies and roles, skill categories.
   - `run_command` guidance: prefer a narrowing `| grep -i <term>` over whole-command output.
   - A summary of at most 8 lines unless the visitor asks for detail.
   - Tell the model not to write a sources line itself, since the server appends one.
   - Session follow-up handling.
   - If `run_command` fails or returns no output, say so plainly and never invent the missing content (spec edge case).
-- [ ] T052 [US2] Rewrite `apps/web/app/api/chat/route.ts` onto `createAssistantStream`:
+- [X] T052 [US2] Rewrite `apps/web/app/api/chat/route.ts` onto `createAssistantStream`:
   - Keep the origin check and the existing limiter for now.
   - Validate `surface` (`web` | `ssh`) with a 400 otherwise.
   - A last user text over 500 characters gets a `data-notice {kind:'too-long'}` stream, returned *before* the limiter.

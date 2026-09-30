@@ -6,5 +6,7 @@ export type { QuestionOutcome, QuestionLogEntry, OutcomeFacts } from './outcome'
 export { createAssistantTools, createToolBudget, capResult } from './tools';
 export type { AssistantDeps, ToolBudget } from './tools';
 export { buildAssistantPrompt } from './prompt';
+export { createAssistantStream } from './stream';
+export type { AssistantFinish, AssistantSources } from './stream';
 export { InventorySnapshotSchema, checkInvariants } from '../../inventory/schema';
 export type { InventorySnapshot } from '../../inventory/types';

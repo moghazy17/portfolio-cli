@@ -3,8 +3,8 @@
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, type UIMessage } from 'ai';
 import { useState, useRef, useEffect, useMemo, KeyboardEvent, MutableRefObject } from 'react';
-import { formatSourcesLine, profile, redactSecrets, sanitizeAssistantText } from '@ahmed-moghazy/shared';
-import type { AssistantTurn, CommandOutput, NoticeKind, Theme } from '@ahmed-moghazy/shared';
+import { formatSourcesLine, parseAssistantDataPart, profile, redactSecrets, sanitizeAssistantText } from '@ahmed-moghazy/shared';
+import type { AssistantTurn, Theme } from '@ahmed-moghazy/shared';
 import AssistantAnswer from './AssistantAnswer';
 import type { AssistantEntryState } from '../hooks/useTerminal';
 
@@ -17,15 +17,6 @@ interface Props {
 type EntryPart = AssistantEntryState['parts'][number];
 
 const MAX_TURNS = 10;
-const noticeKinds: readonly string[] = ['limited', 'daily-cap', 'unavailable', 'stale', 'too-long', 'error'];
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function isStringArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.every((item) => typeof item === 'string');
-}
 
 function getMessageText(message: UIMessage): string {
   return message.parts
@@ -45,31 +36,13 @@ function toEntryParts(message: UIMessage): EntryPart[] {
       const text = cleanText(part.text);
       return text.trim() ? [{ kind: 'text', text }] : [];
     }
-    const data = (part as { data?: unknown }).data;
-    if (!isRecord(data)) return [];
-    if (part.type === 'data-command') {
-      return typeof data.commandLine === 'string' && Array.isArray(data.output)
-        ? [{ kind: 'command', commandLine: data.commandLine, output: data.output as CommandOutput[] }]
-        : [];
-    }
-    if (part.type === 'data-sources') {
-      const evidence = Array.isArray(data.evidence)
-        ? data.evidence.flatMap((item) => (
-          isRecord(item) && typeof item.repo === 'string' && typeof item.file === 'string'
-            ? [{ repo: item.repo, file: item.file }] : []))
-        : [];
-      const line = formatSourcesLine({
-        commands: isStringArray(data.commands) ? data.commands : [],
-        evidence,
-        repos: isStringArray(data.repos) ? data.repos : [],
-      });
+    const event = parseAssistantDataPart(part.type, (part as { data?: unknown }).data);
+    if (event?.type === 'command') return [{ kind: 'command', commandLine: event.commandLine, output: event.output }];
+    if (event?.type === 'sources') {
+      const line = formatSourcesLine(event);
       return line ? [{ kind: 'sources', line }] : [];
     }
-    if (part.type === 'data-notice') {
-      return noticeKinds.includes(data.kind as string) && typeof data.message === 'string'
-        ? [{ kind: 'notice', notice: data.kind as NoticeKind, message: data.message }]
-        : [];
-    }
+    if (event?.type === 'notice') return [{ kind: 'notice', notice: event.kind, message: event.message }];
     // data-decline carries only a category; the refusal itself arrives as text.
     return [];
   });

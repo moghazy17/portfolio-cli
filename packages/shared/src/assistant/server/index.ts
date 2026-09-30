@@ -10,3 +10,4 @@ export { createAssistantStream } from './stream';
 export type { AssistantFinish, AssistantSources } from './stream';
 export { InventorySnapshotSchema, checkInvariants } from '../../inventory/schema';
 export type { InventorySnapshot } from '../../inventory/types';
+export type { LiveRepo, LiveRepoDetail, RecentActivity, CodeHit } from './live-types';

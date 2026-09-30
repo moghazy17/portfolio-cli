@@ -31,8 +31,8 @@ function toMessage(turn: AssistantTurn | { role: 'user'; text: string }, index: 
   return { id: `m${index}`, role: turn.role, parts: [{ type: 'text', text: turn.text }] };
 }
 
-// Maps one data part to a host event. Anything malformed or unrecognised is dropped.
-function dataEvent(type: string, data: unknown): AssistantEvent | undefined {
+/** Maps one streamed data part to a host event. Anything malformed or unrecognised yields undefined. */
+export function parseAssistantDataPart(type: string, data: unknown): AssistantEvent | undefined {
   if (!isRecord(data)) return undefined;
   if (type === 'data-command') {
     if (typeof data.commandLine !== 'string' || !Array.isArray(data.output)) return undefined;
@@ -122,7 +122,7 @@ export async function* askAssistant(options: AskAssistantOptions): AsyncGenerato
         yield* cleanText(redactor.flush());
         yield errorEvents[0];
       } else if (chunk.type.startsWith('data-')) {
-        const event = dataEvent(chunk.type, (chunk as { data?: unknown }).data);
+        const event = parseAssistantDataPart(chunk.type, (chunk as { data?: unknown }).data);
         if (event) yield event;
       }
     }

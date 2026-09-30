@@ -86,7 +86,7 @@ describe('assistant stream', () => {
     ] } });
   });
 
-  it('removes all tools from the sixth model step after five calls', async () => {
+  it('keeps only decline on the sixth model step after five calls', async () => {
     let step = 0;
     const model = new MockLanguageModelV3({ doStream: async () => ({
       stream: new ReadableStream({ start(controller) {
@@ -106,7 +106,8 @@ describe('assistant stream', () => {
     const parts = [];
     for await (const part of createAssistantStream({ messages: [question], surface: 'web', deps: { inventory: async () => null }, model })) parts.push(part);
     expect(model.doStreamCalls).toHaveLength(6);
-    expect(model.doStreamCalls[5].tools).toEqual([]);
+    expect(model.doStreamCalls[5].tools).toHaveLength(1);
+    expect(model.doStreamCalls[5].tools?.[0]).toMatchObject({ name: 'decline' });
     expect(parts.filter((part) => part.type === 'data-command')).toHaveLength(5);
   });
 

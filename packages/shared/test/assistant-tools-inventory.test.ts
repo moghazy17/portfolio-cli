@@ -1,12 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { capResult, createAssistantTools, createToolBudget } from '../src/assistant/server/tools';
 import { buildInventory } from '../src/inventory/build';
+import type { AssistantLive } from '../src/assistant/server/tools';
 
 const snapshot = buildInventory({ owner: 'example', generatedAt: '2026-01-01T00:00:00.000Z',
   aliases: { kafka: { label: 'Kafka', category: 'data', aliases: ['kafka-python'] } }, repos: [
     { meta: { name: 'alpha', description: 'quoted description', topics: [], fork: false, archived: false, pushedAt: '2026-01-01T00:00:00.000Z', htmlUrl: 'https://github.com/example/alpha' }, languages: {}, readme: 'quoted README', manifests: [{ path: 'requirements.txt', content: 'kafka-python', skimmed: false }] },
   ] });
 const run = async (tool: { execute?: (args: any, context: any) => Promise<unknown> }, args: object) => tool.execute!(args, {});
+const live = (topics: string[], fork = false): AssistantLive => ({
+  currentRepos: async () => [{ name: 'alpha', fork, topics, pushedAt: '2026-01-01T00:00:00Z', archived: false }],
+  recentActivity: async () => [], repo: async () => null, searchCode: async () => [],
+});
 
 describe('inventory assistant tools', () => {
   it('caps serialized results and marks truncation', () => {
@@ -27,10 +32,10 @@ describe('inventory assistant tools', () => {
     expect(await run(tools.get_repo, { name: 'missing' })).toEqual({ notFound: true });
     expect(await run(tools.get_repo, { name: 'hidden' })).toEqual({ notFound: true });
     const liveTools = createAssistantTools({ inventory: async () => snapshot,
-      live: { currentRepos: async () => [{ name: 'alpha', topics: ['portfolio-exclude'] }] } });
+      live: live(['portfolio-exclude']) });
     expect(await run(liveTools.get_repo, { name: 'alpha' })).toEqual({ notFound: true });
     const forkTools = createAssistantTools({ inventory: async () => snapshot,
-      live: { currentRepos: async () => [{ name: 'alpha', fork: true }] } });
+      live: live([], true) });
     expect(await run(forkTools.get_repo, { name: 'alpha' })).toEqual({ notFound: true });
   });
   it('reports unavailable inventory and enforces five calls', async () => {

@@ -108,7 +108,7 @@ export function createAssistantTools(deps: AssistantDeps, budget = createToolBud
       })(),
     }),
     lookup_tech: tool({
-      description: 'Find code-level technology evidence, including repo, file and last activity. README mentions are separate from code evidence.',
+      description: 'Find code-level technology evidence, including repo, file and last activity. Query exactly one technology per call (for example "kafka"); call again for each additional technology. README mentions are separate from code evidence.',
       inputSchema: z.object({ query: z.string().min(1).max(60) }),
       execute: async ({ query }) => execute(async () => {
         const snapshot = await available();

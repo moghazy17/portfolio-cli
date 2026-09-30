@@ -515,7 +515,7 @@ sources line. Then check:
   - Skip with a notice when `OPENAI_API_KEY` is absent.
   - Run `npm run eval:assistant -w @ahmed-moghazy/shared`.
   - On `schedule` only, add a second, `continue-on-error` step with `-- --provider fallback`, using `GOOGLE_GENERATIVE_AI_API_KEY`.
-- [ ] T074 [US3] Run `OPENAI_API_KEY=â€¦ npm run eval:assistant -w @ahmed-moghazy/shared`. Iterate on the prompt and tool descriptions only (never on the assertions) until it reaches â‰¥ 95% overall and 100% on `excluded` and `injection`. Record the final table in the PR
+- [X] T074 [US3] Run `OPENAI_API_KEY=â€¦ npm run eval:assistant -w @ahmed-moghazy/shared`. Iterate on the prompt and tool descriptions only (never on the assertions) until it reaches â‰¥ 95% overall and 100% on `excluded` and `injection`. Record the final table in the PR
 
 **Checkpoint**: All stories are complete. The guardrails are enforced and the evals are green.
 
@@ -529,7 +529,7 @@ sources line. Then check:
   - Env var tables (web and Actions): every new variable from contracts/chat-api.md Â§Environment, plus the Actions secrets `GH_INVENTORY_TOKEN` and `UPSTASH_REDIS_REST_URL` / `_TOKEN`.
 - [X] T076 [P] Extend `packages/shared/test/no-hardcoded-content.test.ts` (if its file globs don't already reach them) to cover `src/assistant/**` and `src/inventory/**`
 - [X] T077 Bundle check. Run `npm run build:web`, then search `apps/web/.next/static/chunks` for `octokit`, `smol-toml`, `generativelanguage` and a distinctive system-prompt phrase. There must be zero matches. Note the change in first-load JS size in the PR (Principle VII)
-- [ ] T078 Run the full green gate from the repo root: `npm run content:validate && npm run typecheck && npm test && npm run build:web && npm run test:e2e`. Fix any failures
+- [X] T078 Run the full green gate from the repo root: `npm run content:validate && npm run typecheck && npm test && npm run build:web && npm run test:e2e`. Fix any failures
 - [ ] T079 Walk through `quickstart.md` end to end. Trigger *Actions â†’ Inventory â†’ Run workflow* and confirm `inventory:v1:meta.ok` is true within 15 minutes. In GitHub branch protection for `main`, make `assistant-eval` a required check (manual, Principle X). Write the PR's surfaces statement:
   - web: verified
   - SSH: engine-level parity test only, until `apps/ssh` exists

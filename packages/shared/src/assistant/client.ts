@@ -24,9 +24,15 @@ const declineCategories: readonly DeclineCategory[] = ['off_topic', 'personal', 
  * data parts are for rendering, and the server ignores them, so they never go on the wire.
  */
 export function toRequestMessages<M extends UIMessage>(messages: M[], limit = MAX_HISTORY_TURNS): UIMessage[] {
-  return messages.slice(-limit).map(({ id, role, parts }) => ({
-    id, role, parts: parts.flatMap((part) => (part.type === 'text' ? [{ type: 'text' as const, text: part.text }] : [])),
-  }));
+  return messages.slice(-limit).map(({ id, role, parts }) => {
+    // A refusal stands alone: text written before the decline marker is not part of it.
+    const declinedAt = parts.findIndex((part) => part.type === 'data-decline');
+    return {
+      id, role, parts: parts.flatMap((part, index) => (
+        part.type === 'text' && index > declinedAt ? [{ type: 'text' as const, text: part.text }] : []
+      )),
+    };
+  });
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

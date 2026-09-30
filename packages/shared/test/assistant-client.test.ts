@@ -158,3 +158,17 @@ describe('toRequestMessages', () => {
     expect(JSON.stringify(sent).length).toBeLessThan(2_000);
   });
 });
+
+describe('toRequestMessages with a refusal', () => {
+  it('drops text written before the decline marker', () => {
+    const [message] = toRequestMessages([{
+      id: 'a', role: 'assistant',
+      parts: [
+        { type: 'text', text: 'Sorry, that is off topic.' },
+        { type: 'data-decline', data: { category: 'off_topic' } },
+        { type: 'text', text: 'Fixed refusal.' },
+      ],
+    }] as never);
+    expect(message.parts).toEqual([{ type: 'text', text: 'Fixed refusal.' }]);
+  });
+});

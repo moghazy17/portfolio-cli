@@ -123,7 +123,7 @@
 4. README mentions matched common words (go, git, next, express). **Fixed**: labels match case-sensitively, and ids and aliases skip short or common-word terms.
 5. README-only technologies were found only by exact id. **Fixed**: a new `aliasIndex` in the snapshot (optional, so existing snapshots still load).
 6. The inventory store kept a failure for 5 minutes and never logged schema failures. **Fixed**: failures now expire after 30 s, and schema failures are logged at most once a minute.
-7. Text streamed before `decline`. **Kept as a known limit**: holding back text would stop normal answers streaming.
+7. Text streamed before `decline`. **Fixed afterwards, at the owner's request**: both web clients drop text shown before the `data-decline` marker and keep only the fixed refusal, also in the remembered conversation. Streaming is untouched. The server already logged only the refusal. New e2e tests cover shell and chat mode, and fail without the fix.
 8. Cancelled questions were logged as "answered". **Fixed**: `onFinish` reports `aborted`, and the route skips logging them.
 9. `get_repo`'s live path made an extra uncached GitHub call, and search read the cache twice. **Fixed**.
 10. IP resolution, the error text and the 500-character limit were duplicated. **Fixed**: shared helpers and constants.

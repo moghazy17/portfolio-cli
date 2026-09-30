@@ -59,6 +59,7 @@ so the wording matches on all surfaces.
 | Web (`ChatRenderer`) | Render `useChat` message parts through `AssistantAnswer`. Send `surface: 'web'`. Share the session conversation with the in-shell answers |
 | SSH (future `apps/ssh`) | Same as the web `useTerminal` row, using an Ink renderer for events. Send relay headers and `surface: 'ssh'`. Wrap text and command output to the session's current column count, and re-wrap on resize (FR-013). The web wraps with CSS |
 | curl | Nothing. The handler falls back to not-found (rule 1) |
+| All hosts | On a `declined` event, discard any answer text already shown and keep only the fixed refusal text that follows. The refusal stands alone, and only it is kept in the session conversation |
 
 ## Rendering (all surfaces)
 

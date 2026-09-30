@@ -31,7 +31,11 @@ function cleanText(text: string): string {
 // Converts a streamed message into the parts AssistantAnswer renders. Malformed data
 // parts are dropped.
 function toEntryParts(message: UIMessage): EntryPart[] {
-  return message.parts.flatMap((part): EntryPart[] => {
+  // A refusal stands alone: text the model wrote before the decline marker is dropped, and
+  // the fixed refusal text that follows the marker is kept.
+  const declinedAt = message.parts.findIndex((part) => part.type === 'data-decline');
+  return message.parts.flatMap((part, index): EntryPart[] => {
+    if (part.type === 'text' && index < declinedAt) return [];
     if (part.type === 'text') {
       const text = cleanText(part.text);
       return text.trim() ? [{ kind: 'text', text }] : [];
@@ -43,7 +47,6 @@ function toEntryParts(message: UIMessage): EntryPart[] {
       return line ? [{ kind: 'sources', line }] : [];
     }
     if (event?.type === 'notice') return [{ kind: 'notice', notice: event.kind, message: event.message }];
-    // data-decline carries only a category; the refusal itself arrives as text.
     return [];
   });
 }
@@ -81,7 +84,8 @@ export default function ChatRenderer({ onExit, conversationRef, theme }: Props) 
     messages: seed,
     onFinish: ({ message, messages: all, isAbort, isError, isDisconnect }) => {
       if (isAbort || isError || isDisconnect) return;
-      const answer = cleanText(getMessageText(message)).trim();
+      // Same text the visitor saw, so a refusal is remembered without the discarded preamble.
+      const answer = toEntryParts(message).flatMap((part) => (part.kind === 'text' ? [part.text] : [])).join('').trim();
       const question = all[all.length - 2];
       if (!answer || question?.role !== 'user') return;
       conversationRef.current = [

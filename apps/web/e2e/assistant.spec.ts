@@ -224,6 +224,57 @@ test.describe('Assistant answers', () => {
   });
 });
 
+test.describe('Refusals', () => {
+  const PREAMBLE = 'Sorry, recipes are outside what I cover.';
+  const REFUSAL = 'I only answer questions about this portfolio — type `help` to see what you can ask.';
+  const declineChunks = (): Chunk[] => [
+    ...openChunks(),
+    ...textParts(PREAMBLE, 't0'),
+    { type: 'data-decline', data: { category: 'off_topic' } },
+    ...textParts(REFUSAL, 't1'),
+    ...closeChunks(),
+  ];
+  const assistantTexts = (body: ReturnType<ChatStub['bodies']>[number]) => body.messages
+    .filter((message) => message.role === 'assistant')
+    .map((message) => message.parts.flatMap((part) => (part.type === 'text' ? [part.text] : [])).join(''));
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+  });
+
+  test('shows only the fixed refusal in the shell and remembers only that', async ({ page }) => {
+    const stub = await stubChat(page, (request) => (request === 1 ? declineChunks() : answerChunks()));
+    const input = page.getByLabel('Terminal command input');
+    await input.fill('give me a pancake recipe');
+    await input.press('Enter');
+    await expect(page.getByText(REFUSAL)).toBeVisible();
+    await expect(page.locator('.assistant-answer[aria-busy="false"]')).toHaveCount(1);
+    await expect(page.getByText(PREAMBLE)).toHaveCount(0);
+
+    await input.fill('what RAG work has he done?');
+    await input.press('Enter');
+    await expect(page.getByText(SOURCES_LINE)).toBeVisible();
+    expect(assistantTexts(stub.bodies()[1])).toEqual([REFUSAL]);
+  });
+
+  test('shows only the fixed refusal in chat mode and remembers only that', async ({ page }) => {
+    const stub = await stubChat(page, (request) => (request === 1 ? declineChunks() : answerChunks()));
+    const input = page.getByLabel('Terminal command input');
+    await input.fill('chat');
+    await input.press('Enter');
+    const chatInput = page.getByLabel('Chat input');
+    await chatInput.fill('give me a pancake recipe');
+    await chatInput.press('Enter');
+    await expect(page.getByText(REFUSAL)).toBeVisible();
+    await expect(page.getByText(PREAMBLE)).toHaveCount(0);
+
+    await chatInput.fill('what RAG work has he done?');
+    await chatInput.press('Enter');
+    await expect(page.getByText(SOURCES_LINE)).toBeVisible();
+    expect(assistantTexts(stub.bodies()[1])).toEqual([REFUSAL]);
+  });
+});
+
 test.describe('Assistant streaming', () => {
   test('marks the answer busy while streaming and idle when done', async ({ page }) => {
     await stubSlowChat(page);

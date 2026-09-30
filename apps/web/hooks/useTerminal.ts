@@ -50,7 +50,9 @@ function applyEvent(state: AssistantEntryState, event: AssistantEvent): Assistan
     case 'notice':
       return { ...streaming, parts: [...state.parts, { kind: 'notice', notice: event.kind, message: event.message }] };
     case 'declined':
-      return streaming;
+      // A refusal stands alone: drop any text the model wrote before deciding to decline.
+      // The fixed refusal text follows this event.
+      return { ...streaming, parts: state.parts.filter((part) => part.kind !== 'text') };
     case 'done':
       return { ...state, status: 'done' };
   }

@@ -59,7 +59,8 @@ load ─ parseAddress ─┬─ root ─────────────► 
 | Command finished (typed or linked), cwd was `/` | `toAddress(line)` |
 | Command finished, cwd was `/x` | `toAddress("cd /x && " + line)` |
 | Any address over 200 characters | `/` |
-| `clear`, `welcome` | `/` |
+| `clear` or `welcome` that leaves no output | `/` |
+| A reset followed by output (`clear && projects`) | `toAddress(line)` (the screen is reproducible) |
 | `ask` result (in-place question), chat-mode message, cancelled run | unchanged |
 
 The address is written with `history.replaceState`, using a 250 ms trailing debounce.

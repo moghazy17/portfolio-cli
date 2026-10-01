@@ -182,7 +182,8 @@ Prefilling needs no assistant request at all (FR-005, SC-002).
 **Decision**: `syncAddress(line, cwdBefore)` runs after each completed typed or linked command:
 
 - skipped for cancelled runs, `ask` results (questions, FR-008) and anything in chat mode
-- `clear` / `welcome` → `/`
+- `/` for a `clear` / `welcome` that leaves the screen empty; a reset followed by output
+  (`clear && projects`) keeps its command line so the link reproduces the screen
 - otherwise `toAddress(cwdBefore === '/' ? line : \`cd ${cwdBefore} && ${line}\`)`, so
   relative paths reproduce exactly (SC-003). If that is over 200 characters, use `/` rather
   than a link that can't be opened.

@@ -1,3 +1,5 @@
+import type { GitHubStats } from './github';
+
 // ============================================================
 // CV DATA TYPES
 // ============================================================
@@ -207,6 +209,7 @@ export interface CommandContext {
   origin: string;
   signal: AbortSignal;
   fs: FileSystem;
+  github?: (signal: AbortSignal) => Promise<GitHubStats>;
   stdin?: Line[];
 }
 

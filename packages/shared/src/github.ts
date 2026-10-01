@@ -35,13 +35,13 @@ export interface GitHubStats {
   topRepos: { name: string; stars: number; language: string | null }[];
 }
 
-export async function fetchGitHubData(signal?: AbortSignal): Promise<GitHubStats> {
+export async function fetchGitHubData(signal?: AbortSignal, fetchImpl: typeof fetch = fetch): Promise<GitHubStats> {
   const [userRes, reposRes] = await Promise.all([
-    fetch(`${GITHUB_API_BASE}/users/${GITHUB_USERNAME}`, {
+    fetchImpl(`${GITHUB_API_BASE}/users/${GITHUB_USERNAME}`, {
       headers: { 'User-Agent': 'portfolio-cli' },
       signal,
     }),
-    fetch(`${GITHUB_API_BASE}/users/${GITHUB_USERNAME}/repos?per_page=100&sort=stars`, {
+    fetchImpl(`${GITHUB_API_BASE}/users/${GITHUB_USERNAME}/repos?per_page=100&sort=stars`, {
       headers: { 'User-Agent': 'portfolio-cli' },
       signal,
     }),

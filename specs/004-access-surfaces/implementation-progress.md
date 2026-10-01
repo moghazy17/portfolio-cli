@@ -35,7 +35,16 @@
 - The only conflict was in `middleware.ts` imports, resolved by hand. Merged gates: typecheck; 54 files / 421 tests; build (middleware 60.7 kB); Playwright 47/47.
 - **Live check against `next start`**: statuses were 200 for commands, 404 for unknown input and questions, 400 for `theme`; browsers got HTML, and `/whatever` got `noindex`. **Found a bug**: the guide's `curl "…/?cmd=projects | grep -i rag"` printed nothing, because curl 8.17 rejects URLs with spaces. The guide now uses `curl -G … --data-urlencode "cmd=…"` and a `portfolio()` shell function. Both were verified by running them exactly as printed, and a test now rejects any quoted guide URL that contains a space.
 
+### Review round (Codex `gpt-6-astra`, high, read-only) and fixes
+- **Deep review**: not ready (address round-trips broken by URL rules, curl status mapping, a malformed-link repair in the route, analytics blocking responses, prefill reuse, unquoted `$`/backtick, weak tests). **Security review**: safe with fixes (C1 terminal-control injection into curl output; unbounded authenticated GitHub refreshes). The core guard held: links never open, download or ask the AI. The orchestrator reproduced every main finding before fixing.
+- **Fixes, in parallel worktrees**: Codex `gpt-6-sol` (high) took the engine and security fixes, and Codex `gpt-5.6-terra` (high) took the route, host and tests. Both were reviewed. **Orchestrator fix**: the new GitHub cache let one disconnecting curl client cancel the shared refresh and trigger the 60 s cooldown for everyone. The refresh now depends only on its own timeout, with a regression test.
+- **Decision recorded**: a bare `clear`/`welcome` writes `/`, but a reset followed by output (`clear && projects`) keeps the command line, so the link reproduces the screen.
+- **Gates (orchestrator, merged branch)**: typecheck; 55 files / 429 tests; build; Playwright 49/49. Live re-check against `next start`: every reproduction now behaves as the contract says.
+
 ## Needs your eyes
+
+- `sudo <anything>` and `rm …` now report an error status, like a real shell, so `&&` chains stop after them and curl returns 400. Nothing changes visually on the web.
+- The GitHub cache is per server instance (in memory) plus Redis. Under a cold start on several instances, each instance can make one refresh.
 
 - **T024**: the apex domain change is done (verified: `https://moghazy.me` returns 200, `www` 308-redirects to it). Plain `http://` is always upgraded by Vercel, so the README now shows `curl https://moghazy.me/...`. The quickstart production checks run once this branch is deployed.
 - `curlIndex()` falls back to `https://moghazy.me` when no origin is passed. The route always passes the request origin, so this only affects direct callers. `content/site.yaml` has no canonical URL to use instead.

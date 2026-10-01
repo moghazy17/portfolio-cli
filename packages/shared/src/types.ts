@@ -190,6 +190,8 @@ export interface CommandDefinition {
   kind?: 'command' | 'filter';
   hidden?: boolean;
   menu?: boolean;
+  /** Whether the assistant may execute this command. */
+  assistant?: boolean;
   surfaces?: Surface[];
   args?: ArgSpec;
   man?: ManPage;
@@ -218,6 +220,8 @@ export interface CommandResult {
   welcome?: boolean;
   download?: { url: string; filename: string };
   sequence?: SequenceStep[];
+  /** Ask the host to answer an unknown input through the assistant. */
+  ask?: { question: string };
 }
 
 export interface SequenceStep {

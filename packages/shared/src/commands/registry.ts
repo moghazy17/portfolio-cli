@@ -72,6 +72,7 @@ function helpCommand(): CommandResult {
 export const commandRegistry: CommandDefinition[] = [
   {
     name: 'help',
+    assistant: true,
     description: 'List all available commands',
     usage: 'help',
     aliases: ['h', '?'],
@@ -81,6 +82,7 @@ export const commandRegistry: CommandDefinition[] = [
   },
   {
     name: 'about',
+    assistant: true,
     description: 'Professional summary',
     usage: 'about',
     aliases: ['summary', 'bio'],
@@ -90,6 +92,7 @@ export const commandRegistry: CommandDefinition[] = [
   },
   {
     name: 'education',
+    assistant: true,
     description: 'Education details and coursework',
     usage: 'education',
     aliases: ['edu'],
@@ -99,6 +102,7 @@ export const commandRegistry: CommandDefinition[] = [
   },
   {
     name: 'experience',
+    assistant: true,
     description: 'Work experience (filter by company)',
     usage: 'experience [company]',
     aliases: ['exp', 'work'],
@@ -109,6 +113,7 @@ export const commandRegistry: CommandDefinition[] = [
   },
   {
     name: 'projects',
+    assistant: true,
     description: 'Technical projects (filter by name)',
     usage: 'projects [name]',
     aliases: ['proj'],
@@ -119,6 +124,7 @@ export const commandRegistry: CommandDefinition[] = [
   },
   {
     name: 'skills',
+    assistant: true,
     description: 'Technical skills by category',
     usage: 'skills [category]',
     aliases: ['sk'],
@@ -129,6 +135,7 @@ export const commandRegistry: CommandDefinition[] = [
   },
   {
     name: 'certifications',
+    assistant: true,
     description: 'Certifications and achievements',
     usage: 'certifications',
     aliases: ['certs', 'awards'],
@@ -138,6 +145,7 @@ export const commandRegistry: CommandDefinition[] = [
   },
   {
     name: 'contact',
+    assistant: true,
     description: 'Contact information and links',
     usage: 'contact',
     aliases: ['email', 'links'],
@@ -156,6 +164,7 @@ export const commandRegistry: CommandDefinition[] = [
   },
   {
     name: 'timeline',
+    assistant: true,
     description: 'Reverse-chronological career overview',
     usage: 'timeline',
     aliases: ['tl'],
@@ -182,6 +191,7 @@ export const commandRegistry: CommandDefinition[] = [
   },
   {
     name: 'whoami',
+    assistant: true,
     description: '???',
     usage: 'whoami',
     aliases: [],
@@ -190,6 +200,7 @@ export const commandRegistry: CommandDefinition[] = [
   },
   {
     name: 'github',
+    assistant: true,
     description: 'Live GitHub profile stats',
     usage: 'github',
     aliases: ['gh'],
@@ -215,7 +226,7 @@ export const commandRegistry: CommandDefinition[] = [
     execute: () => ({ output: [], clear: true }),
   },
   {
-    name: 'man', description: 'Show a command manual page', usage: 'man <command>', aliases: [],
+    name: 'man', assistant: true, description: 'Show a command manual page', usage: 'man <command>', aliases: [],
     args: { positional: [{ name: 'command', required: true, complete: 'commands' }] },
     man: { description: 'Show detailed usage, options, examples, and aliases for a command.', examples: ['man projects', 'man grep'] },
     execute: (ctx) => manCommand(ctx, commandRegistry),
@@ -226,7 +237,7 @@ export const commandRegistry: CommandDefinition[] = [
     execute: resumeCommand,
   },
   {
-    name: 'ls', description: 'List files and folders', usage: 'ls [-a] [-l] [path…]', aliases: [],
+    name: 'ls', assistant: true, description: 'List files and folders', usage: 'ls [-a] [-l] [path…]', aliases: [],
     args: {
       flags: [
         { short: 'a', long: 'all', description: 'Include . and ..' },
@@ -244,18 +255,18 @@ export const commandRegistry: CommandDefinition[] = [
     execute: cdCommand,
   },
   {
-    name: 'pwd', description: 'Print current folder', usage: 'pwd', aliases: [],
+    name: 'pwd', assistant: true, description: 'Print current folder', usage: 'pwd', aliases: [],
     man: { description: 'Print the absolute current folder path.', examples: ['pwd', 'cd projects && pwd'] },
     execute: pwdCommand,
   },
   {
-    name: 'cat', description: 'Read a file', usage: 'cat <path…>', aliases: [],
+    name: 'cat', assistant: true, description: 'Read a file', usage: 'cat <path…>', aliases: [],
     args: { positional: [{ name: 'path', required: true, variadic: true, complete: 'path' }] },
     man: { description: 'Show the contents of one or more files.', examples: ['cat about.md', 'cat projects/example.md'] },
     execute: catCommand,
   },
   {
-    name: 'tree', description: 'Show folder tree', usage: 'tree [path]', aliases: [],
+    name: 'tree', assistant: true, description: 'Show folder tree', usage: 'tree [path]', aliases: [],
     args: { positional: [{ name: 'path', complete: 'dir' }] },
     man: { description: 'Show files and folders as a tree.', examples: ['tree', 'tree projects'] },
     execute: treeCommand,
@@ -306,7 +317,7 @@ export const commandRegistry: CommandDefinition[] = [
     execute: () => exitCommand(),
   },
   {
-    name: 'grep', description: 'Find lines containing literal text', usage: 'grep [-i] [-v] [-c] [-h] <pattern>',
+    name: 'grep', assistant: true, description: 'Find lines containing literal text', usage: 'grep [-i] [-v] [-c] [-h] <pattern>',
     aliases: [], kind: 'filter', surfaces: ['web', 'ssh', 'curl'],
     args: { flags: [
       { short: 'i', long: 'ignore-case', description: 'Ignore case' },
@@ -318,21 +329,21 @@ export const commandRegistry: CommandDefinition[] = [
     execute: grep,
   },
   {
-    name: 'head', description: 'Show the first lines', usage: 'head [-n N]', aliases: [],
+    name: 'head', assistant: true, description: 'Show the first lines', usage: 'head [-n N]', aliases: [],
     kind: 'filter', surfaces: ['web', 'ssh', 'curl'],
     args: { flags: [{ short: 'n', long: 'lines', value: 'number', description: 'Number of lines' }] },
     man: { description: 'Show the first N lines of piped input.', examples: ['projects | head', 'skills | head -n 3'] },
     execute: (ctx) => lineCount(ctx, 'head'),
   },
   {
-    name: 'tail', description: 'Show the last lines', usage: 'tail [-n N]', aliases: [],
+    name: 'tail', assistant: true, description: 'Show the last lines', usage: 'tail [-n N]', aliases: [],
     kind: 'filter', surfaces: ['web', 'ssh', 'curl'],
     args: { flags: [{ short: 'n', long: 'lines', value: 'number', description: 'Number of lines' }] },
     man: { description: 'Show the last N lines of piped input.', examples: ['projects | tail', 'skills | tail -n 3'] },
     execute: (ctx) => lineCount(ctx, 'tail'),
   },
   {
-    name: 'wc', description: 'Count lines, words and characters', usage: 'wc [-l] [-w] [-c]', aliases: [],
+    name: 'wc', assistant: true, description: 'Count lines, words and characters', usage: 'wc [-l] [-w] [-c]', aliases: [],
     kind: 'filter', surfaces: ['web', 'ssh', 'curl'],
     args: { flags: [
       { short: 'l', long: 'lines', description: 'Count lines' },
@@ -343,7 +354,7 @@ export const commandRegistry: CommandDefinition[] = [
     execute: (ctx) => ({ output: [{ type: 'lines', lines: wcLines(ctx.stdin || [], ctx.flags), showItems: false }] }),
   },
   {
-    name: 'sort', description: 'Sort lines', usage: 'sort [-r] [-u]', aliases: [],
+    name: 'sort', assistant: true, description: 'Sort lines', usage: 'sort [-r] [-u]', aliases: [],
     kind: 'filter', surfaces: ['web', 'ssh', 'curl'],
     args: { flags: [
       { short: 'r', long: 'reverse', description: 'Reverse order' },

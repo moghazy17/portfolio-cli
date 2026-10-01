@@ -172,6 +172,19 @@ export const WriteupFrontMatterSchema = z.object({
   }).strict()).default([]),
 }).strict();
 
+export const TechAliasMapSchema = z.record(
+  z.string().regex(/^[a-z0-9][a-z0-9+.#-]*$/),
+  z.object({
+    label: z.string().trim().min(1),
+    category: z.enum(['language', 'ai', 'data', 'web', 'infra', 'tooling', 'other']),
+    aliases: z.array(z.string().min(1).max(120).refine(
+      (alias) => alias === alias.toLowerCase() && (alias.match(/\*/g)?.length ?? 0) <= 1,
+      'alias must be lower-case with at most one glob',
+    )),
+  }).strict(),
+);
+export type TechAliasMap = z.output<typeof TechAliasMapSchema>;
+
 export type ResumeInput = z.input<typeof ResumeSchema>;
 export type Resume = z.output<typeof ResumeSchema>;
 export type SiteInput = z.input<typeof SiteSchema>;

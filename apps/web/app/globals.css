@@ -79,3 +79,24 @@ body {
     overflow-x: auto !important;
   }
 }
+
+.assistant-thinking {
+  animation: assistant-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes assistant-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .assistant-thinking {
+    animation: none;
+    opacity: 0.6;
+  }
+}

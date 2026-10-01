@@ -7,7 +7,8 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./content": "./src/content/node.ts"
+    "./content": "./src/content/node.ts",
+    "./assistant-server": "./src/assistant/server/index.ts"
   },
   "scripts": {
     "pretypecheck": "npm run generate",
@@ -17,7 +18,11 @@
     "generate": "tsx scripts/generate-content.ts",
     "validate": "tsx scripts/validate-content.ts",
     "cv:sync": "tsx scripts/cv-sync.ts",
-    "eval:cv": "tsx scripts/eval-cv.ts"
+    "eval:cv": "tsx scripts/eval-cv.ts",
+    "preinventory:build": "npm run generate",
+    "inventory:build": "tsx scripts/build-inventory.ts",
+    "preeval:assistant": "npm run generate",
+    "eval:assistant": "vitest run --config vitest.evals.config.ts"
   },
   "devDependencies": {
     "@types/node": "^22.19.11",
@@ -26,8 +31,12 @@
     "vitest": "^5.0.2"
   },
   "dependencies": {
+    "@ai-sdk/google": "^3.0.129",
     "@ai-sdk/openai": "^3.0.118",
+    "@ai-sdk/provider": "^3.0.8",
     "ai": "^6.0.116",
+    "octokit": "^5.0.5",
+    "smol-toml": "^1.9.0",
     "yaml": "^2.9.1",
     "zod": "^4.6.5"
   }

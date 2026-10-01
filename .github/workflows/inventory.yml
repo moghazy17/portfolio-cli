@@ -1,0 +1,23 @@
+name: Inventory
+on:
+  schedule: [{ cron: '17 3 * * *' }]
+  workflow_dispatch: {}
+concurrency: { group: inventory, cancel-in-progress: false }
+permissions: { contents: read }
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: npm ci
+      - run: npm run inventory:build -w @ahmed-moghazy/shared
+        env:
+          GH_INVENTORY_TOKEN: ${{ secrets.GH_INVENTORY_TOKEN }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          INVENTORY_OWNER: ${{ vars.INVENTORY_OWNER }}

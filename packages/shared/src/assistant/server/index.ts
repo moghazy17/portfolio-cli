@@ -1,0 +1,13 @@
+export { createFallbackModel } from './fallback';
+export { createAssistantModel } from './model';
+export { resolveVisitorIp } from './identity';
+export { classifyOutcome, buildLogEntry } from './outcome';
+export type { QuestionOutcome, QuestionLogEntry, OutcomeFacts } from './outcome';
+export { createAssistantTools, createToolBudget, capResult } from './tools';
+export type { AssistantDeps, ToolBudget } from './tools';
+export { buildAssistantPrompt } from './prompt';
+export { createAssistantStream } from './stream';
+export type { AssistantFinish, AssistantSources } from './stream';
+export { InventorySnapshotSchema, checkInvariants } from '../../inventory/schema';
+export type { InventorySnapshot } from '../../inventory/types';
+export type { LiveRepo, LiveRepoDetail, RecentActivity, CodeHit } from './live-types';

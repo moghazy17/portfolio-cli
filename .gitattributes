@@ -1,1 +1,3 @@
 *.pdf binary
+# Vitest writes snapshots with LF; keep checkouts LF so test runs leave no diff
+*.snap text eol=lf

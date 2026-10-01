@@ -35,12 +35,15 @@ npm test               # Run workspace tests
 npm run test:e2e       # Run Playwright smoke tests
 npm run cv:sync -- --pdf <file> [--dry-run] # Merge a CV into resume content
 npm run eval:cv        # Evaluate CV extraction fixtures (requires OpenAI API key)
+npm run inventory:build -w @ahmed-moghazy/shared -- [--dry-run] [--out <file>]  # Build the GitHub tech inventory (needs GH_INVENTORY_TOKEN)
+npm run eval:assistant -w @ahmed-moghazy/shared  # Golden-question assistant evals (requires OpenAI API key)
 ```
 
 ## Architecture
 
 ### Monorepo Structure
-- `packages/shared/` — Core logic (`@ahmed-moghazy/shared`): command registry, generated content, types, theme, ASCII art, GitHub data fetching, AI prompt builder
+- `packages/shared/` — Core logic (`@ahmed-moghazy/shared`): command registry, generated content, types, theme, ASCII art, GitHub data fetching, assistant client and server
+  - Main entry (`@ahmed-moghazy/shared`) is client-safe; server-only code (zod tools, prompt, stream, model fallback, inventory) is exported only from `@ahmed-moghazy/shared/assistant-server`. `test/assistant-bundle-boundary.test.ts` enforces this
 - `apps/web/` — Next.js app, deployed on Vercel
 - `tsconfig.base.json` — Shared TypeScript base config (strict mode, ES2022, bundler module resolution)
 
@@ -67,14 +70,21 @@ suggestions, unknown-command handling, and output-to-lines conversion. `src/vfs/
 Each `CommandDefinition` includes its name, aliases, description, usage, `execute()` function,
 and metadata such as `kind`, `menu`, `surfaces`, `args`, `man`, and `hidden`. `CommandResult`
 contains `output: CommandOutput[]` plus optional effects: `clear`, `mode`, `openUrl`, `status`,
-`theme`, `welcome`, `download`, and `sequence`. `createShell()` also accepts an
+`theme`, `welcome`, `download`, `sequence`, and `ask` (hand unknown input to the AI assistant).
+`CommandDefinition.assistant: true` marks the read-only commands the assistant may run. `createShell()` also accepts an
 `onUnknownCommand` hook for host-specific handling of unrecognised input.
 
 `CommandOutput` is a discriminated union with 10 variants: `text`, `section`, `list`, `table`,
 `ascii`, `link`, `divider`, `error`, `progress`, and `lines`.
 
+### AI Assistant (`packages/shared/src/assistant/`, `src/inventory/`)
+- Client-safe (`src/assistant/`): `createAssistantUnknownHandler()` (routes unknown input to an `ask` effect; typos keep "did you mean", piped and curl input never reach the AI), `askAssistant()` (streams `/api/chat` into host-neutral `AssistantEvent`s), `validateAssistantCommandLine()`, `formatSourcesLine()`, `parseAssistantDataPart()`, secret redaction and markdown sanitizing
+- Server-only (`src/assistant/server/`): `createAssistantModel()` (OpenAI `ASSISTANT_MODEL`, falls back to Gemini `ASSISTANT_FALLBACK_MODEL` before the first content part), `createAssistantTools()` (`lookup_tech`, `list_repos`, `get_repo`, `run_command`, live tools, `decline`; 5-call budget), `buildAssistantPrompt()`, `createAssistantStream()` (UI-message stream with `data-command`/`data-sources`/`data-notice`/`data-decline` parts), `resolveVisitorIp()`, `classifyOutcome()`/`buildLogEntry()`
+- Inventory (`src/inventory/`): pure manifest parsers + `buildInventory()` over all public non-fork repos, skipping the `portfolio-exclude` topic (`src/exclusion.ts`); package→technology map in `content/tech-aliases.yaml`; built nightly by `.github/workflows/inventory.yml` into Redis `inventory:v1`
+- Design and contracts: `specs/003-github-aware-assistant/`
+
 ### Shared GitHub Module (`packages/shared/src/github.ts`)
-Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BASE`, and shared types (`GitHubUser`, `GitHubRepo`, `GitHubStats`). Used by the shared `github` command (which formats data into `CommandOutput[]`) and the web `github-cache.ts` (which formats a flat string for AI prompt context and caches it with Redis).
+Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BASE`, and shared types (`GitHubUser`, `GitHubRepo`, `GitHubStats`). Used by the shared `github` command (which formats data into `CommandOutput[]`). Repos tagged `portfolio-exclude` are dropped.
 
 ### Web App Flow (apps/web/)
 - `app/page.tsx` — Next.js page with hidden semantic HTML for SEO
@@ -82,12 +92,17 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 - `components/OutputRenderer.tsx` — DOM-based renderer for the same `CommandOutput` types
 - `components/CommandLine.tsx` — Shell input with completion, history, cancellation, and clear-screen keys
 - `components/SequencePlayer.tsx` — Skippable command-sequence playback with reduced-motion support
-- `components/ChatRenderer.tsx` — AI chat UI for the web
-- `hooks/useTerminal.ts` — Owns the shell instance, cancellation, command effects, and terminal state
+- `components/ChatRenderer.tsx` — AI chat mode; renders the same assistant parts as in-shell answers and shares the session conversation
+- `components/AssistantAnswer.tsx` — Renders an in-shell assistant answer (command output, text, sources, notices; `aria-busy` while streaming)
+- `hooks/useTerminal.ts` — Owns the shell instance, cancellation, command effects (including `ask` → streamed assistant answer), and terminal state
 - `hooks/useHistory.ts` — LocalStorage-backed wrapper around the shared history state
 - `hooks/useThemeApplier.ts` — Applies theme CSS custom properties
-- `lib/github-cache.ts` — Redis-cached GitHub data for AI prompt context
-- `app/api/chat/route.ts` — Streaming AI chat endpoint (OpenAI gpt-6-luna via Vercel AI SDK)
+- `lib/inventory-store.ts` — Reads the tech inventory from Redis (5 min memo), or `.inventory/inventory.json` locally
+- `lib/github-live.ts` — Live GitHub reads for the assistant (repos, recent activity, READMEs, code search) with Redis caches
+- `lib/assistant-limits.ts` — 15 questions/visitor/hour and a site-wide daily cap; fails closed when Redis errors
+- `lib/question-log.ts` — Anonymous 30-day question log (no IPs)
+- `app/api/chat/route.ts` — Assistant endpoint for in-shell answers and chat mode (tool-using, OpenAI with Gemini fallback, Vercel AI SDK)
+- `app/api/chat-stats/route.ts` — Private usage report and question log (`?log=1`), bearer-token guarded and rate-limited
 - `app/api/content/route.ts` — Versioned portfolio-content API with ETag caching
 
 ### Key Patterns
@@ -95,7 +110,7 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 - To update from a CV, add its PDF to `content/cv/incoming/` and review the pull request created by the CV-update workflow
 - Theme switching uses CSS custom properties applied to `document.documentElement`
 - `DEFAULT_THEME` and `themes` from `packages/shared/src/theme.ts` initialize and update the web terminal theme
-- `useTerminal` applies `CommandResult` effects: `openUrl`, `theme`, `welcome`, `download`, `sequence`, `clear`, and `mode`
+- `useTerminal` applies `CommandResult` effects: `openUrl`, `theme`, `welcome`, `download`, `sequence`, `clear`, `mode`, and `ask` (streams the assistant answer in place)
 - The web app uses `transpilePackages: ['@ahmed-moghazy/shared']` in `next.config.js`
 - Redis caching in web app is conditional — works without env vars (graceful degradation)
 - For local end-to-end checks, run `npm run build:web`, then `cd apps/web && CI=1 npx playwright test`
@@ -108,6 +123,13 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 | `UPSTASH_REDIS_REST_URL` | No | Upstash Redis REST URL (GitHub cache, chat rate limit, chat stats). Falls back to `KV_REST_API_URL`, the name Vercel's Upstash integration creates |
 | `UPSTASH_REDIS_REST_TOKEN` | No | Upstash Redis REST token. Falls back to `KV_REST_API_TOKEN` |
 | `OPENAI_API_KEY` | Yes (for chat) | OpenAI API key |
+| `ASSISTANT_MODEL` | No | Primary OpenAI model (default `gpt-6-luna`) |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | No | Enables the Gemini fallback |
+| `ASSISTANT_FALLBACK_MODEL` | No | Gemini fallback model (default `gemini-3.5-flash-lite`) |
+| `GH_INVENTORY_TOKEN` | Yes (for live GitHub tools) | Fine-grained, read-only, public-repos token |
+| `ASSISTANT_DAILY_CAP` | No | Site-wide daily question cap (default 1000) |
+| `ASSISTANT_RELAY_TOKEN` | No | Shared secret letting the SSH server relay visitor IPs |
+| `INVENTORY_FILE` | No | Local inventory JSON path when Redis is not configured |
 | `CHAT_STATS_TOKEN` | No | Bearer token for the private `/api/chat-stats` usage report (endpoint returns 404 when unset) |
 
 ### GitHub Actions
@@ -116,9 +138,12 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 | `CV_BOT_TOKEN` secret | Yes (CV updates) | Fine-grained token for this repository with Contents and Pull requests read/write permissions |
 | `OPENAI_API_KEY` secret | Yes (CV updates and evaluation) | OpenAI API key used for CV extraction |
 | `CV_SYNC_MODEL` variable | No | Model for CV synchronization; defaults to `gpt-6-luna` |
+| `GH_INVENTORY_TOKEN` secret | Yes (inventory) | Fine-grained read-only token for the nightly inventory |
+| `UPSTASH_REDIS_REST_URL` / `_TOKEN` secrets | Yes (inventory) | Redis the inventory job writes to (same database Vercel reads) |
+| `GOOGLE_GENERATIVE_AI_API_KEY` secret | No | Weekly Gemini fallback eval |
 
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-`specs/002-shell-experience/plan.md` (Spec 002 — Shell experience)
+`specs/003-github-aware-assistant/plan.md` (Spec 003 — GitHub-aware assistant)
 <!-- SPECKIT END -->

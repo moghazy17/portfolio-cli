@@ -39,3 +39,10 @@ apps/web/public/cv/
 .cv-sync/
 test-results/
 playwright-report/
+.inventory/
+
+# Local agent tooling and personal notes (not project code)
+.agents/
+skills-lock.json
+.mcp.json
+plan.md

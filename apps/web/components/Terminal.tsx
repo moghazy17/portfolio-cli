@@ -1,6 +1,7 @@
 'use client';
 
 import { getMenuItems } from '@ahmed-moghazy/shared';
+import AssistantAnswer from './AssistantAnswer';
 import CommandLine from './CommandLine';
 import OutputRenderer from './OutputRenderer';
 import SequencePlayer from './SequencePlayer';
@@ -13,7 +14,7 @@ const menuItems = getMenuItems();
 
 export default function Terminal() {
   const {
-    history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat,
+    history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat, conversationRef,
     prompt, running, skip, sequencePlaying, finishSequence,
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp, historyDown, resetHistoryCursor,
@@ -114,7 +115,9 @@ export default function Terminal() {
               </span>
               <span style={{ color: 'var(--fg)' }}>{entry.input}</span>
             </div>
-            {entry.sequence && !entry.sequenceDone && entry.sequenceId !== undefined ? (
+            {entry.assistant ? (
+              <AssistantAnswer state={entry.assistant} theme={theme} />
+            ) : entry.sequence && !entry.sequenceDone && entry.sequenceId !== undefined ? (
               <SequencePlayer
                 steps={entry.sequence}
                 final={entry.output}
@@ -129,7 +132,7 @@ export default function Terminal() {
         ))}
 
         {mode === 'chat' ? (
-          <ChatRenderer onExit={exitChat} />
+          <ChatRenderer onExit={exitChat} conversationRef={conversationRef} theme={theme} />
         ) : (
           <CommandLine
             onSubmit={handleCommand}

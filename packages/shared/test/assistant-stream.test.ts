@@ -257,3 +257,24 @@ describe('cancelled answers', () => {
     expect(onFinish).toHaveBeenCalledWith(expect.objectContaining({ aborted: true }));
   });
 });
+
+describe('injected clock', () => {
+  it('judges inventory staleness by deps.now, not the wall clock', async () => {
+    const inventory = buildInventory({ owner: 'example', generatedAt: '2020-01-01T00:00:00.000Z', aliases: {}, repos: [] });
+    const model = new MockLanguageModelV3({ doStream: async () => ({
+      stream: new ReadableStream({ start(controller) {
+        controller.enqueue({ type: 'text-start', id: 't' });
+        controller.enqueue({ type: 'text-delta', id: 't', delta: 'Answer' });
+        controller.enqueue({ type: 'text-end', id: 't' });
+        controller.enqueue({ type: 'finish', finishReason: 'stop', usage: { inputTokens: { total: 1 }, outputTokens: { total: 1 } } });
+        controller.close();
+      } }),
+    }) });
+    const parts: string[] = [];
+    const stream = createAssistantStream({ messages: [question], surface: 'web', model,
+      deps: { inventory: async () => inventory, now: () => new Date('2020-01-01T01:00:00.000Z') } });
+    for await (const part of stream) parts.push(part.type);
+    expect(parts).not.toContain('data-notice');
+    expect(JSON.stringify(model.doStreamCalls[0].prompt)).not.toContain('Inventory is stale');
+  });
+});

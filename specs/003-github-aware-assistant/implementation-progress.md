@@ -23,7 +23,7 @@
 | 4b | US3 rest: T057, T058, T062 runner, T064–T066, T071 | ✅ Codex `gpt-6-sol`, reviewed | 2650576 |
 | — | T074 golden evals | ✅ 18/18 cases on 3 consecutive runs (`gpt-6-luna`) after prompt iteration | (this commit) |
 | 5 | T075–T078 Polish | ✅ docs, dead code removed, bundle check clean, full gate green | cefedc6 + this commit |
-| — | T079 quickstart + dispatch the inventory workflow | ⏳ after merge: `workflow_dispatch` only works once the workflow is on `main` | — |
+| — | T079 quickstart + dispatch the inventory workflow | ✅ after the PR #11 merge (`0ff7b89`): Inventory run succeeded in 57 s; production Redis `inventory:v1:meta.ok = true` | (this commit) |
 
 ## Review notes
 
@@ -138,9 +138,19 @@
 - **No repo is tagged `portfolio-exclude` yet.** Tag any repo you don't want mentioned before the first production inventory run.
 - ~~Snapshot line-ending churn on Windows~~: fixed by adding `*.snap text eol=lf` to `.gitattributes`, at the owner's request.
 
+### Post-merge verification (2026-10-01)
+- **Inventory workflow** on `main`: success in 57 s. 15 repos, 3 forks skipped, 0 excluded, 21 technologies, 135 raw packages, 78 KB. Production Redis `inventory:v1:meta` → `{ ok: true, repoCount: 15, techCount: 21 }`.
+- **Vercel production** redeployed from the merge, so it picks up `GH_INVENTORY_TOKEN` and `ASSISTANT_FALLBACK_MODEL` (kept at `gemini-3.5-flash-lite`).
+- **Live checks** against `www.moghazy.me/api/chat`. The bare domain 307-redirects to `www`, which is expected.
+  - "has he used fastapi?": evidence from 3 repos, with files and dates, plus a sources line.
+  - Off-topic: the fixed refusal plus `data-decline`.
+  - "what RAG work has he done?": ran `projects | grep -i rag` and streamed the real output.
+- **Question log** (`/api/chat-stats?log=1`): all 3 recorded with the right outcomes (answered, refused, answered), and only the fields `at`, `question`, `outcome`, `sources` and `surface`.
+- **Required check**: the `assistant-eval` workflow now runs on every PR. It skips the paid run when no relevant files changed, and its job is renamed from `eval`, which clashed with the CV eval. That makes it safe to require.
+
 ## End-of-run checklist
 
-- [ ] Full gate on the final tree: `content:validate`, `typecheck`, `test`, `build:web`, `test:e2e`
-- [ ] Push the branch and open a PR with the surfaces statement
-- [ ] Make `assistant-eval` a required check in branch protection
-- [ ] Redeploy on Vercel, which picks up `GH_INVENTORY_TOKEN` and `ASSISTANT_FALLBACK_MODEL`
+- [x] Full gate on the final tree: `content:validate`, `typecheck`, `test`, `build:web`, `test:e2e`
+- [x] Push the branch and open a PR with the surfaces statement (PR #11, merged)
+- [x] Make `assistant-eval` a required check in branch protection
+- [x] Redeploy on Vercel, which picks up `GH_INVENTORY_TOKEN` and `ASSISTANT_FALLBACK_MODEL`

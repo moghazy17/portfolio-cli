@@ -1,5 +1,6 @@
 import { parseAddress } from '@ahmed-moghazy/shared';
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse, type NextFetchEvent, type NextRequest } from 'next/server';
+import { recordSurfaceEvent } from './lib/surface-stats';
 
 function handleTextClient(_request: NextRequest): NextResponse | null {
   return null;
@@ -11,20 +12,27 @@ function rewriteHome(request: NextRequest, noindex = false): NextResponse {
   return response;
 }
 
-function handleBrowserRequest(request: NextRequest): NextResponse {
+function handleBrowserRequest(request: NextRequest, event: NextFetchEvent): NextResponse {
   const address = parseAddress(request.nextUrl.pathname, request.nextUrl.search);
+  if (
+    (address.kind === 'command' || address.kind === 'not-command')
+    && request.headers.get('sec-fetch-dest') === 'document'
+    && request.headers.get('sec-fetch-mode') === 'navigate'
+  ) {
+    event.waitUntil(recordSurfaceEvent('deep_links'));
+  }
   if (address.kind === 'command' && address.form === 'path') return rewriteHome(request);
   if (address.kind === 'not-command') return rewriteHome(request, true);
   if (address.kind === 'invalid') return rewriteHome(request, request.nextUrl.pathname !== '/');
   return NextResponse.next();
 }
 
-export function middleware(request: NextRequest): NextResponse {
+export function middleware(request: NextRequest, event: NextFetchEvent): NextResponse {
   if (request.headers.get('next-router-prefetch') || request.headers.get('purpose') === 'prefetch') {
     return NextResponse.next();
   }
   const textClientResponse = handleTextClient(request);
-  return textClientResponse ?? handleBrowserRequest(request);
+  return textClientResponse ?? handleBrowserRequest(request, event);
 }
 
 export const config = {

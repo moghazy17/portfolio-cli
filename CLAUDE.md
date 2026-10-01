@@ -63,6 +63,8 @@ npm run eval:assistant -w @ahmed-moghazy/shared  # Golden-question assistant eva
 - `resume.ts` — Resume download/link command
 - `helpers.ts` — Shared helper functions (e.g., `parseTimelineDate`)
 
+`src/surface/` holds the access-surface logic shared by the web host and the curl route: `parseAddress()`/`toAddress()` (one address format for browsers and text clients: command paths like `/skills/llm` plus `/?cmd=`), `isTextClient()`, `wantsColor()`, `runTextRequest()`/`curlIndex()` (curl responses and the root guide), `rateLimitedResponse()`, and `recordSurfaceEvent()`/`readSurfaceStats()` (anonymous daily counters over an injected Redis client).
+
 `src/shell/` contains the tokenizer, parser, argument parsing, filters, completion, history,
 suggestions, unknown-command handling, and output-to-lines conversion. `src/vfs/` provides
 `buildFileSystem()` and path helpers; `src/render/ansi.ts` provides `renderAnsi()`.
@@ -87,6 +89,7 @@ contains `output: CommandOutput[]` plus optional effects: `clear`, `mode`, `open
 Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BASE`, and shared types (`GitHubUser`, `GitHubRepo`, `GitHubStats`). Used by the shared `github` command (which formats data into `CommandOutput[]`). Repos tagged `portfolio-exclude` are dropped.
 
 ### Web App Flow (apps/web/)
+- `middleware.ts` — Edge middleware: text clients (curl, Wget, HTTPie…) are rewritten to `/api/term`; browsers on command or non-command paths get the terminal page (non-command paths are `noindex`); real page loads of deep links are counted
 - `app/page.tsx` — Next.js page with hidden semantic HTML for SEO
 - `components/Terminal.tsx` — Client component that composes the terminal chrome, output log, input, and menu
 - `components/OutputRenderer.tsx` — DOM-based renderer for the same `CommandOutput` types
@@ -104,16 +107,20 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 - `app/api/chat/route.ts` — Assistant endpoint for in-shell answers and chat mode (tool-using, OpenAI with Gemini fallback, Vercel AI SDK)
 - `app/api/chat-stats/route.ts` — Private usage report and question log (`?log=1`), bearer-token guarded and rate-limited
 - `app/api/content/route.ts` — Versioned portfolio-content API with ETag caching
+- `app/api/term/route.ts` — Terminal text for text clients (`?nocolor`), rate-limited at 60/min per IP (fails open), counted in the usage report
+- `lib/surface-stats.ts` — Binds the shared surface counters to Redis; `/api/chat-stats` includes them as `surfaces.daily`
+- `lib/github-stats.ts` — Cached (10 min, Redis + memory), token-authenticated GitHub stats for the `github` command over curl
 
 ### Key Patterns
 - Portfolio content lives in `content/resume.yaml`, `content/site.yaml`, and optional write-ups at `content/projects/<slug>/README.md`; it is generated into `packages/shared/src/content/generated.ts`
 - To update from a CV, add its PDF to `content/cv/incoming/` and review the pull request created by the CV-update workflow
 - Theme switching uses CSS custom properties applied to `document.documentElement`
 - `DEFAULT_THEME` and `themes` from `packages/shared/src/theme.ts` initialize and update the web terminal theme
+- Links run commands on load but never perform `openUrl`/`download`; an `ask` result from a link only prefills the prompt. The address bar follows the last command via `history.replaceState` (questions are never written)
 - `useTerminal` applies `CommandResult` effects: `openUrl`, `theme`, `welcome`, `download`, `sequence`, `clear`, `mode`, and `ask` (streams the assistant answer in place)
 - The web app uses `transpilePackages: ['@ahmed-moghazy/shared']` in `next.config.js`
 - Redis caching in web app is conditional — works without env vars (graceful degradation)
-- For local end-to-end checks, run `npm run build:web`, then `cd apps/web && CI=1 npx playwright test`
+- For local end-to-end checks, run `npm run build:web`, then `cd apps/web && CI=1 npx playwright test` (set `E2E_PORT` to use a port other than 3100)
 
 ## Environment Variables
 
@@ -126,7 +133,7 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 | `ASSISTANT_MODEL` | No | Primary OpenAI model (default `gpt-6-luna`) |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | No | Enables the Gemini fallback |
 | `ASSISTANT_FALLBACK_MODEL` | No | Gemini fallback model (default `gemini-3.5-flash-lite`) |
-| `GH_INVENTORY_TOKEN` | Yes (for live GitHub tools) | Fine-grained, read-only, public-repos token |
+| `GH_INVENTORY_TOKEN` | Yes (for live GitHub tools) | Fine-grained, read-only, public-repos token; also authenticates the cached `github` command over curl |
 | `ASSISTANT_DAILY_CAP` | No | Site-wide daily question cap (default 1000) |
 | `ASSISTANT_RELAY_TOKEN` | No | Shared secret letting the SSH server relay visitor IPs |
 | `INVENTORY_FILE` | No | Local inventory JSON path when Redis is not configured |

@@ -211,13 +211,13 @@
 
 ## Phase 5: Polish & Cross-Cutting
 
-- [ ] T021 [P] Update `README.md`: a "Share a view" section with `/projects` and `/?cmd=` link examples and the "links never act for you" note, and a "From your terminal" section with `curl moghazy.me`, `curl moghazy.me/projects`, `?nocolor` and the alias tip. Keep the existing "coming soon: `ssh term.moghazy.me`" note.
-- [ ] T022 [P] Update `CLAUDE.md`:
+- [X] T021 [P] Update `README.md`: a "Share a view" section with `/projects` and `/?cmd=` link examples and the "links never act for you" note, and a "From your terminal" section with `curl moghazy.me`, `curl moghazy.me/projects`, `?nocolor` and the alias tip. Keep the existing "coming soon: `ssh term.moghazy.me`" note.
+- [X] T022 [P] Update `CLAUDE.md`:
   - under Web App Flow, add `middleware.ts` (text-client and browser routing, deep-link counter), `app/api/term/route.ts`, `lib/surface-stats.ts` and `lib/github-stats.ts`
   - under the shared package, add `src/surface/` (`parseAddress`, `toAddress`, `runTextRequest`, `curlIndex`)
   - under Key Patterns, add "links run commands but never perform `openUrl`/`download`/`ask`"
   - note that `/api/chat-stats` now includes `surfaces.daily`
-- [ ] T023 [P] Update the root `plan.md` roadmap: mark Spec 003 (repo `specs/004-access-surfaces`) as deep links + curl shipped, with SSH deferred for hosting cost and moved to a later milestone. Add the Vercel apex-domain step.
+- [X] T023 [P] Update the root `plan.md` roadmap: mark Spec 003 (repo `specs/004-access-surfaces`) as deep links + curl shipped, with SSH deferred for hosting cost and moved to a later milestone. Add the Vercel apex-domain step.
 - [ ] T024 Manual deploy step (Ahmed): in the Vercel dashboard, make `moghazy.me` serve the deployment directly instead of 307-redirecting to `www` (research R12). Then run the quickstart "Production checks" and confirm `/api/chat-stats` shows `surfaces.daily` the next day.
 
 ---

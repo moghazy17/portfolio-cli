@@ -21,9 +21,27 @@ A browser-based terminal emulator with AI chat, built on a shared command engine
 
 > **Web:** [moghazy.me](https://moghazy.me)
 
-## Terminal access
+## Share a view
 
-**Coming soon:** `ssh term.moghazy.me` — the same portfolio in your own terminal, with nothing to install.
+Every command has a link. Opening it loads the terminal with that command already run, and the address bar follows whatever you run next, so you can copy it to share the current view.
+
+- [moghazy.me/projects](https://moghazy.me/projects) · [moghazy.me/skills](https://moghazy.me/skills) · [moghazy.me/experience](https://moghazy.me/experience)
+- Any command line works through `?cmd=`, for example `https://moghazy.me/?cmd=projects%20%7C%20grep%20-i%20rag`.
+
+A link only ever shows something. It never opens other sites or starts downloads, and a question in a link is placed at the prompt for you to send.
+
+## From your terminal
+
+```bash
+curl moghazy.me                 # guide
+curl moghazy.me/projects        # any command, as colored text
+curl "moghazy.me/projects?nocolor"
+curl -G moghazy.me --data-urlencode "cmd=projects | grep -i rag"
+```
+
+curl returns content only; questions for the AI assistant need the web terminal. Requests are limited to 60 per minute.
+
+**Coming soon:** `ssh term.moghazy.me` — the full interactive terminal, with nothing to install.
 
 ## Try it
 

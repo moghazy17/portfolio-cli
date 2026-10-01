@@ -52,6 +52,7 @@ export function hireMe(ctx: CommandContext): CommandResult {
 export function sudoCommand(args: string[], ctx: CommandContext): CommandResult {
   if (args[0]?.toLowerCase().startsWith('hire')) return hireMe(ctx);
   return {
+    status: 'error',
     output: [
       { type: 'text', content: `[sudo] password for visitor: `, style: { bold: true } },
       { type: 'text', content: 'Permission denied. Nice try though.' },
@@ -70,6 +71,7 @@ export function rmCommand(args: string[] = []): CommandResult {
       { type: 'text', content: 'Nice try. This portfolio is indestructible.', style: { bold: true } },
       { type: 'text', content: '(╯°□°)╯︵ ┻━┻  ...  ┬─┬ ノ( ゜-゜ノ)', style: { dim: true } },
     ],
+    status: 'error',
   };
 }
 

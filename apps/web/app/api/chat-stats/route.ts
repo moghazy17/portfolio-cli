@@ -4,6 +4,7 @@ import { resolveVisitorIp } from '@ahmed-moghazy/shared/assistant-server';
 import { getChatStats } from '../../../lib/chat-log';
 import { getQuestionLog } from '../../../lib/question-log';
 import { redis } from '../../../lib/redis';
+import { getSurfaceStats } from '../../../lib/surface-stats';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,7 +60,7 @@ export async function GET(req: Request) {
     if (!stats) {
       return NextResponse.json({ error: 'Redis is not configured' }, { status: 503 });
     }
-    return NextResponse.json(stats);
+    return NextResponse.json({ ...stats, surfaces: await getSurfaceStats(days) });
   } catch (err) {
     console.error('[chat-stats] failed to read stats:', err);
     return NextResponse.json({ error: 'Could not reach Redis' }, { status: 503 });

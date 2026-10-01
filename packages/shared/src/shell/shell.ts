@@ -12,6 +12,7 @@ import { suggestCommand } from './suggest';
 import { defaultUnknownCommandHandler } from './unknown';
 import { complete, type Completion } from './completion';
 import { tokenize } from './tokenizer';
+import type { GitHubStats } from '../github';
 
 export interface ShellOptions {
   surface: Surface;
@@ -19,6 +20,7 @@ export interface ShellOptions {
   onUnknownCommand?: UnknownCommandHandler;
   initialCwd?: VfsPath;
   registry?: CommandDefinition[];
+  github?: (signal: AbortSignal) => Promise<GitHubStats>;
 }
 
 export interface Shell {
@@ -70,9 +72,11 @@ export function createShell(options: ShellOptions): Shell {
       return { output: [
         { type: 'error', content: `${stage.name}: command not found` },
         ...(suggestion ? [{ type: 'text' as const, content: `did you mean \`${suggestion}\`?` }] : []),
-      ], status: 'error' };
+      ], status: 'error', notFound: true };
     }
-    if (def.surfaces && !def.surfaces.includes(options.surface)) return failure(`${def.name}: not available on this surface`);
+    if (def.surfaces && !def.surfaces.includes(options.surface)) {
+      return failure(`${def.name}: only available in the interactive terminal${options.origin ? ` — open ${options.origin}/${def.name}` : ''}`);
+    }
     const terminator = stage.argv.indexOf('--');
     if (!def.hidden && stage.argv.slice(0, terminator < 0 ? undefined : terminator).includes('--help')) {
       return { output: helpUsage(def), status: 'ok' };
@@ -87,7 +91,7 @@ export function createShell(options: ShellOptions): Shell {
     const ctx: CommandContext = {
       args: parsed.args, flags: parsed.flags, argv: stage.argv,
       session, surface: options.surface, origin: options.origin,
-      signal, fs: fs(), ...(stdin && { stdin }),
+      signal, fs: fs(), ...(options.github && { github: options.github }), ...(stdin && { stdin }),
     };
     try {
       const result = await def.execute(ctx);
@@ -102,15 +106,17 @@ export function createShell(options: ShellOptions): Shell {
   async function runPipeline(pipeline: Pipeline, signal: AbortSignal): Promise<CommandResult | 'cancelled'> {
     let input: Line[] | undefined;
     let showItems = false;
+    let notFound = false;
     for (const [index, stage] of pipeline.stages.entries()) {
       const result = await runStage(stage, input, signal);
       if (result === 'cancelled' || signal.aborted) return 'cancelled';
+      notFound ||= result.notFound === true;
       if (index === pipeline.stages.length - 1) {
         if (input !== undefined && result.output.length === 1 && result.output[0].type === 'lines') {
           const node = result.output[0];
-          return { output: [{ ...node, showItems: stage.name === 'wc' ? false : stage.name === 'grep' ? node.showItems : showItems }], status: result.status || 'ok' };
+          return { output: [{ ...node, showItems: stage.name === 'wc' ? false : stage.name === 'grep' ? node.showItems : showItems }], status: result.status || 'ok', ...(notFound && { notFound: true }) };
         }
-        return result;
+        return { ...result, ...(notFound && { notFound: true }) };
       }
       input = toLines(result.output);
       if (stage.name === 'wc' || (stage.name === 'grep' && result.output[0]?.type === 'lines' && !result.output[0].showItems)) showItems = false;
@@ -158,6 +164,7 @@ export function createShell(options: ShellOptions): Shell {
         }
         merged.output.push(...result.output);
         mergeEffects(merged, result);
+        if (result.notFound) merged.notFound = true;
         merged.status = result.status || 'ok';
         session.lastStatus = merged.status;
         if (merged.status === 'error') break;

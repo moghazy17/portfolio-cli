@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import {
-  ASSISTANT_ERROR_MESSAGE, askAssistant, createAssistantUnknownHandler, createShell, formatSourcesLine, themes, welcomeCommand,
+  ASSISTANT_ERROR_MESSAGE, askAssistant, createAssistantUnknownHandler, createShell, formatSourcesLine, MAX_LINK_LENGTH,
+  parseAddress, themes, toAddress, welcomeCommand,
 } from '@ahmed-moghazy/shared';
 import type {
   AssistantEvent, AssistantTurn, CommandOutput, Completion, HistoryEntry, NoticeKind, SequenceStep,
@@ -70,6 +71,7 @@ export function useTerminal() {
   const [running, setRunning] = useState(false);
   const [skip, setSkip] = useState(0);
   const [sequencePlaying, setSequencePlaying] = useState(false);
+  const [prefill, setPrefill] = useState<{ text: string; nonce: number } | null>(null);
   const activeSequenceRef = useRef<number | null>(null);
   const sequenceIdRef = useRef(0);
   const shellRef = useRef<ReturnType<typeof createShell> | null>(null);
@@ -78,6 +80,8 @@ export function useTerminal() {
   const assistantIdRef = useRef(0);
   const askingRef = useRef<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const ranLinkRef = useRef(false);
+  const addressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { push, up, down, reset } = useHistory();
   const { theme, setTheme } = useThemeApplier();
 
@@ -102,6 +106,23 @@ export function useTerminal() {
   useEffect(() => {
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
   }, [history]);
+
+  useEffect(() => () => {
+    if (addressTimerRef.current !== null) clearTimeout(addressTimerRef.current);
+  }, []);
+
+  const syncAddress = useCallback((line: string, cwdBefore: string) => {
+    if (addressTimerRef.current !== null) clearTimeout(addressTimerRef.current);
+    const commandLine = cwdBefore === '/' ? line : `cd ${cwdBefore} && ${line}`;
+    const address = !line || commandLine.length > MAX_LINK_LENGTH ? '/' : toAddress(commandLine);
+    addressTimerRef.current = setTimeout(() => {
+      try {
+        window.history.replaceState(window.history.state, '', address);
+      } catch {
+        // Some browsers limit rapid history updates.
+      }
+    }, 250);
+  }, []);
 
   const skipSequence = useCallback(() => {
     if (activeSequenceRef.current === null) return false;
@@ -163,15 +184,18 @@ export function useTerminal() {
     if (askingRef.current === id) askingRef.current = null;
   }, [updateAssistant]);
 
-  const handleCommand = useCallback(async (input: string) => {
+  const handleCommand = useCallback(async (input: string, opts: { origin?: 'typed' | 'link' } = {}) => {
+    const isLink = opts.origin === 'link';
     skipSequence();
     controllerRef.current?.abort();
     const controller = new AbortController();
     controllerRef.current = controller;
     const submittedPrompt = currentPrompt();
     setRunning(true);
-    setShowWelcome(false);
-    const result = await getShell().run(input, { signal: controller.signal });
+    if (!isLink) setShowWelcome(false);
+    const shell = getShell();
+    const cwdBefore = shell.session.cwd;
+    const result = await shell.run(input, { signal: controller.signal });
     if (controllerRef.current === controller) {
       controllerRef.current = null;
       setRunning(false);
@@ -179,6 +203,11 @@ export function useTerminal() {
     // A cancelled chain may already have changed directory.
     setPrompt(currentPrompt());
     if (controller.signal.aborted || result.cancelled) return;
+
+    if (isLink && result.ask) {
+      setPrefill({ text: input, nonce: Date.now() });
+      return;
+    }
 
     push(input);
     if (result.ask) {
@@ -203,10 +232,11 @@ export function useTerminal() {
       output = output.slice(welcomeCommand().output.length);
     } else if (result.clear) {
       setHistory([]);
+      if (isLink) setShowWelcome(false);
     }
     if (result.theme && themes[result.theme]) setTheme(themes[result.theme]);
-    if (result.openUrl) window.open(result.openUrl, '_blank', 'noopener,noreferrer');
-    if (result.download) {
+    if (!isLink && result.openUrl) window.open(result.openUrl, '_blank', 'noopener,noreferrer');
+    if (!isLink && result.download) {
       let link: HTMLAnchorElement | null = null;
       try {
         link = document.createElement('a');
@@ -220,7 +250,18 @@ export function useTerminal() {
         window.open(result.download.url, '_blank', 'noopener,noreferrer');
       }
     }
-    if ((result.welcome || result.clear) && !output.length && !result.sequence) {
+    if (isLink && (result.openUrl || result.download)) {
+      output = [...output, {
+        type: 'text',
+        content: 'Opened from a link, so nothing was opened or downloaded. Use the link above.',
+        style: { dim: true },
+      }];
+    }
+    const resetWithoutOutput = (result.welcome || result.clear) && !output.length && !result.sequence;
+    if (mode === 'command') {
+      syncAddress(resetWithoutOutput ? '' : input, cwdBefore);
+    }
+    if (resetWithoutOutput) {
       if (result.mode === 'chat') setMode('chat');
       return;
     }
@@ -234,7 +275,31 @@ export function useTerminal() {
       sequence: result.sequence, sequenceId,
     }]);
     if (result.mode === 'chat') setMode('chat');
-  }, [currentPrompt, getShell, push, runAssistant, setTheme, skipSequence]);
+  }, [currentPrompt, getShell, mode, push, runAssistant, setTheme, skipSequence, syncAddress]);
+
+  useEffect(() => {
+    if (ranLinkRef.current) return;
+    ranLinkRef.current = true;
+    const address = parseAddress(window.location.pathname, window.location.search);
+    if (address.kind === 'command' || address.kind === 'not-command') {
+      void handleCommand(address.line, { origin: 'link' });
+    } else if (address.kind === 'invalid') {
+      const reasons = {
+        'too-long': 'link too long',
+        undecodable: 'could not decode link',
+        ambiguous: 'ambiguous link',
+        'control-chars': 'link contains control characters',
+      };
+      setHistory((previous) => [...previous, {
+        input: '',
+        output: [{
+          type: 'text',
+          content: `This link couldn't be used (${reasons[address.reason]}). Type "help" to explore.`,
+          style: { dim: true },
+        }],
+      }]);
+    }
+  }, [handleCommand]);
 
   const complete = useCallback((input: string, caret: number): Completion => {
     return getShell().complete(input, caret);
@@ -280,8 +345,12 @@ export function useTerminal() {
     setMode('command');
   }, []);
 
+  const onPrefillApplied = useCallback(() => {
+    setPrefill(null);
+  }, []);
+
   return {
-    history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat, conversationRef,
+    history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat, conversationRef, prefill, onPrefillApplied,
     prompt, running, skip, sequencePlaying, finishSequence,
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp: up, historyDown: down, resetHistoryCursor: reset,

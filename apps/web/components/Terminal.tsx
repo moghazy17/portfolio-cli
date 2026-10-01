@@ -16,6 +16,7 @@ export default function Terminal() {
   const {
     history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat, conversationRef,
     prompt, running, skip, sequencePlaying, finishSequence,
+    prefill, onPrefillApplied,
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp, historyDown, resetHistoryCursor,
   } = useTerminal();
@@ -109,12 +110,14 @@ export default function Terminal() {
 
         {history.map((entry, i) => (
           <div key={i} style={{ marginBottom: '16px' }}>
-            <div>
-              <span style={{ color: 'var(--accent)', userSelect: 'none' }}>
-                {entry.prompt ?? '$'}{' '}
-              </span>
-              <span style={{ color: 'var(--fg)' }}>{entry.input}</span>
-            </div>
+            {entry.prompt && (
+              <div>
+                <span style={{ color: 'var(--accent)', userSelect: 'none' }}>
+                  {entry.prompt}{' '}
+                </span>
+                <span style={{ color: 'var(--fg)' }}>{entry.input}</span>
+              </div>
+            )}
             {entry.assistant ? (
               <AssistantAnswer state={entry.assistant} theme={theme} />
             ) : entry.sequence && !entry.sequenceDone && entry.sequenceId !== undefined ? (
@@ -135,6 +138,8 @@ export default function Terminal() {
           <ChatRenderer onExit={exitChat} conversationRef={conversationRef} theme={theme} />
         ) : (
           <CommandLine
+            prefill={prefill}
+            onPrefillApplied={onPrefillApplied}
             onSubmit={handleCommand}
             complete={complete}
             historyUp={historyUp}

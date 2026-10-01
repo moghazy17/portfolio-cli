@@ -1,10 +1,10 @@
-import type { CommandResult, CommandOutput } from '../types';
+import type { CommandContext, CommandResult, CommandOutput } from '../types';
 import { cvData } from '../content';
 import { fetchGitHubData, GITHUB_USERNAME } from '../github';
 
-export async function githubCommand(signal?: AbortSignal): Promise<CommandResult> {
+export async function githubCommand(ctx: Pick<CommandContext, 'github' | 'signal'>): Promise<CommandResult> {
   try {
-    const stats = await fetchGitHubData(signal);
+    const stats = await (ctx.github?.(ctx.signal) ?? fetchGitHubData(ctx.signal));
 
     const output: CommandOutput[] = [
       {
@@ -64,6 +64,7 @@ export async function githubCommand(signal?: AbortSignal): Promise<CommandResult
       output: [
         { type: 'text', content: message, style: { color: 'error' } },
       ],
+      status: 'error',
     };
   }
 }

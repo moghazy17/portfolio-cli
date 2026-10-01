@@ -86,6 +86,7 @@ export function experienceCommand(args: string[]): CommandResult {
     );
     if (entries.length === 0) {
       return {
+        status: 'error',
         output: [
           {
             type: 'text',
@@ -119,6 +120,7 @@ export function projectsCommand(args: string[]): CommandResult {
     );
     if (entries.length === 0) {
       return {
+        status: 'error',
         output: [
           {
             type: 'text',
@@ -148,6 +150,7 @@ export function skillsCommand(args: string[]): CommandResult {
     categories = categories.filter((c) => c.name.toLowerCase().includes(filter));
     if (categories.length === 0) {
       return {
+        status: 'error',
         output: [
           {
             type: 'text',

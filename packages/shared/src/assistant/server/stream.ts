@@ -78,7 +78,9 @@ export function createAssistantStream({ messages, surface, deps, model, signal, 
       let emittedOutput = false;
       let declined: keyof typeof refusalText | undefined;
       const inventory = await deps.inventory().catch(() => null);
-      if (inventory && Date.now() - new Date(inventory.generatedAt).getTime() > STALE_AFTER_MS) {
+      // One clock for staleness, the prompt and the tools, so a fixed clock (evals) stays consistent.
+      const now = deps.now?.() ?? new Date();
+      if (inventory && now.getTime() - new Date(inventory.generatedAt).getTime() > STALE_AFTER_MS) {
         writer.write({ type: 'data-notice', data: { kind: 'stale', message: 'Repository evidence may be out of date.' } });
       }
       const tools = createAssistantTools({ ...deps, surface, signal, onCommand: (command) => {
@@ -88,7 +90,7 @@ export function createAssistantStream({ messages, surface, deps, model, signal, 
       } }, budget, deps.now);
       const result = streamText({
         model,
-        system: buildAssistantPrompt({ inventoryStats: inventory ? { ...inventory.stats, generatedAt: inventory.generatedAt } : null }),
+        system: buildAssistantPrompt({ now, inventoryStats: inventory ? { ...inventory.stats, generatedAt: inventory.generatedAt } : null }),
         messages: await convertToModelMessages(history),
         tools,
         stopWhen: [stepCountIs(6), hasToolCall('decline')],

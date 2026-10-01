@@ -1,4 +1,6 @@
-import { readFileSync } from 'node:fs';
+import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
@@ -36,6 +38,10 @@ const fallbackOnly = process.argv.includes('fallback') || process.env.ASSISTANT_
 const keyPresent = fallbackOnly ? Boolean(process.env.GOOGLE_GENERATIVE_AI_API_KEY) : Boolean(process.env.OPENAI_API_KEY);
 // One 80x24 screen minus the prompt line.
 const SCREEN_LINES = 22;
+// Vitest hides console output of passing runs, so the summary also goes to a file and,
+// in CI, to the job summary.
+const REPORT_FILE = join(tmpdir(), 'assistant-eval-report.md');
+const overflows: string[] = [];
 const records: Array<{ category: string; passed: boolean; firstMs: number; totalMs: number; fits: boolean }> = [];
 
 function model(): LanguageModel {
@@ -95,12 +101,19 @@ describe('assistant golden questions', () => {
         for (const name of item.mustCallTools ?? []) if (!toolCalls.includes(name)) failures.push(`missing tool ${name}`);
         for (const name of item.mustNotCallTools ?? []) if (toolCalls.includes(name)) failures.push(`unexpected tool ${name}`);
         for (const phrase of item.mustInclude ?? []) if (!answer.toLowerCase().includes(phrase.toLowerCase())) failures.push(`missing text ${phrase}`);
-        for (const phrase of item.mustNotInclude ?? []) if (answer.toLowerCase().includes(phrase.toLowerCase())) failures.push(`forbidden text ${phrase}`);
+        // Echoing a term the visitor typed is not a leak ("no public repository named X");
+        // anything forbidden that the visitor did not supply still fails.
+        const asked = item.question.toLowerCase();
+        for (const phrase of item.mustNotInclude ?? []) {
+          if (!asked.includes(phrase.toLowerCase()) && answer.toLowerCase().includes(phrase.toLowerCase())) failures.push(`forbidden text ${phrase}`);
+        }
         if (item.mustDecline && decline !== item.mustDecline) failures.push(`decline ${decline ?? 'missing'}`);
         for (const source of item.sourcesMustContain ?? []) if (!sourceText.includes(source.toLowerCase())) failures.push(`missing source ${source}`);
         if (item.maxSummaryLines && wrappedLines(answer) > item.maxSummaryLines) failures.push('summary too long');
         // Screen fit is an aggregate target (most answers on one screen), scored across all cases below.
-        const fits = wrappedLines(`${commandText}\n${answer}`) <= (item.maxTotalLines ?? SCREEN_LINES);
+        const totalLines = wrappedLines(`${commandText}\n${answer}`);
+        const fits = totalLines <= (item.maxTotalLines ?? SCREEN_LINES);
+        if (!fits) overflows.push(`- ${totalLines} lines (${commandText ? commandText.split('\n').length : 0} from commands): ${item.question} — ${answer.replace(/\s+/g, ' ').slice(0, 200)}`);
         records.push({ category: item.category, passed: failures.length === 0, firstMs, totalMs, fits });
         if (failures.length) {
           console.log(`--- ${item.category}: ${item.question}\n    tools: ${toolCalls.join(', ') || '(none)'}; decline: ${decline ?? '-'}\n    answer: ${answer.replace(/\s+/g, ' ').slice(0, 600)}`);
@@ -118,6 +131,21 @@ describe('assistant golden questions', () => {
       console.log(`Total p50/p90: ${percentile(records.map((row) => row.totalMs), 0.5).toFixed(0)}/${percentile(records.map((row) => row.totalMs), 0.9).toFixed(0)} ms (target ≤15000 ms)`);
       const fitRate = records.filter((row) => row.fits).length / records.length;
       console.log(`One-screen answers: ${(fitRate * 100).toFixed(0)}% (target ≥90%)`);
+      const report = [
+        '## Assistant eval',
+        '',
+        `Cases passed: ${records.filter((row) => row.passed).length}/${records.length}`,
+        ...categories.map((category) => {
+          const rows = records.filter((record) => record.category === category);
+          return `- ${category}: ${rows.filter((row) => row.passed).length}/${rows.length}`;
+        }),
+        `First event p50/p90: ${percentile(records.map((row) => row.firstMs), 0.5).toFixed(0)}/${percentile(records.map((row) => row.firstMs), 0.9).toFixed(0)} ms`,
+        `One-screen answers: ${(fitRate * 100).toFixed(0)}%`,
+        ...(overflows.length ? ['', 'Over one screen:', ...overflows] : []),
+        '',
+      ].join('\n');
+      writeFileSync(REPORT_FILE, report);
+      if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, report);
       expect(fitRate).toBeGreaterThanOrEqual(0.9);
       const rate = records.filter((row) => row.passed).length / cases.length;
       expect(rate).toBeGreaterThanOrEqual(0.95);

@@ -145,5 +145,5 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-`specs/003-github-aware-assistant/plan.md` (Spec 003 — GitHub-aware assistant)
+`specs/004-access-surfaces/plan.md` (Spec 004 — access surfaces: deep links and curl; SSH deferred)
 <!-- SPECKIT END -->

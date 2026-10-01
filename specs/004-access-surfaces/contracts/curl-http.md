@@ -14,7 +14,7 @@
 
 ```text
 GET <any page address>          (User-Agent: curl/8.x, Wget/1.x, HTTPie/3.x, …)
-    ?nocolor | ?no_color        → no escape codes at all
+    ?nocolor=1 | ?no_color=1    → no escape codes at all (a bare ?nocolor is normalised by the middleware)
 ```
 
 ## Response

@@ -118,7 +118,10 @@ whole surface can be tested in Vitest without starting Next.
 **Decision**: `nocolor` or `no_color` in the query, with any value or none (`?nocolor`,
 `?nocolor=1`, `&no_color`), turns off all escape codes. The guide documents it and suggests
 a shell function for people who use the `NO_COLOR` convention:
-`portfolio() { curl -sG moghazy.me -d nocolor --data-urlencode "cmd=$*"; }`.
+`portfolio() { curl -sG moghazy.me -d nocolor=1 --data-urlencode "cmd=$*"; }`.
+**Found in production (2026-10-02)**: on Vercel a valueless `?nocolor` does not reach the
+route after the middleware rewrite, while `?nocolor=1` does. The middleware therefore rewrites
+any `nocolor`/`no_color` flag it sees as `nocolor=1`, and all docs show `nocolor=1`.
 Full command lines in the guide use `curl -G … --data-urlencode "cmd=…"`, because curl
 rejects URLs that contain spaces (verified with curl 8.17).
 

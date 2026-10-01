@@ -1,11 +1,13 @@
-import { isTextClient, parseAddress } from '@ahmed-moghazy/shared';
+import { isTextClient, parseAddress, wantsColor } from '@ahmed-moghazy/shared';
 import { NextResponse, type NextFetchEvent, type NextRequest } from 'next/server';
 import { recordSurfaceEvent } from './lib/surface-stats';
 
 function handleTextClient(request: NextRequest): NextResponse | null {
   if (!isTextClient(request.headers.get('user-agent'))) return null;
   const { pathname, search } = request.nextUrl;
-  return NextResponse.rewrite(new URL(`/api/term?__path=${encodeURIComponent(pathname)}&${search.slice(1)}`, request.url));
+  // Vercel drops a valueless flag such as ?nocolor on the way to the route, so give it a value.
+  const plain = wantsColor(search) ? '' : '&nocolor=1';
+  return NextResponse.rewrite(new URL(`/api/term?__path=${encodeURIComponent(pathname)}&${search.slice(1)}${plain}`, request.url));
 }
 
 function rewriteHome(request: NextRequest, noindex = false): NextResponse {

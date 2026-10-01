@@ -8,7 +8,7 @@ describe('unknown input', () => {
         { type: 'error', content: 'command not found: projcts' },
         { type: 'text', content: 'did you mean `projects`?' },
         { type: 'text', content: 'Type `help` for commands or `chat` to ask the AI.', style: { dim: true } },
-      ], status: 'error',
+      ], status: 'error', notFound: true,
     });
   });
 

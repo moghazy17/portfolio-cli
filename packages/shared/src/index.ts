@@ -5,6 +5,7 @@ export * from './commands/index';
 export * from './theme';
 export * from './ascii';
 export * from './github';
+export { createTimedCache } from './timed-cache';
 export * from './shell';
 export * from './vfs';
 export * from './render';

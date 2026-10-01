@@ -26,6 +26,7 @@ export function openCommand(args: string[]): CommandResult {
 
   if (!targets[target]) {
     return {
+      status: 'error',
       output: [{
         type: 'text',
         content: `Unknown target "${args[0]}". Available: ${Object.keys(targets).join(', ')}`,
@@ -93,6 +94,7 @@ export function themeCommand(args: string[]): CommandResult {
   const themeName = args[0].toLowerCase();
   if (!themes[themeName]) {
     return {
+      status: 'error',
       output: [
         {
           type: 'text',

@@ -35,10 +35,10 @@ describe('curl surface', () => {
   it('runs every routable command that is available on curl', async () => {
     for (const command of routableCommandNames) {
       if (['chat', 'ask', 'ai', 'theme', 'clear', 'cls', 'github', 'gh'].includes(command)) continue;
-      const line = command === 'man' ? 'man projects' : command === 'cat' ? 'cat about.md' : command;
+      const line = command === 'man' ? 'man projects' : command === 'cat' ? 'cat about.md' : command === 'cd' ? 'cd /projects && pwd' : command;
       const response = await request('/', `?cmd=${encodeURIComponent(line)}`);
       expect(response.status, command).toBe(200);
-      expect(response.body, command).not.toBe('');
+      expect(response.body.trim().length, command).toBeGreaterThan(0);
     }
   });
 
@@ -61,6 +61,31 @@ describe('curl surface', () => {
     }
     expect(fetchSpy).not.toHaveBeenCalled();
     fetchSpy.mockRestore();
+  });
+
+  it('maps missing items and unknown commands in compound lines to their status codes', async () => {
+    for (const line of ['projects no-such-project', 'skills no-such-skill', 'experience no-such-company']) {
+      const response = await request('/', `?cmd=${encodeURIComponent(line)}`);
+      expect(response.status, line).toBe(400);
+      expect(response.body, line).toContain('No ');
+    }
+    for (const line of ['open no-such-target', 'sudo nope', 'rm -rf /']) {
+      expect((await request('/', `?cmd=${encodeURIComponent(line)}`)).status, line).toBe(400);
+    }
+    for (const line of ['pwd && nonsense', 'projects | nonsense']) {
+      const response = await request('/', `?cmd=${encodeURIComponent(line)}`);
+      expect(response.status, line).toBe(404);
+      expect(response.body, line).toContain('command not found');
+    }
+  });
+
+  it('stops a GitHub chain after a failed request', async () => {
+    const provider = vi.fn(async () => { throw new Error('offline'); });
+    const response = await runTextRequest({
+      address: parseAddress('/', '?cmd=gh+%26%26+gh+%26%26+gh'), color: false, origin, github: provider,
+    });
+    expect(response.status).toBe(400);
+    expect(provider).toHaveBeenCalledOnce();
   });
 
   it('renders invalid and non-command paths as text responses', async () => {

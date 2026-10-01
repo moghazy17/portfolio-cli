@@ -64,6 +64,7 @@ export async function githubCommand(ctx: Pick<CommandContext, 'github' | 'signal
       output: [
         { type: 'text', content: message, style: { color: 'error' } },
       ],
+      status: 'error',
     };
   }
 }

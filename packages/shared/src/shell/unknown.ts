@@ -13,4 +13,5 @@ export const defaultUnknownCommandHandler: UnknownCommandHandler = ({ word, sugg
     },
   ],
   status: 'error',
+  notFound: true,
 });

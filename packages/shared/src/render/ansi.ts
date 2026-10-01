@@ -2,6 +2,12 @@ import type { CommandOutput, OutputStyle, Theme } from '../types';
 import { toLines } from '../shell/lines';
 import { DEFAULT_THEME, themes } from '../theme';
 
+const terminalControls = /[\u0000-\u001F\u007F-\u009F]/g;
+
+function visibleText(value: string): string {
+  return value.replace(terminalControls, '');
+}
+
 function styleCodes(style: OutputStyle | undefined, theme: Theme): string {
   if (!style) return '';
   let codes = '';
@@ -29,10 +35,10 @@ export function renderAnsi(
   })));
   if (!rendered.length) return '';
   return rendered.map(({ line, showItems }) => {
-    const visible = `${line.item && showItems ? `${line.item}: ` : ''}${line.text}`;
+    const visible = visibleText(`${line.item && showItems ? `${line.item}: ` : ''}${line.text}`);
     if (!color) return visible;
     const codes = styleCodes(line.style, theme);
     const styled = codes ? `${codes}${visible}\x1b[0m` : visible;
-    return line.href ? `\x1b]8;;${line.href}\x1b\\${styled}\x1b]8;;\x1b\\` : styled;
+    return line.href ? `\x1b]8;;${visibleText(line.href)}\x1b\\${styled}\x1b]8;;\x1b\\` : styled;
   }).join('\n') + '\n';
 }

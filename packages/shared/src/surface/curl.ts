@@ -1,7 +1,7 @@
 import { ASCII_BANNER, WELCOME_SUBTITLE } from '../ascii';
 import { cvData, slugify } from '../content';
 import { renderAnsi } from '../render';
-import { createShell, isKnownCommandLine } from '../shell';
+import { createShell } from '../shell';
 import { createAssistantUnknownHandler } from '../assistant';
 import type { CommandOutput } from '../types';
 import type { GitHubStats } from '../github';
@@ -68,7 +68,7 @@ export async function runTextRequest({ address, color, origin, github }: TextReq
   const shell = createShell({ surface: 'curl', origin, onUnknownCommand: createAssistantUnknownHandler(), github });
   const result = await shell.run(address.line);
   const body = withTrailingNewline(renderAnsi(result.output, { color }));
-  if (!isKnownCommandLine(address.line)) return { status: 404, body };
+  if (result.notFound) return { status: 404, body };
   return { status: result.status === 'error' ? 400 : 200, body };
 }
 

@@ -1,9 +1,11 @@
-import { parseAddress } from '@ahmed-moghazy/shared';
+import { isTextClient, parseAddress } from '@ahmed-moghazy/shared';
 import { NextResponse, type NextFetchEvent, type NextRequest } from 'next/server';
 import { recordSurfaceEvent } from './lib/surface-stats';
 
-function handleTextClient(_request: NextRequest): NextResponse | null {
-  return null;
+function handleTextClient(request: NextRequest): NextResponse | null {
+  if (!isTextClient(request.headers.get('user-agent'))) return null;
+  const { pathname, search } = request.nextUrl;
+  return NextResponse.rewrite(new URL(`/api/term?__path=${encodeURIComponent(pathname)}&${search.slice(1)}`, request.url));
 }
 
 function rewriteHome(request: NextRequest, noindex = false): NextResponse {

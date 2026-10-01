@@ -1,10 +1,12 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const port = Number(process.env.E2E_PORT) || 3100;
+
 export default defineConfig({
   testDir: './e2e',
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
-    baseURL: 'http://localhost:3100',
+    baseURL: `http://localhost:${port}`,
   },
   projects: [
     {
@@ -14,9 +16,9 @@ export default defineConfig({
   ],
   webServer: {
     command: process.env.CI
-      ? 'npx next start -p 3100'
-      : 'npm run build && npx next start -p 3100',
-    url: 'http://localhost:3100',
+      ? `npx next start -p ${port}`
+      : `npm run build && npx next start -p ${port}`,
+    url: `http://localhost:${port}`,
     reuseExistingServer: !process.env.CI,
   },
 });

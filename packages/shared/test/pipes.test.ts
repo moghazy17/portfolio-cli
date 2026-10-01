@@ -84,6 +84,6 @@ describe('shell pipelines', () => {
     expect(instance.prompt()).toEqual({ user: 'visitor', host: 'portfolio', cwd: '~' });
     expect(createShell({ surface: 'web', origin: '', initialCwd: '/projects' }).prompt()).toEqual({ user: 'visitor', host: 'portfolio', cwd: '~/projects' });
     const restricted: CommandDefinition = { name: 'restricted', aliases: [], description: '', usage: 'restricted', surfaces: ['ssh'], execute: () => ({ output: [] }) };
-    expect(await createShell({ surface: 'web', origin: '', registry: [...commandRegistry, restricted] }).run('restricted')).toMatchObject({ output: [{ type: 'error', content: 'restricted: not available on this surface' }], status: 'error' });
+    expect(await createShell({ surface: 'web', origin: '', registry: [...commandRegistry, restricted] }).run('restricted')).toMatchObject({ output: [{ type: 'error', content: 'restricted: only available in the interactive terminal' }], status: 'error' });
   });
 });

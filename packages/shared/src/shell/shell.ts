@@ -12,6 +12,7 @@ import { suggestCommand } from './suggest';
 import { defaultUnknownCommandHandler } from './unknown';
 import { complete, type Completion } from './completion';
 import { tokenize } from './tokenizer';
+import type { GitHubStats } from '../github';
 
 export interface ShellOptions {
   surface: Surface;
@@ -19,6 +20,7 @@ export interface ShellOptions {
   onUnknownCommand?: UnknownCommandHandler;
   initialCwd?: VfsPath;
   registry?: CommandDefinition[];
+  github?: (signal: AbortSignal) => Promise<GitHubStats>;
 }
 
 export interface Shell {
@@ -51,6 +53,11 @@ function routeWord(line: string, registry: CommandDefinition[]): string {
   return findCommand(registry, name) ? name : word;
 }
 
+export function isKnownCommandLine(line: string, registry: CommandDefinition[] = commandRegistry): boolean {
+  const word = routeWord(line.trim(), registry);
+  return Boolean(word && findCommand(registry, word));
+}
+
 function mergeEffects(target: ShellResult, source: CommandResult): void {
   for (const key of effectKeys) {
     if (source[key] !== undefined) Object.assign(target, { [key]: source[key] });
@@ -72,7 +79,9 @@ export function createShell(options: ShellOptions): Shell {
         ...(suggestion ? [{ type: 'text' as const, content: `did you mean \`${suggestion}\`?` }] : []),
       ], status: 'error' };
     }
-    if (def.surfaces && !def.surfaces.includes(options.surface)) return failure(`${def.name}: not available on this surface`);
+    if (def.surfaces && !def.surfaces.includes(options.surface)) {
+      return failure(`${def.name}: only available in the interactive terminal${options.origin ? ` — open ${options.origin}/${def.name}` : ''}`);
+    }
     const terminator = stage.argv.indexOf('--');
     if (!def.hidden && stage.argv.slice(0, terminator < 0 ? undefined : terminator).includes('--help')) {
       return { output: helpUsage(def), status: 'ok' };
@@ -87,7 +96,7 @@ export function createShell(options: ShellOptions): Shell {
     const ctx: CommandContext = {
       args: parsed.args, flags: parsed.flags, argv: stage.argv,
       session, surface: options.surface, origin: options.origin,
-      signal, fs: fs(), ...(stdin && { stdin }),
+      signal, fs: fs(), ...(options.github && { github: options.github }), ...(stdin && { stdin }),
     };
     try {
       const result = await def.execute(ctx);

@@ -1,7 +1,10 @@
 import { expect, test, type Page } from '@playwright/test';
-import { themes, WELCOME_SUBTITLE } from '@ahmed-moghazy/shared';
+import { cvData, themes, WELCOME_SUBTITLE } from '@ahmed-moghazy/shared';
 
 type ChatRequest = { messages: unknown[]; surface: string };
+const nonRagProject = cvData.projects.find((project) => !project.name.toLowerCase().includes('rag'));
+
+if (!nonRagProject) throw new Error('Expected a project title without "rag".');
 
 function chatStream(): string {
   const chunks = [
@@ -42,6 +45,7 @@ test.describe('Deep links', () => {
   test('runs a pipeline from a cmd query', async ({ page }) => {
     await page.goto('/?cmd=projects%20%7C%20grep%20-i%20rag');
     await expect(page.getByText(/RAG Chatbot/i).first()).toBeVisible();
+    await expect(page.getByText(nonRagProject.name, { exact: true })).toHaveCount(0);
   });
 
   test('does not open a popup for an open link', async ({ page }) => {
@@ -60,7 +64,7 @@ test.describe('Deep links', () => {
     expect(downloads).toBe(0);
   });
 
-  test('prefills a question link before sending it', async ({ page }) => {
+  test('does not reapply a consumed question link after exiting chat', async ({ page }) => {
     const requests = await stubChat(page);
     const question = 'what RAG work has he done?';
     await page.goto(`/?cmd=${encodeURIComponent(question)}`);
@@ -71,6 +75,14 @@ test.describe('Deep links', () => {
     await input.press('Enter');
     await expect(page.getByText('RAG work is available in the project list.')).toBeVisible();
     expect(requests()).toHaveLength(1);
+
+    await input.fill('chat');
+    await input.press('Enter');
+    const chatInput = page.getByLabel('Chat input');
+    await expect(chatInput).toBeFocused();
+    await chatInput.fill('exit');
+    await chatInput.press('Enter');
+    await expect(page.getByLabel('Terminal command input')).toHaveValue('');
   });
 
   test('shows a notice for an oversized link', async ({ page }) => {
@@ -89,11 +101,22 @@ test.describe('Deep links', () => {
     }
     await expect.poll(() => page.url()).toMatch(/\/skills$/);
     expect(await page.evaluate(() => window.history.length)).toBe(entries);
-    await page.goto('/');
+    await page.goto('/projects');
     const resetInput = page.getByLabel('Terminal command input');
     await resetInput.fill('clear');
     await resetInput.press('Enter');
     await expect.poll(() => new URL(page.url()).pathname).toBe('/');
+  });
+
+  test('keeps a command chain that follows a clear in the address', async ({ page }) => {
+    await page.goto('/');
+    const input = page.getByLabel('Terminal command input');
+    await input.fill('clear && projects');
+    await input.press('Enter');
+    await expect.poll(() => decodeURIComponent(new URL(page.url()).searchParams.get('cmd') ?? ''))
+      .toBe('clear && projects');
+    await page.goto(page.url());
+    await expect(page.getByText(/RAG Chatbot/i).first()).toBeVisible();
   });
 
   test('includes the previous directory in a relative command link', async ({ page }) => {
@@ -142,5 +165,13 @@ test.describe('Deep links', () => {
     await page.goto('/');
     await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()))
       .toBe(themes.matrix.background);
+  });
+
+  test('prevents framing on public routes', async ({ request }) => {
+    for (const path of ['/', '/projects']) {
+      const response = await request.get(path);
+      expect(response.headers()['content-security-policy']).toBe("frame-ancestors 'none'");
+      expect(response.headers()['x-frame-options']).toBe('DENY');
+    }
   });
 });

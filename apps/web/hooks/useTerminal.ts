@@ -257,10 +257,11 @@ export function useTerminal() {
         style: { dim: true },
       }];
     }
+    const resetWithoutOutput = (result.welcome || result.clear) && !output.length && !result.sequence;
     if (mode === 'command') {
-      syncAddress(result.clear || result.welcome ? '' : input, cwdBefore);
+      syncAddress(resetWithoutOutput ? '' : input, cwdBefore);
     }
-    if ((result.welcome || result.clear) && !output.length && !result.sequence) {
+    if (resetWithoutOutput) {
       if (result.mode === 'chat') setMode('chat');
       return;
     }
@@ -344,8 +345,12 @@ export function useTerminal() {
     setMode('command');
   }, []);
 
+  const onPrefillApplied = useCallback(() => {
+    setPrefill(null);
+  }, []);
+
   return {
-    history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat, conversationRef, prefill,
+    history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat, conversationRef, prefill, onPrefillApplied,
     prompt, running, skip, sequencePlaying, finishSequence,
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp: up, historyDown: down, resetHistoryCursor: reset,

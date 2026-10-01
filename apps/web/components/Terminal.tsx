@@ -16,7 +16,7 @@ export default function Terminal() {
   const {
     history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat, conversationRef,
     prompt, running, skip, sequencePlaying, finishSequence,
-    prefill,
+    prefill, onPrefillApplied,
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp, historyDown, resetHistoryCursor,
   } = useTerminal();
@@ -139,6 +139,7 @@ export default function Terminal() {
         ) : (
           <CommandLine
             prefill={prefill}
+            onPrefillApplied={onPrefillApplied}
             onSubmit={handleCommand}
             complete={complete}
             historyUp={historyUp}

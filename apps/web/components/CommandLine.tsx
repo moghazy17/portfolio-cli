@@ -5,6 +5,7 @@ import type { Completion } from '@ahmed-moghazy/shared';
 
 interface Props {
   prefill?: { text: string; nonce: number } | null;
+  onPrefillApplied: () => void;
   onSubmit: (input: string) => void;
   complete: (input: string, caret: number) => Completion;
   historyUp: (current: string) => string;
@@ -21,6 +22,7 @@ interface Props {
 
 export default function CommandLine({
   prefill,
+  onPrefillApplied,
   onSubmit,
   complete,
   historyUp,
@@ -48,7 +50,8 @@ export default function CommandLine({
     setInput(prefill.text);
     pendingCaret.current = prefill.text.length;
     inputRef.current?.focus();
-  }, [prefill?.nonce]);
+    onPrefillApplied();
+  }, [onPrefillApplied, prefill?.nonce]);
 
   useEffect(() => {
     if (pendingCaret.current !== null) {

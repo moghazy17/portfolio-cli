@@ -2,6 +2,9 @@ import { expect, test } from '@playwright/test';
 import { cvData } from '@ahmed-moghazy/shared';
 
 const curl = { 'User-Agent': 'curl/8.7.1' };
+const nonRagProject = cvData.projects.find((project) => !project.name.toLowerCase().includes('rag'));
+
+if (!nonRagProject) throw new Error('Expected a project title without "rag".');
 
 test.describe('curl surface', () => {
   test('serves terminal text to text clients and HTML to browsers', async ({ request }) => {
@@ -17,6 +20,13 @@ test.describe('curl surface', () => {
 
     const pipeline = await request.get('/?cmd=projects%20%7C%20grep%20-i%20rag', { headers: curl });
     expect(pipeline.status()).toBe(200);
+    const pipelineText = await pipeline.text();
+    expect(pipelineText).toContain('RAG Chatbot');
+    expect(pipelineText).not.toContain(nonRagProject.name);
+
+    const malformed = await request.get('/?cmd=skills%20%FF', { headers: curl });
+    expect(malformed.status()).toBe(404);
+    expect(await malformed.text()).toContain("couldn't be used");
 
     const unknown = await request.get('/nonsense', { headers: curl });
     expect(unknown.status()).toBe(404);

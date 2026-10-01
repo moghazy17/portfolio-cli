@@ -37,7 +37,7 @@
 
 ## Needs your eyes
 
-- **T024 (you)**: until the Vercel apex domain stops redirecting to `www`, `curl moghazy.me` prints nothing without `-L`. The README already shows `curl moghazy.me`.
+- **T024**: the apex domain change is done (verified: `https://moghazy.me` returns 200, `www` 308-redirects to it). Plain `http://` is always upgraded by Vercel, so the README now shows `curl https://moghazy.me/...`. The quickstart production checks run once this branch is deployed.
 - `curlIndex()` falls back to `https://moghazy.me` when no origin is passed. The route always passes the request origin, so this only affects direct callers. `content/site.yaml` has no canonical URL to use instead.
 - The `deep_links` counter can be inflated by clients that fake browser headers, at 1 Redis command per request. This was accepted in the plan.
 

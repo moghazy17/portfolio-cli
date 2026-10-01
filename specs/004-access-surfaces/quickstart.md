@@ -45,9 +45,10 @@ npm run build:web && cd apps/web && CI=1 npx playwright test   # deep links, cur
 First, in the Vercel dashboard, change `moghazy.me` so it serves the site directly instead of redirecting to `www` (research R12). This is a free dashboard change.
 
 ```bash
-curl moghazy.me                            # guide, no redirect
-curl moghazy.me/projects
-curl -sI moghazy.me/projects -A 'Mozilla/5.0' | head -1   # 200, HTML
+curl https://moghazy.me                    # guide, no redirect
+curl https://moghazy.me/projects
+curl -sI https://moghazy.me/projects -A 'Mozilla/5.0' | head -1   # 200, HTML
+curl -sI http://moghazy.me | head -1       # 308 to https: Vercel always upgrades http, so docs use https://
 ```
 
 Usage report: `curl -H "Authorization: Bearer $CHAT_STATS_TOKEN" https://moghazy.me/api/chat-stats` shows `surfaces.daily`.

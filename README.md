@@ -33,11 +33,13 @@ A link only ever shows something. It never opens other sites or starts downloads
 ## From your terminal
 
 ```bash
-curl moghazy.me                 # guide
-curl moghazy.me/projects        # any command, as colored text
-curl "moghazy.me/projects?nocolor"
-curl -G moghazy.me --data-urlencode "cmd=projects | grep -i rag"
+curl https://moghazy.me                 # guide
+curl https://moghazy.me/projects        # any command, as colored text
+curl "https://moghazy.me/projects?nocolor"
+curl -G https://moghazy.me --data-urlencode "cmd=projects | grep -i rag"
 ```
+
+Include `https://` (or pass `-L`): plain `http://` requests are redirected to HTTPS.
 
 curl returns content only; questions for the AI assistant need the web terminal. Requests are limited to 60 per minute.
 

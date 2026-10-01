@@ -264,5 +264,10 @@ or remove the redirect. It costs nothing and needs no code. The curl guide print
 request origin, so it stays correct either way. Until the change is made, the docs show
 `curl -L moghazy.me`.
 
+**Done 2026-10-01**: the apex now serves directly and `www` 308-redirects to it. Vercel still
+redirects every `http://` request to `https://` (it can't be turned off), so `curl moghazy.me`
+without a scheme prints "Redirecting...". The README and quickstart therefore show
+`curl https://moghazy.me/...`; the curl guide already prints the request's https origin.
+
 **Alternatives**: keeping `www` as the only working address for curl and documenting `-L`
 everywhere. It's ugly for the headline command and easy for visitors to get wrong.

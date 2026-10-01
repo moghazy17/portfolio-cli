@@ -53,11 +53,6 @@ function routeWord(line: string, registry: CommandDefinition[]): string {
   return findCommand(registry, name) ? name : word;
 }
 
-export function isKnownCommandLine(line: string, registry: CommandDefinition[] = commandRegistry): boolean {
-  const word = routeWord(line.trim(), registry);
-  return Boolean(word && findCommand(registry, word));
-}
-
 function mergeEffects(target: ShellResult, source: CommandResult): void {
   for (const key of effectKeys) {
     if (source[key] !== undefined) Object.assign(target, { [key]: source[key] });
@@ -77,7 +72,7 @@ export function createShell(options: ShellOptions): Shell {
       return { output: [
         { type: 'error', content: `${stage.name}: command not found` },
         ...(suggestion ? [{ type: 'text' as const, content: `did you mean \`${suggestion}\`?` }] : []),
-      ], status: 'error' };
+      ], status: 'error', notFound: true };
     }
     if (def.surfaces && !def.surfaces.includes(options.surface)) {
       return failure(`${def.name}: only available in the interactive terminal${options.origin ? ` — open ${options.origin}/${def.name}` : ''}`);
@@ -111,15 +106,17 @@ export function createShell(options: ShellOptions): Shell {
   async function runPipeline(pipeline: Pipeline, signal: AbortSignal): Promise<CommandResult | 'cancelled'> {
     let input: Line[] | undefined;
     let showItems = false;
+    let notFound = false;
     for (const [index, stage] of pipeline.stages.entries()) {
       const result = await runStage(stage, input, signal);
       if (result === 'cancelled' || signal.aborted) return 'cancelled';
+      notFound ||= result.notFound === true;
       if (index === pipeline.stages.length - 1) {
         if (input !== undefined && result.output.length === 1 && result.output[0].type === 'lines') {
           const node = result.output[0];
-          return { output: [{ ...node, showItems: stage.name === 'wc' ? false : stage.name === 'grep' ? node.showItems : showItems }], status: result.status || 'ok' };
+          return { output: [{ ...node, showItems: stage.name === 'wc' ? false : stage.name === 'grep' ? node.showItems : showItems }], status: result.status || 'ok', ...(notFound && { notFound: true }) };
         }
-        return result;
+        return { ...result, ...(notFound && { notFound: true }) };
       }
       input = toLines(result.output);
       if (stage.name === 'wc' || (stage.name === 'grep' && result.output[0]?.type === 'lines' && !result.output[0].showItems)) showItems = false;
@@ -167,6 +164,7 @@ export function createShell(options: ShellOptions): Shell {
         }
         merged.output.push(...result.output);
         mergeEffects(merged, result);
+        if (result.notFound) merged.notFound = true;
         merged.status = result.status || 'ok';
         session.lastStatus = merged.status;
         if (merged.status === 'error') break;

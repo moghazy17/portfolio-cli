@@ -37,15 +37,29 @@ describe('surface addresses', () => {
       'projects | grep -i rag',
       'skills "machine learning"',
       'cd /projects && ls',
+      ...['ls', 'cat', 'tree'].flatMap((command) => ['.', '..', 'about.md', '/projects', '~'].map((arg) => `${command} ${arg}`)),
+      ...Array.from({ length: 120 }, (_, index) => {
+        const alphabet = 'abcXYZ09._~-/ $`|&;<>\\\'"';
+        let state = index + 1;
+        const arg = Array.from({ length: 1 + index % 12 }, () => {
+          state = (state * 1664525 + 1013904223) >>> 0;
+          return alphabet[state % alphabet.length];
+        }).join('');
+        return `cat "${arg.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"`;
+      }),
     ];
 
     for (const line of lines) {
       const address = toAddress(line);
-      const [pathname, search = ''] = address.split('?');
-      const result = parseAddress(pathname, search ? `?${search}` : '');
+      const url = new URL(address, 'https://example.test');
+      const result = parseAddress(url.pathname, url.search);
       expect(result).toMatchObject({ kind: 'command' });
       if (result.kind === 'command') {
-        expect(tokenize(result.line)).toEqual(tokenize(line));
+        const actual = tokenize(result.line);
+        const expected = tokenize(line);
+        expect('tokens' in actual && actual.tokens.map(({ type, value }) => ({ type, value }))).toEqual(
+          'tokens' in expected && expected.tokens.map(({ type, value }) => ({ type, value })),
+        );
       }
     }
   });
@@ -62,6 +76,10 @@ describe('surface addresses', () => {
   it('rejects undecodable and control-character input while normalizing tabs', () => {
     expect(parseAddress('/%E0%A4%A', '')).toEqual({ kind: 'invalid', reason: 'undecodable' });
     expect(parseAddress('/', '?cmd=projects%0A')).toEqual({ kind: 'invalid', reason: 'control-chars' });
+    for (const value of ['%7F', '%C2%80', '%C2%9B', '%C2%9F']) {
+      expect(parseAddress('/', `?cmd=cat+${value}`)).toEqual({ kind: 'invalid', reason: 'control-chars' });
+      expect(parseAddress(`/cat/${value}`, '')).toEqual({ kind: 'invalid', reason: 'control-chars' });
+    }
     expect(parseAddress('/', '?cmd=skills%09llm')).toEqual({ kind: 'command', line: 'skills llm', form: 'query' });
   });
 
@@ -70,11 +88,14 @@ describe('surface addresses', () => {
     expect(toAddress('grep x')).toBe('/?cmd=grep+x');
     expect(parseAddress('/grep', '')).toEqual({ kind: 'not-command', line: 'grep' });
     expect(toAddress('sudo hire-me')).toBe('/?cmd=sudo+hire-me');
+    expect(toAddress('cat about.md')).toBe('/?cmd=cat+about.md');
+    expect(toAddress('ls ..')).toBe('/?cmd=ls+..');
+    expect(toAddress('cat .')).toBe('/?cmd=cat+.');
     expect(parseAddress('/whatever/else', '')).toEqual({ kind: 'not-command', line: 'whatever else' });
   });
 
   it('quotes path segments so each stays one argument', () => {
-    for (const segment of ['machine learning', 'a|b', 'say "hi"', 'back\\slash']) {
+    for (const segment of ['$(x)', '`x`', 'a$b', 'a"b', "a'b", 'a\\b', 'a b', 'a|b', 'a&&b', 'a;b', 'a>b']) {
       const result = parseAddress(`/skills/${encodeURIComponent(segment)}`, '');
       expect(result).toMatchObject({ kind: 'command', form: 'path' });
       if (result.kind !== 'command') continue;

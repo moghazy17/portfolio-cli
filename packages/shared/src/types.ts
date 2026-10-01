@@ -216,6 +216,7 @@ export interface CommandContext {
 export interface CommandResult {
   output: CommandOutput[];
   status?: 'ok' | 'error';
+  notFound?: true;
   clear?: boolean;
   mode?: 'chat';
   openUrl?: string;

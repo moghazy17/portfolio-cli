@@ -81,4 +81,20 @@ describe('ANSI renderer', () => {
     expect(renderAnsi(output)).toContain('\nplain\n');
     expect(renderAnsi(output)).toContain('\x1b]8;;https://example.test\x1b\\Site: https://example.test\x1b]8;;\x1b\\');
   });
+
+  it('removes terminal controls from visible text and hyperlink targets', () => {
+    const output: CommandOutput[] = [{
+      type: 'lines',
+      showItems: true,
+      lines: [{
+        item: 'id\x1b]0;bad\x07',
+        text: 'box └─ ▸\x1b]8;;bad\x07\x9b2J\x7f\x00',
+        href: 'https://example.test/ok\x1b]8;;evil\x07\x9b2J',
+        style: { bold: true },
+      }],
+    }];
+    const visible = 'id]0;bad: box └─ ▸]8;;bad2J';
+    expect(renderAnsi(output, { color: false })).toBe(`${visible}\n`);
+    expect(renderAnsi(output, { color: true })).toBe(`\x1b]8;;https://example.test/ok]8;;evil2J\x1b\\\x1b[1m${visible}\x1b[0m\x1b]8;;\x1b\\\n`);
+  });
 });

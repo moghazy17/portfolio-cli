@@ -37,14 +37,14 @@ function decodeQuery(value: string): string | undefined {
 
 function normalizeLine(line: string): { line: string } | { reason: 'too-long' | 'control-chars' } {
   const tabNormalized = line.replaceAll('\t', ' ');
-  if (/[\u0000-\u0008\u000A-\u001F]/.test(tabNormalized)) return { reason: 'control-chars' };
+  if (/[\u0000-\u0008\u000A-\u001F\u007F-\u009F]/.test(tabNormalized)) return { reason: 'control-chars' };
   const normalized = tabNormalized.trim();
   if (normalized.length > MAX_LINK_LENGTH) return { reason: 'too-long' };
   return { line: normalized };
 }
 
 function quoteSegment(segment: string): string {
-  if (!/[\s|&;<>'"\\]/.test(segment)) return segment;
+  if (!/[\s|&;<>'"\\`$]/.test(segment)) return segment;
   return `"${segment.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"`;
 }
 
@@ -108,7 +108,7 @@ export function toAddress(line: string, names: ReadonlySet<string> = routableCom
     const values = tokenized.tokens.map((token) => token.value);
     if (
       values.length
-      && tokenized.tokens.every((token) => token.type === 'WORD' && pathSafeToken.test(token.value))
+      && tokenized.tokens.every((token) => token.type === 'WORD' && pathSafeToken.test(token.value) && !token.value.includes('.'))
       && names.has(values[0].toLowerCase())
     ) {
       return `/${values.map((value, index) => index === 0 ? value.toLowerCase() : value).join('/')}`;

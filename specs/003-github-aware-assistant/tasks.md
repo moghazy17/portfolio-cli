@@ -530,7 +530,7 @@ sources line. Then check:
 - [X] T076 [P] Extend `packages/shared/test/no-hardcoded-content.test.ts` (if its file globs don't already reach them) to cover `src/assistant/**` and `src/inventory/**`
 - [X] T077 Bundle check. Run `npm run build:web`, then search `apps/web/.next/static/chunks` for `octokit`, `smol-toml`, `generativelanguage` and a distinctive system-prompt phrase. There must be zero matches. Note the change in first-load JS size in the PR (Principle VII)
 - [X] T078 Run the full green gate from the repo root: `npm run content:validate && npm run typecheck && npm test && npm run build:web && npm run test:e2e`. Fix any failures
-- [ ] T079 Walk through `quickstart.md` end to end. Trigger *Actions â†’ Inventory â†’ Run workflow* and confirm `inventory:v1:meta.ok` is true within 15 minutes. In GitHub branch protection for `main`, make `assistant-eval` a required check (manual, Principle X). Write the PR's surfaces statement:
+- [X] T079 Walk through `quickstart.md` end to end. Trigger *Actions â†’ Inventory â†’ Run workflow* and confirm `inventory:v1:meta.ok` is true within 15 minutes. In GitHub branch protection for `main`, make `assistant-eval` a required check (manual, Principle X). Write the PR's surfaces statement:
   - web: verified
   - SSH: engine-level parity test only, until `apps/ssh` exists
   - curl: unchanged not-found

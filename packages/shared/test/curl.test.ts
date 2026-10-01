@@ -25,7 +25,8 @@ describe('curl surface', () => {
     expect(response.status).toBe(200);
     expect(response.body).toContain('/projects');
     expect(response.body).toContain('/skills/');
-    expect(response.body).toContain('/?cmd=');
+    expect(response.body).toContain('--data-urlencode "cmd=projects | grep -i rag"');
+    expect(response.body).not.toMatch(/curl "[^"]*\s[^"]*"/);
     expect(response.body).toContain('nocolor');
     expect(response.body).toContain(origin);
     expect(response.body).not.toContain(WELCOME_HINT);

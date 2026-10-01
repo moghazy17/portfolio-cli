@@ -117,8 +117,10 @@ whole surface can be tested in Vitest without starting Next.
 
 **Decision**: `nocolor` or `no_color` in the query, with any value or none (`?nocolor`,
 `?nocolor=1`, `&no_color`), turns off all escape codes. The guide documents it and suggests
-an alias for people who use the `NO_COLOR` convention:
-`alias portfolio='curl -s "moghazy.me/?nocolor&cmd="'`.
+a shell function for people who use the `NO_COLOR` convention:
+`portfolio() { curl -sG moghazy.me -d nocolor --data-urlencode "cmd=$*"; }`.
+Full command lines in the guide use `curl -G … --data-urlencode "cmd=…"`, because curl
+rejects URLs that contain spaces (verified with curl 8.17).
 
 **Rationale**: a client's `NO_COLOR` environment variable is never sent over HTTP, so the
 server can't honour it directly. The spec's FR-013 was reworded to match.

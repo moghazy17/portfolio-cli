@@ -61,7 +61,7 @@
 
 ### Tests for User Story 1
 
-- [ ] T004 [P] [US1] Write `apps/web/e2e/deep-links.spec.ts`. Follow `apps/web/e2e/assistant.spec.ts` for its `page.route` / stream stub style. Cover:
+- [X] T004 [P] [US1] Write `apps/web/e2e/deep-links.spec.ts`. Follow `apps/web/e2e/assistant.spec.ts` for its `page.route` / stream stub style. Cover:
   1. `/projects` shows the welcome banner and then `projects` output (assert a known project title from `content/resume.yaml`) with no typing, within 2 s of `load`.
   2. `/?cmd=projects%20%7C%20grep%20-i%20rag` shows the pipeline output.
   3. `/?cmd=open%20github`: `page.on('popup')` never fires, and the dim note "Opened from a link, so nothing was opened or downloaded" is visible.
@@ -96,10 +96,10 @@
     - `expire` is called exactly once for two writes on the same day, and again on the next day
     - a throwing client doesn't throw
   - Create `apps/web/lib/surface-stats.ts`, which binds those helpers to `redis` from `./redis` (`recordSurfaceEvent(kind)`, `getSurfaceStats(days)`). It must import only `./redis` and `@ahmed-moghazy/shared`, so it is Edge-safe.
-- [ ] T007 [US1] In `apps/web/middleware.ts`, count browser deep links: for `command` and `not-command` results that aren't prefetches **and** carry `Sec-Fetch-Dest: document` and `Sec-Fetch-Mode: navigate` (real top-level page loads), call `event.waitUntil(recordSurfaceEvent('deep_links'))`, using the `NextFetchEvent` second argument. The response must never wait on it. Depends on T005 and T006.
-- [ ] T008 [US1] In `apps/web/app/api/chat-stats/route.ts`, add `surfaces: await getSurfaceStats(days)` to the default (non-`log`) JSON response, as an additive field. Keep the 503 behaviour unchanged when Redis is missing.
-- [ ] T009 [P] [US1] In `apps/web/components/CommandLine.tsx`, add an optional `prefill?: { text: string; nonce: number } | null` prop. A `useEffect` keyed on `prefill?.nonce` calls `setInput(prefill.text)`, puts the caret at the end, and focuses `inputRef`. Pass it through from `apps/web/components/Terminal.tsx` (`prefill` from `useTerminal()`).
-- [ ] T010 [US1] In `apps/web/hooks/useTerminal.ts`, implement the link run and the effect guard (research R7, contracts/web-deep-links.md):
+- [X] T007 [US1] In `apps/web/middleware.ts`, count browser deep links: for `command` and `not-command` results that aren't prefetches **and** carry `Sec-Fetch-Dest: document` and `Sec-Fetch-Mode: navigate` (real top-level page loads), call `event.waitUntil(recordSurfaceEvent('deep_links'))`, using the `NextFetchEvent` second argument. The response must never wait on it. Depends on T005 and T006.
+- [X] T008 [US1] In `apps/web/app/api/chat-stats/route.ts`, add `surfaces: await getSurfaceStats(days)` to the default (non-`log`) JSON response, as an additive field. Keep the 503 behaviour unchanged when Redis is missing.
+- [X] T009 [P] [US1] In `apps/web/components/CommandLine.tsx`, add an optional `prefill?: { text: string; nonce: number } | null` prop. A `useEffect` keyed on `prefill?.nonce` calls `setInput(prefill.text)`, puts the caret at the end, and focuses `inputRef`. Pass it through from `apps/web/components/Terminal.tsx` (`prefill` from `useTerminal()`).
+- [X] T010 [US1] In `apps/web/hooks/useTerminal.ts`, implement the link run and the effect guard (research R7, contracts/web-deep-links.md):
   - change the signature to `handleCommand(input: string, opts: { origin?: 'typed' | 'link' } = {})`
   - when `origin === 'link'`:
     - skip `setShowWelcome(false)`
@@ -111,14 +111,14 @@
     - for `invalid`, push a history entry with no prompt and the dim text `This link couldn't be used (<reason>). Type "help" to explore.`, using a readable reason string for each `reason`
   - return `prefill` from the hook
   - Existing typed behaviour must stay byte-for-byte the same; `apps/web/e2e/shell.spec.ts` and `assistant.spec.ts` must still pass.
-- [ ] T011 [US1] In `apps/web/hooks/useTerminal.ts`, add address sync (research R8, data-model §4):
+- [X] T011 [US1] In `apps/web/hooks/useTerminal.ts`, add address sync (research R8, data-model §4):
   - `syncAddress(line: string, cwdBefore: string)` with a 250 ms trailing debounce held in a ref, calling `window.history.replaceState(window.history.state, '', url)` inside `try/catch`
   - capture `cwdBefore` (`getShell().session.cwd`) before `run`
   - after a completed, non-cancelled, non-`ask` result in command mode:
     - `/` for `result.clear || result.welcome`
     - otherwise `toAddress(cwdBefore === '/' ? input : \`cd ${cwdBefore} && ${input}\`)`, or `/` if that address's decoded command line is over `MAX_LINK_LENGTH`
   - applies to both typed and linked runs; never called from chat mode
-- [ ] T012 [US1] Run `npm run typecheck`, `npm test`, `npm run build:web`, then `cd apps/web && CI=1 npx playwright test e2e/deep-links.spec.ts e2e/shell.spec.ts e2e/assistant.spec.ts`. Fix failures, and note the middleware size from the build output in the PR description (plan Risks).
+- [X] T012 [US1] Run `npm run typecheck`, `npm test`, `npm run build:web`, then `cd apps/web && CI=1 npx playwright test e2e/deep-links.spec.ts e2e/shell.spec.ts e2e/assistant.spec.ts`. Fix failures, and note the middleware size from the build output in the PR description (plan Risks).
 
 **Checkpoint**: US1 works on its own and can be merged without US2.
 
@@ -132,7 +132,7 @@
 
 ### Tests for User Story 2
 
-- [ ] T013 [P] [US2] Write `packages/shared/test/curl.test.ts` for `runTextRequest` / `curlIndex` (contracts/curl-http.md, data-model §5):
+- [X] T013 [P] [US2] Write `packages/shared/test/curl.test.ts` for `runTextRequest` / `curlIndex` (contracts/curl-http.md, data-model §5):
   - `root` → 200; the body contains the banner, the example paths `/projects`, `/skills/`, `/?cmd=`, the no-color tip and the passed `origin`; it doesn't contain the `WELCOME_HINT` arrow-keys text
   - every `routableCommandNames` entry except `chat`, `theme`, `clear`, `github` → status 200 and a non-empty body
   - `chat`, `theme dracula` and `clear` → 400, with the body containing "only available in the interactive terminal" and `<origin>/chat`
@@ -151,22 +151,22 @@
 
 ### Implementation for User Story 2
 
-- [ ] T014 [P] [US2] Engine changes for curl (research R5, R6):
+- [X] T014 [P] [US2] Engine changes for curl (research R5, R6):
   - `packages/shared/src/commands/registry.ts`: add `surfaces: ['web', 'ssh']` to `chat`, `theme`, `clear`.
   - `packages/shared/src/shell/shell.ts`: replace the message `` `${def.name}: not available on this surface` `` with `` `${def.name}: only available in the interactive terminal${options.origin ? ` — open ${options.origin}/${def.name}` : ''}` ``, and pass `options.github` into `CommandContext`.
   - `packages/shared/src/types.ts`: add `github?: (signal: AbortSignal) => Promise<GitHubStats>` to `CommandContext`, importing the type from `./github`, and the same to `ShellOptions` in `shell.ts`.
   - `packages/shared/src/commands/github.ts`: `githubCommand(ctx)` uses `ctx.github?.(ctx.signal) ?? fetchGitHubData(ctx.signal)`. Update the registry `execute` call accordingly.
   - `packages/shared/src/shell/unknown.ts`: on `ctx.surface === 'curl'` the dim hint reads `` Type `help` for commands, or open <origin> to ask the AI. `` (falling back to "the website" when `origin` is empty).
   - Update any existing tests in `packages/shared/test/` whose expected text changed, then run `npm test -w @ahmed-moghazy/shared`.
-- [ ] T015 [US2] Implement `packages/shared/src/surface/curl.ts` and export it from `surface/index.ts`:
+- [X] T015 [US2] Implement `packages/shared/src/surface/curl.ts` and export it from `surface/index.ts`:
   - `curlIndex(origin)` builds `CommandOutput[]`: the `ASCII_BANNER` (ascii, primary), `WELCOME_SUBTITLE` (bold), a divider, a `section` "Try" listing:
     - `curl <host>/about`
     - `curl <host>/projects`
     - `curl <host>/skills/<category>` (with the first category's slug from content)
     - `curl <host>/experience/<company>`
-    - `curl "<host>/?cmd=projects | grep -i rag"` (shown readable; it notes that spaces need quoting or `%20`)
+    - `curl -G <host> --data-urlencode "cmd=projects | grep -i rag"` (curl rejects URLs containing spaces)
     - `curl "<host>/projects?nocolor"`
-    - the alias tip from research R4
+    - the `portfolio()` shell-function tip from research R4
     - `Interactive terminal and AI assistant: <origin>`
   - `runTextRequest({ address, color, origin, github })`:
     - `root` → `curlIndex`
@@ -178,22 +178,22 @@
     - body: `renderAnsi(output, { color })`, guaranteeing a trailing `\n`
   - `rateLimitedResponse(limiter: { limit(id: string): Promise<{ success: boolean; reset: number }> } | null, id: string, now = Date.now())` returns `null` or `{ status: 429, retryAfter, body }`, with `retryAfter = max(1, ceil((reset - now) / 1000))`. It returns `null` on a null limiter or a thrown error, after logging it.
   - Make T013 pass. Depends on T014.
-- [ ] T016 [P] [US2] Create `apps/web/lib/github-stats.ts`:
+- [X] T016 [P] [US2] Create `apps/web/lib/github-stats.ts`:
   - `getGitHubStatsCached(signal)`: first an in-process memo (10 minutes), then Redis `gh:stats:v1` (JSON, `ex: 600`), then `fetchGitHubData(signal)`, using a `fetch` wrapper that adds `Authorization: Bearer ${process.env.GH_INVENTORY_TOKEN}` when that variable is set
   - write-through to Redis and the memo; Redis errors are logged and ignored
   - If `fetchGitHubData` doesn't accept a custom fetch yet, add an optional second parameter `fetchImpl: typeof fetch = fetch` in `packages/shared/src/github.ts`. This is additive; web callers are unchanged.
-- [ ] T017 [US2] Create `apps/web/app/api/term/route.ts` (`export const dynamic = 'force-dynamic'`, Node runtime), per contracts/curl-http.md:
+- [X] T017 [US2] Create `apps/web/app/api/term/route.ts` (`export const dynamic = 'force-dynamic'`, Node runtime), per contracts/curl-http.md:
   - read `__path` and the remaining query from `request.url`
   - build `limiter = redis ? new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(60, '1 m'), prefix: 'rl:curl' }) : null` once at module scope, then call the shared `rateLimitedResponse(limiter, resolveVisitorIp(request.headers, undefined))`. If it returns a 429: `await recordSurfaceEvent('curl_rate_limited')`, then respond with that status, its body and `Retry-After: <retryAfter>`.
   - otherwise `await recordSurfaceEvent('curl_requests')` before returning (it never throws)
   - call `runTextRequest({ address: parseAddress(path, search), color: wantsColor(search), origin: new URL(request.url).origin, github: getGitHubStatsCached })`
   - respond with headers `Content-Type: text/plain; charset=utf-8`, `Cache-Control: no-store`, `X-Content-Type-Options: nosniff`, `Vary: User-Agent`
   - Depends on T006, T015, T016.
-- [ ] T018 [US2] In `apps/web/middleware.ts`, add the text-client branch before the browser logic:
+- [X] T018 [US2] In `apps/web/middleware.ts`, add the text-client branch before the browser logic:
   - if `isTextClient(request.headers.get('user-agent'))` and the path is `/`, a routable command path, an invalid address or a `not-command` path, rewrite to `/api/term?__path=<encodeURIComponent(pathname)>&<original search params>`
   - text clients never reach the deep-link counter
   - Depends on T005 and T017.
-- [ ] T019 [US2] Write `apps/web/e2e/curl.spec.ts` using Playwright's `request` fixture with header `User-Agent: curl/8.7.1`:
+- [X] T019 [US2] Write `apps/web/e2e/curl.spec.ts` using Playwright's `request` fixture with header `User-Agent: curl/8.7.1`:
   - `/projects`: 200, `content-type` starts with `text/plain`, and the body contains `\x1b[` and a known project title
   - `/projects?nocolor`: no `\x1b`
   - `/?cmd=projects%20%7C%20grep%20-i%20rag`: 200
@@ -203,7 +203,7 @@
   - the same `/projects` with a Chrome user agent: 200 `text/html` (SC-005)
   - `/api/content` with the curl user agent is still JSON
   - Depends on T018.
-- [ ] T020 [US2] Run `npm run typecheck`, `npm test`, `npm run build:web`, then `cd apps/web && CI=1 npx playwright test`. Also run the quickstart curl commands manually against `npx next start -p 3100` and paste the colored output into the PR description.
+- [X] T020 [US2] Run `npm run typecheck`, `npm test`, `npm run build:web`, then `cd apps/web && CI=1 npx playwright test`. Also run the quickstart curl commands manually against `npx next start -p 3100` and paste the colored output into the PR description.
 
 **Checkpoint**: US1 and US2 both work; curl never reaches the assistant.
 

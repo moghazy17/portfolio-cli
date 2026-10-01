@@ -10,3 +10,4 @@ export * from './vfs';
 export * from './render';
 export * from './assistant';
 export * from './exclusion';
+export * from './surface';

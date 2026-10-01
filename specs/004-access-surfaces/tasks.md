@@ -18,7 +18,7 @@
 
 **Purpose**: create the new shared module folder and its export.
 
-- [ ] T001 Create `packages/shared/src/surface/index.ts` re-exporting `./address` (and later `./curl`), and add `export * from './surface';` to `packages/shared/src/index.ts`. The main entry must stay client-safe: no `node:` imports in `src/surface/`.
+- [X] T001 Create `packages/shared/src/surface/index.ts` re-exporting `./address` (and later `./curl`), and add `export * from './surface';` to `packages/shared/src/index.ts`. The main entry must stay client-safe: no `node:` imports in `src/surface/`.
 
 ---
 
@@ -28,7 +28,7 @@
 
 **⚠️ No user-story work starts until this phase is done.**
 
-- [ ] T002 [P] Write `packages/shared/test/address.test.ts` covering every row of the examples table in `contracts/addresses.md`, plus:
+- [X] T002 [P] Write `packages/shared/test/address.test.ts` covering every row of the examples table in `contracts/addresses.md`, plus:
   - `parseAddress(toAddress(line))` round-trips to the same `tokenize()` tokens for every visible command name and for `projects | grep -i rag`, `skills "machine learning"`, `cd /projects && ls`
   - a 200-character line is accepted and a 201-character line gives `invalid/too-long`
   - a bad percent-encoding (`/%E0%A4%A`) gives `invalid/undecodable`
@@ -40,7 +40,7 @@
   - hidden commands (`sudo`, `rm`) never get the path form; `/sudo/hire-me` gives `not-command` with `line: 'sudo hire-me'`, and `/whatever/else` gives `not-command` with `line: 'whatever else'`
   - `isTextClient` is true for `curl/8.7.1`, `Wget/1.21`, `HTTPie/3.2.2`, `xh/0.22`, and false for Chrome/Safari/Firefox user agents, `Slackbot-LinkExpanding`, `''` and `null`
   - `wantsColor` is false for `?nocolor`, `?nocolor=1`, `?no_color`, `?cmd=x&nocolor`, and true otherwise
-- [ ] T003 Implement `packages/shared/src/surface/address.ts` per `contracts/addresses.md`:
+- [X] T003 Implement `packages/shared/src/surface/address.ts` per `contracts/addresses.md`:
   - `MAX_LINK_LENGTH = 200`
   - `routableCommandNames`: a lower-case set of the names and aliases of every non-hidden entry in `commandRegistry`, excluding `kind: 'filter'`
   - `parseAddress(pathname, search, names = routableCommandNames)` returning the data-model §1 union. Path segments are decoded with `decodeURIComponent` inside `try/catch`, and each segment becomes one argument, wrapped in double quotes with `"` and `\` escaped when it has whitespace or any of `|&;<>'"\`. Only the first `cmd` value is read, and only on `/`.
@@ -76,7 +76,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T005 [US1] Create `apps/web/middleware.ts` (Edge) for the browser branch only, per `contracts/web-deep-links.md`:
+- [X] T005 [US1] Create `apps/web/middleware.ts` (Edge) for the browser branch only, per `contracts/web-deep-links.md`:
   - `export const config = { matcher: ['/((?!api/|_next/|.*\\.[^/]+$).*)'] }`
   - pass through prefetch requests (`next-router-prefetch` / `purpose: prefetch` headers)
   - `parseAddress(nextUrl.pathname, nextUrl.search)`:
@@ -85,7 +85,7 @@
     - `invalid` → the same rewrite (plus `noindex` unless the path is `/`)
     - `root` → `NextResponse.next()`
   - Leave a clearly marked spot where T018 will add the text-client branch.
-- [ ] T006 [US1] Usage counters (data-model §7, research R10):
+- [X] T006 [US1] Usage counters (data-model §7, research R10):
   - Create `packages/shared/src/surface/stats.ts` and export it from `surface/index.ts`. It must have no Node imports and must not import `@upstash/redis`. It takes a minimal injected client type `{ hincrby(key, field, n): Promise<number>; expire(key, s): Promise<unknown>; hgetall(key): Promise<Record<string, unknown> | null> }`.
     - `recordSurfaceEvent(client, kind: 'curl_requests' | 'curl_rate_limited' | 'deep_links', now = new Date())` does one `hincrby` on `surface:stats:<UTC YYYY-MM-DD>`, and calls `expire(key, 90 days)` only when `hincrby` returns 1. A null client is a no-op. Errors are caught and logged with `console.error('[surface] …')`.
     - `readSurfaceStats(client, days, now)` returns `{ daily: [{ date, curl_requests, curl_rate_limited, deep_links }] }`, or `null` for a null client.

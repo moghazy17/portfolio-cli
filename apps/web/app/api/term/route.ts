@@ -1,11 +1,10 @@
 import { Ratelimit } from '@upstash/ratelimit';
-import { cvData, parseAddress, rateLimitedResponse, runTextRequest, wantsColor } from '@ahmed-moghazy/shared';
-import { resolveVisitorIp, skillEvidence, STALE_AFTER_MS } from '@ahmed-moghazy/shared/assistant-server';
+import { parseAddress, rateLimitedResponse, runTextRequest, wantsColor } from '@ahmed-moghazy/shared';
+import { resolveVisitorIp } from '@ahmed-moghazy/shared/assistant-server';
 import { after } from 'next/server';
 import { getGitHubStatsCached } from '../../../lib/github-stats';
-import { getInventory } from '../../../lib/inventory-store';
 import { redis } from '../../../lib/redis';
-import { serverLiveServices } from '../../../lib/live-services-server';
+import { serverLiveServices, serverSkillEvidence } from '../../../lib/live-services-server';
 import { recordSurfaceEvent } from '../../../lib/surface-stats';
 
 export const dynamic = 'force-dynamic';
@@ -46,11 +45,7 @@ export async function GET(request: Request): Promise<Response> {
     origin: url.origin,
     github: getGitHubStatsCached,
     live: serverLiveServices,
-    skillEvidence: async () => {
-      const snapshot = await getInventory();
-      if (!snapshot || Date.now() - Date.parse(snapshot.generatedAt) > STALE_AFTER_MS) throw new Error('No current inventory');
-      return skillEvidence(snapshot, cvData.skills);
-    },
+    skillEvidence: serverSkillEvidence,
   });
   return new Response(response.body, { status: response.status, headers: textHeaders });
 }

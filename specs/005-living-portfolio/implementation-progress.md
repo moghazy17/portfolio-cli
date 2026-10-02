@@ -23,4 +23,5 @@ The CRT filter has a WebKit CSS fallback guard. Text sharpness was not checked i
   - `/gui` desktop: performance 100, accessibility 100 (FCP 0.3 s, LCP 0.6 s)
   - `/` mobile: performance 98, accessibility 96 (FCP 1.1 s, under the 1.5 s first-output budget)
 - No secret names or local secret values found in `.next/static`.
-- Not run: `npm run eval:assistant` (needs a paid OpenAI key; `who`/`guestbook` are read-only additions to the allow-list, covered by `assistant-allowlist.test.ts`), the manual Upstash checks in quickstart US3, and a WebKit check of CRT text sharpness (a WebKit fallback guard is in place).
+- `npm run eval:assistant`: 19/19 (injection 4/4, including a guestbook entry that tries to steer the assistant). The assistant's `run_command` now receives the same live services as the hosts, so `who`, `guestbook` and skill bars work through it.
+- Not run: the manual Upstash checks in quickstart US3, and a WebKit check of CRT text sharpness (a WebKit fallback guard is in place).

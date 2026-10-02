@@ -162,7 +162,7 @@
 - [X] T077 [P] Update `CLAUDE.md`: new commands (`gui`/`startx`, `who`, `guestbook`, `sign`, `theme crt`), new routes (`/gui`, `/api/presence`, `/api/guestbook`, `/api/guestbook/[id]`, `/api/skills`), new components/hooks/libs, and the env var table (`ADMIN_TOKEN`, `GUESTBOOK_SALT`, `TURNSTILE_SECRET_KEY`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`).
 - [X] T078 [P] Update `README.md` with the GUI view, the motion features and how to delete a guestbook entry (`curl -X DELETE -H "Authorization: Bearer $ADMIN_TOKEN" …`).
 - [X] T079 Security pass over the diff: no secret in client bundles (grep the `.next/static` output for `TURNSTILE_SECRET_KEY`, `ADMIN_TOKEN`, `GUESTBOOK_SALT` values); every new route rate-limited; guestbook text rendered only as text (React) and stripped of control chars before ANSI.
-- [ ] T080 Check the assistant: `who` and `guestbook` callable via `run_command`, guestbook text treated as untrusted tool output (add one injection-style guestbook message to an assistant eval fixture in `packages/shared/test/fixtures/` if the eval set covers `run_command` output), `npm run eval:assistant` unchanged pass rate.
+- [X] T080 Check the assistant: `who` and `guestbook` callable via `run_command`, guestbook text treated as untrusted tool output (add one injection-style guestbook message to an assistant eval fixture in `packages/shared/test/fixtures/` if the eval set covers `run_command` output), `npm run eval:assistant` unchanged pass rate.
 - [X] T081 Run the full gate: `npm run typecheck`, `npm test`, `npm run build:web`, `cd apps/web && CI=1 npx playwright test` (both projects), and the whole quickstart.md; record results and Lighthouse scores in `specs/005-living-portfolio/implementation-progress.md`.
 
 ---

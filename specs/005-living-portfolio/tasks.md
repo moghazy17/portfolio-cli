@@ -18,9 +18,9 @@
 
 **Purpose**: dependencies and configuration that later phases need.
 
-- [ ] T001 Add `@axe-core/playwright` as a root devDependency in `package.json` and run `npm install`.
-- [ ] T002 [P] Add the new variables to `apps/web/.env.example` with comments: `ADMIN_TOKEN`, `GUESTBOOK_SALT`, `TURNSTILE_SECRET_KEY`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (note Cloudflare's always-pass test keys `1x00000000000000000000AA` / `1x0000000000000000000000000000000AA` for local work).
-- [ ] T003 [P] Add a second Playwright project `chromium-reduced-motion` in `apps/web/playwright.config.ts` with `use: { ...devices['Desktop Chrome'], contextOptions: { reducedMotion: 'reduce' } }` and `testMatch: /motion\.spec\.ts|gui\.spec\.ts/`; keep the existing `chromium` project unchanged.
+- [X] T001 Add `@axe-core/playwright` as a root devDependency in `package.json` and run `npm install`.
+- [X] T002 [P] Add the new variables to `apps/web/.env.example` with comments: `ADMIN_TOKEN`, `GUESTBOOK_SALT`, `TURNSTILE_SECRET_KEY`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (note Cloudflare's always-pass test keys `1x00000000000000000000AA` / `1x0000000000000000000000000000000AA` for local work).
+- [X] T003 [P] Add a second Playwright project `chromium-reduced-motion` in `apps/web/playwright.config.ts` with `use: { ...devices['Desktop Chrome'], contextOptions: { reducedMotion: 'reduce' } }` and `testMatch: /motion\.spec\.ts|gui\.spec\.ts/`; keep the existing `chromium` project unchanged.
 
 ---
 
@@ -30,11 +30,11 @@
 
 **⚠️ No user-story work starts until this phase is done.**
 
-- [ ] T004 Extend `packages/shared/src/types.ts` per data-model §6: `ProgressOutput.note?: string` and `reveal?: boolean`; `Theme.effects?: { crt?: boolean }`; `CommandResult.view?: 'gui'` and `sign?: { name: string; message: string }`; `CommandContext.live?: LiveServices` and `skillEvidence?: (signal: AbortSignal) => Promise<SkillEvidence>`; new exported types `LiveServices`, `PresenceCount`, `GuestbookEntry`, `SignResult`, `SignReason`, `SkillEvidence`. Keep everything client-safe (no `node:` imports).
-- [ ] T005 Update `packages/shared/src/shell/shell.ts`: add `view` and `sign` to `effectKeys` so they merge into `ShellResult`; accept `live` and `skillEvidence` in `ShellOptions` (next to the existing `github` option) and pass them into every `CommandContext`. Update `packages/shared/src/surface/curl.ts` `TextRequest`/`runTextRequest` to accept and forward optional `live` and `skillEvidence` the same way as `github`.
-- [ ] T006 [P] Update `packages/shared/src/shell/lines.ts` and `packages/shared/src/render/ansi.ts` so a `progress` node renders as `label  ████████░░░░  note` (12-cell bar, padded label) when `note` is set, keeping today's `label  NN%` output when it is not. Add cases to `packages/shared/test/lines.test.ts` and `packages/shared/test/ansi-render.test.ts` (with and without `note`, value 0 and 1).
-- [ ] T007 [P] Update `apps/web/components/OutputRenderer.tsx` `progress` case: when `note` is set show it instead of the percentage and set `aria-valuetext={note}`; keep the current output otherwise. (Animation comes in US2.)
-- [ ] T008 Run `npm run typecheck` and `npm test`; fix fallout from T004–T007 (existing snapshots must not change for nodes without `note`).
+- [X] T004 Extend `packages/shared/src/types.ts` per data-model §6: `ProgressOutput.note?: string` and `reveal?: boolean`; `Theme.effects?: { crt?: boolean }`; `CommandResult.view?: 'gui'` and `sign?: { name: string; message: string }`; `CommandContext.live?: LiveServices` and `skillEvidence?: (signal: AbortSignal) => Promise<SkillEvidence>`; new exported types `LiveServices`, `PresenceCount`, `GuestbookEntry`, `SignResult`, `SignReason`, `SkillEvidence`. Keep everything client-safe (no `node:` imports).
+- [X] T005 Update `packages/shared/src/shell/shell.ts`: add `view` and `sign` to `effectKeys` so they merge into `ShellResult`; accept `live` and `skillEvidence` in `ShellOptions` (next to the existing `github` option) and pass them into every `CommandContext`. Update `packages/shared/src/surface/curl.ts` `TextRequest`/`runTextRequest` to accept and forward optional `live` and `skillEvidence` the same way as `github`.
+- [X] T006 [P] Update `packages/shared/src/shell/lines.ts` and `packages/shared/src/render/ansi.ts` so a `progress` node renders as `label  ████████░░░░  note` (12-cell bar, padded label) when `note` is set, keeping today's `label  NN%` output when it is not. Add cases to `packages/shared/test/lines.test.ts` and `packages/shared/test/ansi-render.test.ts` (with and without `note`, value 0 and 1).
+- [X] T007 [P] Update `apps/web/components/OutputRenderer.tsx` `progress` case: when `note` is set show it instead of the percentage and set `aria-valuetext={note}`; keep the current output otherwise. (Animation comes in US2.)
+- [X] T008 Run `npm run typecheck` and `npm test`; fix fallout from T004–T007 (existing snapshots must not change for nodes without `note`).
 
 **Checkpoint**: types and plumbing in place; all existing tests green.
 

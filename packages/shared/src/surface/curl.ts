@@ -3,7 +3,7 @@ import { cvData, slugify } from '../content';
 import { renderAnsi } from '../render';
 import { createShell } from '../shell';
 import { createAssistantUnknownHandler } from '../assistant';
-import type { CommandOutput } from '../types';
+import type { CommandOutput, LiveServices, SkillEvidence } from '../types';
 import type { GitHubStats } from '../github';
 import type { AddressResult } from './address';
 
@@ -12,6 +12,8 @@ export interface TextRequest {
   color: boolean;
   origin: string;
   github?: (signal: AbortSignal) => Promise<GitHubStats>;
+  live?: LiveServices;
+  skillEvidence?: (signal: AbortSignal) => Promise<SkillEvidence>;
 }
 
 export interface TextResponse {
@@ -53,7 +55,7 @@ export function curlIndex(origin: string): CommandOutput[] {
   ];
 }
 
-export async function runTextRequest({ address, color, origin, github }: TextRequest): Promise<TextResponse> {
+export async function runTextRequest({ address, color, origin, github, live, skillEvidence }: TextRequest): Promise<TextResponse> {
   if (address.kind === 'root') {
     return { status: 200, body: withTrailingNewline(renderAnsi(curlIndex(origin), { color })) };
   }
@@ -65,7 +67,7 @@ export async function runTextRequest({ address, color, origin, github }: TextReq
     return { status: 404, body: withTrailingNewline(renderAnsi(output, { color })) };
   }
 
-  const shell = createShell({ surface: 'curl', origin, onUnknownCommand: createAssistantUnknownHandler(), github });
+  const shell = createShell({ surface: 'curl', origin, onUnknownCommand: createAssistantUnknownHandler(), github, live, skillEvidence });
   const result = await shell.run(address.line);
   const body = withTrailingNewline(renderAnsi(result.output, { color }));
   if (result.notFound) return { status: 404, body };

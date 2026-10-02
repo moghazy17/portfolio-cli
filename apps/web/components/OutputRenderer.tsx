@@ -175,9 +175,10 @@ export default function OutputRenderer({ output, theme }: Props) {
             aria-valuemin={0}
             aria-valuemax={100}
             aria-label={block.label}
+            aria-valuetext={block.note}
             style={{ whiteSpace: 'pre', fontFamily: 'var(--font-mono)' }}
           >
-            {`${block.label} ${'█'.repeat(Math.round(block.value * 20))}${'░'.repeat(20 - Math.round(block.value * 20))} ${Math.round(block.value * 100)}%`}
+            {`${block.label} ${'█'.repeat(Math.round(block.value * 20))}${'░'.repeat(20 - Math.round(block.value * 20))} ${block.note === undefined ? `${Math.round(block.value * 100)}%` : block.note}`}
           </div>
         );
 

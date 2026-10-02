@@ -1,5 +1,5 @@
 import type {
-  CommandContext, CommandDefinition, CommandResult, Line, ShellResult, ShellSession, Surface,
+  CommandContext, CommandDefinition, CommandResult, Line, LiveServices, ShellResult, ShellSession, SkillEvidence, Surface,
   UnknownCommandHandler, VfsPath,
 } from '../types';
 import { commandRegistry } from '../commands/registry';
@@ -21,6 +21,8 @@ export interface ShellOptions {
   initialCwd?: VfsPath;
   registry?: CommandDefinition[];
   github?: (signal: AbortSignal) => Promise<GitHubStats>;
+  live?: LiveServices;
+  skillEvidence?: (signal: AbortSignal) => Promise<SkillEvidence>;
 }
 
 export interface Shell {
@@ -30,7 +32,7 @@ export interface Shell {
   readonly session: Readonly<ShellSession>;
 }
 
-const effectKeys = ['clear', 'mode', 'openUrl', 'theme', 'welcome', 'download', 'sequence', 'ask'] as const;
+const effectKeys = ['clear', 'mode', 'openUrl', 'theme', 'welcome', 'download', 'sequence', 'ask', 'view', 'sign'] as const;
 
 function failure(message: string): CommandResult {
   return { output: [{ type: 'error', content: message }], status: 'error' };
@@ -91,7 +93,10 @@ export function createShell(options: ShellOptions): Shell {
     const ctx: CommandContext = {
       args: parsed.args, flags: parsed.flags, argv: stage.argv,
       session, surface: options.surface, origin: options.origin,
-      signal, fs: fs(), ...(options.github && { github: options.github }), ...(stdin && { stdin }),
+      signal, fs: fs(), ...(options.github && { github: options.github }),
+      ...(options.live && { live: options.live }),
+      ...(options.skillEvidence && { skillEvidence: options.skillEvidence }),
+      ...(stdin && { stdin }),
     };
     try {
       const result = await def.execute(ctx);
@@ -143,6 +148,9 @@ export function createShell(options: ShellOptions): Shell {
         const suggestion = /^\S+$/.test(trimmed) ? suggestCommand(word, registry) : undefined;
         const result = await unknown({ raw: line, word, suggestion }, {
           session, surface: options.surface, origin: options.origin, signal, fs: fs(),
+          ...(options.github && { github: options.github }),
+          ...(options.live && { live: options.live }),
+          ...(options.skillEvidence && { skillEvidence: options.skillEvidence }),
         });
         if (signal.aborted) return { output: [], cancelled: true };
         session.lastStatus = result.status || 'ok';

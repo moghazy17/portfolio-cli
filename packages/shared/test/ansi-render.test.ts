@@ -70,6 +70,23 @@ describe('ANSI renderer', () => {
     expect(renderAnsi([])).toBe('');
   });
 
+  it('renders progress notes as twelve-cell bars and preserves plain percentages', () => {
+    const output: CommandOutput[] = [
+      { type: 'progress', label: 'Empty', value: 0, note: 'no public repos' },
+      { type: 'progress', label: 'Partial', value: 0.67, note: '4 repos' },
+      { type: 'progress', label: 'Full', value: 1, note: '6 repos' },
+      { type: 'progress', label: 'Zero', value: 0 },
+      { type: 'progress', label: 'Complete', value: 1 },
+    ];
+    const expected = 'Empty  ░░░░░░░░░░░░  no public repos\n'
+      + 'Partial  ████████░░░░  4 repos\n'
+      + 'Full  ████████████  6 repos\n'
+      + 'Zero  0%\n'
+      + 'Complete  100%\n';
+    expect(renderAnsi(output, { color: false })).toBe(expected);
+    expect(renderAnsi(output)).toBe(expected);
+  });
+
   it('uses truecolor styles and OSC 8 hyperlinks', () => {
     const output: CommandOutput[] = [
       { type: 'text', content: 'styled', style: { color: 'primary', bold: true, dim: true, italic: true } },

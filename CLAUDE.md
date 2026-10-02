@@ -152,5 +152,5 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-`specs/004-access-surfaces/plan.md` (Spec 004 — access surfaces: deep links and curl; SSH deferred)
+`specs/005-living-portfolio/plan.md` (Spec 005 — living portfolio: GUI mode, terminal motion, presence and guestbook)
 <!-- SPECKIT END -->

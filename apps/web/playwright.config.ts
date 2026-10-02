@@ -16,7 +16,7 @@ export default defineConfig({
     {
       name: 'chromium-reduced-motion',
       use: { ...devices['Desktop Chrome'], contextOptions: { reducedMotion: 'reduce' } },
-      testMatch: /motion\.spec\.ts|gui\.spec\.ts|discover\.spec\.ts/,
+      testMatch: /motion\.spec\.ts|gui\.spec\.ts|discover\.spec\.ts|command-bar\.spec\.ts/,
     },
   ],
   webServer: {

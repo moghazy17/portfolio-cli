@@ -107,7 +107,8 @@ test.describe('US1', () => {
     await input.fill('theme dracula');
     await input.press('Enter');
     await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--bg').trim())).toBe(themes.dracula.background);
-    await page.getByRole('button', { name: 'about', exact: true }).click();
+    await page.getByRole('button', { name: 'All commands' }).click();
+    await page.getByRole('dialog', { name: 'All commands' }).getByRole('button', { name: /about.*Professional summary/ }).click();
     await expect(page.getByText(`About ${cvData.name}`)).toBeVisible();
     await input.press('ArrowUp');
     await expect(input).toHaveValue('about');

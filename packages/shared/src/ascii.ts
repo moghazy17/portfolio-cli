@@ -17,5 +17,5 @@ export const ASCII_BANNER = `
 
 export const WELCOME_SUBTITLE = `${profile.label}  ·  ${profile.location}`;
 
-export const WELCOME_HINT =
-  'Type "help" for available commands, or use arrow keys to navigate the menu below.';
+export const WELCOME_HINT = 'Tap a suggestion, or just type a command or question.';
+export const WELCOME_SHORTCUT_HINT = 'Press ? for shortcuts.';

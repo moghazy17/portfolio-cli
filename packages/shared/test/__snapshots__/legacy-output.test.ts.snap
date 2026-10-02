@@ -266,7 +266,7 @@ exports[`legacy command output > snapshots banner 1`] = `
       "type": "divider",
     },
     {
-      "content": "Type "help" for available commands, or use arrow keys to navigate the menu below.",
+      "content": "Tap a suggestion, or just type a command or question.",
       "style": {
         "dim": true,
       },
@@ -1246,7 +1246,7 @@ exports[`legacy command output > snapshots home 1`] = `
       "type": "divider",
     },
     {
-      "content": "Type "help" for available commands, or use arrow keys to navigate the menu below.",
+      "content": "Tap a suggestion, or just type a command or question.",
       "style": {
         "dim": true,
       },
@@ -2574,7 +2574,7 @@ exports[`legacy command output > snapshots welcome 1`] = `
       "type": "divider",
     },
     {
-      "content": "Type "help" for available commands, or use arrow keys to navigate the menu below.",
+      "content": "Tap a suggestion, or just type a command or question.",
       "style": {
         "dim": true,
       },

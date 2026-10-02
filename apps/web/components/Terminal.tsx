@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { getMenuItems } from '@ahmed-moghazy/shared';
 import { hasSeenGui } from '../lib/view-cookie';
 import AssistantAnswer from './AssistantAnswer';
 import CommandLine from './CommandLine';
@@ -16,11 +15,9 @@ import { useIdle } from '../hooks/useIdle';
 import CrtFilter from './CrtFilter';
 import { usePresence } from '../hooks/usePresence';
 import { useKeyboardInset } from '../hooks/useKeyboardInset';
-import SuggestionBar from './SuggestionBar';
+import CommandBar from './CommandBar';
 
 const Screensaver = dynamic(() => import('./Screensaver'), { ssr: false });
-
-const menuItems = getMenuItems();
 
 export default function Terminal() {
   const presence = usePresence();
@@ -62,6 +59,7 @@ export default function Terminal() {
   // Prominent until either view has been used once; read after mount so the server markup matches.
   const [guiSeen, setGuiSeen] = useState(false);
   useEffect(() => setGuiSeen(hasSeenGui()), []);
+  const barReady = !running && !sequencePlaying && !tourPlaying && !booting && mode !== 'chat';
 
   return (
     <div
@@ -177,13 +175,7 @@ export default function Terminal() {
           <SequencePlayer steps={bootSteps} final={[]} theme={theme} skip={skip} onDone={skipBoot} />
           <div style={{ color: 'var(--dimmed)' }}>press any key to skip</div>
         </div>}
-        {showWelcome && !booting && (
-          <WelcomeScreen
-            showMenu={false}
-            menuItems={menuItems}
-            onMenuSelect={handleCommand}
-          />
-        )}
+        {showWelcome && !booting && <WelcomeScreen />}
 
         {history.map((entry, i) => (
           <div key={i} style={{ marginBottom: '16px' }}>
@@ -216,8 +208,8 @@ export default function Terminal() {
           <ChatRenderer onExit={exitChat} conversationRef={conversationRef} theme={theme} />
         ) : (
           <div>
-            {!running && !sequencePlaying && !tourPlaying && !booting && <SuggestionBar items={suggestions} onSelect={submitSuggestion} />}
             <CommandLine
+              visibleChipLines={barReady ? suggestions.map((item) => item.line) : []}
               prefill={prefill}
               onPrefillApplied={onPrefillApplied}
               onSubmit={handleCommand}
@@ -238,51 +230,7 @@ export default function Terminal() {
         )}
       </div>
 
-      {/* Always-visible menu bar */}
-      <div
-        className="menu-bar"
-        style={{
-          display: 'flex',
-          flexWrap: 'nowrap',
-          gap: '6px',
-          padding: '10px 16px',
-          borderTop: '1px solid var(--dimmed)',
-          background: 'rgba(255,255,255,0.03)',
-          borderRadius: '0 0 8px 8px',
-          overflowX: 'auto',
-        }}
-      >
-        {menuItems.map((item) => (
-          <button
-            key={item.value}
-            className="menu-btn"
-            onClick={(e) => { e.stopPropagation(); handleCommand(item.value); }}
-            style={{
-              background: 'transparent',
-              border: '1px solid var(--primary)',
-              color: 'var(--primary)',
-              padding: '5px 12px',
-              borderRadius: '4px',
-              fontFamily: 'inherit',
-              fontSize: '12px',
-              cursor: 'pointer',
-              transition: 'background-color 0.15s, color 0.15s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = 'var(--primary)';
-              e.currentTarget.style.color = 'var(--bg)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = 'var(--primary)';
-            }}
-          >
-            {item.value}
-          </button>
-        ))}
-      </div>
-
-      <div className="shortcut-hint">Press ? for shortcuts</div>
+      <CommandBar items={suggestions} ready={barReady} onSelect={submitSuggestion} />
 
       {idle && <Screensaver color={theme.primary} />}
 

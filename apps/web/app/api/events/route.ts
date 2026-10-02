@@ -7,7 +7,7 @@ import { recordSurfaceEvent } from '../../../lib/surface-stats';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-const allowed = new Set<SurfaceEventKind>(['suggestion_taps', 'tours_started', 'tours_completed', 'shortcut_sheet_opens']);
+const allowed = new Set<SurfaceEventKind>(['suggestion_taps', 'tours_started', 'tours_completed', 'shortcut_sheet_opens', 'command_sheet_opens']);
 const limiter = redis ? new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(30, '1 m'), prefix: 'rl:events' }) : null;
 
 export async function POST(request: Request): Promise<Response> {

@@ -49,7 +49,7 @@ test('question suggestion uses the assistant submission path', async ({ page }) 
   test.skip(reduced());
   const requests = await stubChat(page);
   await page.goto('/');
-  await page.getByRole('navigation', { name: 'Suggestions' }).getByRole('button', { name: /^Ask:/ }).click();
+  await page.getByRole('navigation', { name: 'Suggestions' }).getByRole('button', { name: /^Ask the assistant:/ }).click();
   await expect(page.locator('[role="log"]')).toContainText('RAG project answer.');
   expect(requests).toHaveLength(1);
   await expect(page).toHaveURL('/');
@@ -64,7 +64,7 @@ test('prompt example rotates, stays outside the input, and hides while typing', 
   await expect(input(page)).toHaveValue('');
   await expect(input(page)).not.toHaveAttribute('placeholder');
   await page.clock.fastForward(4_100);
-  await expect(example).toHaveText(reduced() ? initial! : 'try: skills llm');
+  await expect(example).toHaveText(reduced() ? initial! : 'try: neofetch');
   await input(page).fill('about');
   await expect(example).toHaveCount(0);
 });
@@ -144,7 +144,7 @@ test('shortcuts respect an empty prompt and pass axe', async ({ page }) => {
   await input(page).press('?');
   const dialog = page.getByRole('dialog', { name: 'Keyboard shortcuts' });
   await expect(dialog).toBeVisible();
-  const results = await new AxeBuilder({ page }).include('.suggestion-bar').include('.command-input-wrap').include('.shortcut-sheet').analyze();
+  const results = await new AxeBuilder({ page }).include('.command-bar').include('.command-input-wrap').include('.shortcut-sheet').analyze();
   expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''))).toEqual([]);
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);

@@ -152,6 +152,6 @@ type SkillEvidence = Record<string /* skill label as in content */, number /* re
 - Computed by `skillEvidence(snapshot, cvData.skills)` from the inventory snapshot (`inventory:v1`).
 - For each skill label: candidates = label without parenthetical, plus the parenthetical when it is an
   acronym (2–6 capitals); count = max over candidates of distinct repos returned by `lookupTech`.
-- Bar value = count / max(count over all skills); `0` shows an empty bar with note `no public repos`.
+- Bar value = count / max(count over all skills); skills with `0` get no bar and are listed plainly under their category; when nothing has evidence, the plain list is shown. Combined names ("HTML/CSS") are also looked up part by part.
 - Inventory missing or older than its stale limit: `skillEvidence` is not offered and `skills` shows
   the plain list.

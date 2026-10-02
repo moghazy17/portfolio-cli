@@ -26,7 +26,7 @@ New and changed commands in `packages/shared/src/commands/`. All return structur
 ## `skills [category]` (changed)
 
 - When `ctx.skillEvidence` is provided and resolves: per category, a section whose children are
-  `progress` nodes, one per skill: `{ label, value, note: 'N repos' | '1 repo' | 'no public repos', reveal: true }`,
+  `progress` nodes, one per skill with at least one repo: `{ label, value, note: 'N repos' | '1 repo', reveal: true }` followed by a plain `list` of the category's skills without evidence (no bar, no note); no evidence at all → plain list,
   labels padded to align. A dim footer line: `Bars: public GitHub repos using each skill (nightly).`
 - When `ctx.skillEvidence` is absent, rejects, or times out (2 s): exactly today's list output.
 - Category filter and error message unchanged.

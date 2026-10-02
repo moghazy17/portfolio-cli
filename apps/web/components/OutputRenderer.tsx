@@ -199,24 +199,32 @@ export default function OutputRenderer({ output, theme, reveal = false }: Props)
       case 'error':
         return <div key={index} style={{ color: theme.error }}>{block.content}</div>;
 
-      case 'progress':
+      case 'progress': {
+        const linkedNote = Boolean(animated && block.url && block.note);
+        const bar = <>{block.label} <span className={animated && block.reveal && !reduced ? 'skill-fill' : undefined}
+          style={{ display: 'inline-block', width: `${Math.round(block.value * 20)}ch`, overflow: 'hidden', verticalAlign: 'bottom' }}>
+          {'█'.repeat(Math.round(block.value * 20))}
+        </span>{'░'.repeat(20 - Math.round(block.value * 20))}</>;
         return (
-          <div
-            key={index}
-            role="progressbar"
-            aria-valuenow={Math.round(block.value * 100)}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label={block.label}
-            aria-valuetext={block.note}
-            style={{ whiteSpace: 'pre', fontFamily: 'var(--font-mono)' }}
-          >
-            {block.label} <span className={animated && block.reveal && !reduced ? 'skill-fill' : undefined}
-              style={{ display: 'inline-block', width: `${Math.round(block.value * 20)}ch`, overflow: 'hidden', verticalAlign: 'bottom' }}>
-              {'█'.repeat(Math.round(block.value * 20))}
-            </span>{'░'.repeat(20 - Math.round(block.value * 20))} {block.note ?? `${Math.round(block.value * 100)}%`}
+          <div key={index} role={linkedNote ? undefined : 'progressbar'}
+            aria-valuenow={linkedNote ? undefined : Math.round(block.value * 100)}
+            aria-valuemin={linkedNote ? undefined : 0} aria-valuemax={linkedNote ? undefined : 100}
+            aria-label={linkedNote ? undefined : block.label.trim()}
+            aria-valuetext={linkedNote ? undefined : block.note}
+            style={{ whiteSpace: 'pre', fontFamily: 'var(--font-mono)' }}>
+            {linkedNote ? <span role="progressbar" aria-valuenow={Math.round(block.value * 100)}
+              aria-valuemin={0} aria-valuemax={100} aria-label={block.label.trim()} aria-valuetext={block.note}>
+              {bar}
+            </span> : bar} {linkedNote ? (
+              <a className="skill-repo-link" href={block.url} target="_blank" rel="noopener noreferrer"
+                aria-label={`${block.note} using ${block.label.trim()} on GitHub`}
+                style={{ color: theme.primary, textDecoration: 'underline' }}>
+                {block.note}
+              </a>
+            ) : block.note ?? `${Math.round(block.value * 100)}%`}
           </div>
         );
+      }
 
       case 'lines':
         return (

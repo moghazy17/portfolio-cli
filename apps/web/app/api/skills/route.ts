@@ -1,6 +1,6 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { cvData, rateLimitedResponse } from '@ahmed-moghazy/shared';
-import { resolveVisitorIp, skillEvidence, STALE_AFTER_MS } from '@ahmed-moghazy/shared/assistant-server';
+import { resolveVisitorIp, skillEvidenceWithRepos, STALE_AFTER_MS } from '@ahmed-moghazy/shared/assistant-server';
 import { getInventory } from '../../../lib/inventory-store';
 import { redis } from '../../../lib/redis';
 
@@ -18,7 +18,7 @@ export async function GET(request: Request): Promise<Response> {
   if (!snapshot || !Number.isFinite(Date.parse(snapshot.generatedAt)) || Date.now() - Date.parse(snapshot.generatedAt) > STALE_AFTER_MS) {
     return Response.json({ error: 'no_inventory' }, { status: 404 });
   }
-  return Response.json({ evidence: skillEvidence(snapshot, cvData.skills), generatedAt: snapshot.generatedAt }, {
+  return Response.json({ ...skillEvidenceWithRepos(snapshot, cvData.skills), generatedAt: snapshot.generatedAt }, {
     headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400' },
   });
 }

@@ -1,4 +1,4 @@
-import type { GuestbookEntry, LiveServices, PresenceCount, SkillEvidence } from '@ahmed-moghazy/shared';
+import type { GuestbookEntry, LiveServices, PresenceCount, SkillEvidenceDetails } from '@ahmed-moghazy/shared';
 
 export const liveServices: LiveServices = {
   async presence(signal: AbortSignal): Promise<PresenceCount> {
@@ -14,9 +14,9 @@ export const liveServices: LiveServices = {
   },
 };
 
-export async function fetchSkillEvidence(signal: AbortSignal): Promise<SkillEvidence> {
+export async function fetchSkillEvidence(signal: AbortSignal): Promise<SkillEvidenceDetails> {
   const response = await fetch('/api/skills', { signal });
   if (!response.ok) throw new Error(`Skill evidence unavailable (${response.status})`);
-  const data = await response.json() as { evidence: SkillEvidence };
-  return data.evidence;
+  const data = await response.json() as Partial<SkillEvidenceDetails>;
+  return { evidence: data.evidence ?? {}, repos: data.repos ?? {} };
 }

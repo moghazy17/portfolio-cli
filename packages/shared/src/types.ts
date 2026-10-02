@@ -134,6 +134,7 @@ export interface ProgressOutput {
   label: string;
   value: number;
   note?: string;
+  url?: string;
   reveal?: boolean;
 }
 
@@ -184,6 +185,10 @@ export type SignResult =
   | { ok: false; reason: SignReason; message: string };
 
 export type SkillEvidence = Record<string, number>;
+export interface SkillEvidenceDetails {
+  evidence: SkillEvidence;
+  repos: Record<string, string[]>;
+}
 
 export interface LiveServices {
   presence(signal: AbortSignal): Promise<PresenceCount>;
@@ -242,7 +247,7 @@ export interface CommandContext {
   fs: FileSystem;
   github?: (signal: AbortSignal) => Promise<GitHubStats>;
   live?: LiveServices;
-  skillEvidence?: (signal: AbortSignal) => Promise<SkillEvidence>;
+  skillEvidence?: (signal: AbortSignal) => Promise<SkillEvidenceDetails>;
   stdin?: Line[];
 }
 

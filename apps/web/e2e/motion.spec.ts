@@ -43,7 +43,11 @@ test.describe('terminal motion', () => {
   test('glitch skips, CRT persists, and skill bars show evidence', async ({ page }) => {
     test.skip(test.info().project.name.includes('reduced'));
     await page.addInitScript(() => localStorage.setItem('boot:v1', '1'));
-    await page.route('**/api/skills', async (route) => route.fulfill({ json: { evidence: { 'Python (Advanced)': 4 }, generatedAt: new Date().toISOString() } }));
+    await page.route('**/api/skills', async (route) => route.fulfill({ json: {
+      evidence: { 'Python (Advanced)': 4 },
+      repos: { 'Python (Advanced)': ['alpha', 'beta', 'gamma', 'delta'] },
+      generatedAt: new Date().toISOString(),
+    } }));
     await page.goto('/');
     await expect(page.locator('.ascii-banner.glitch-reveal')).toBeVisible();
     await page.keyboard.press('x');
@@ -56,6 +60,10 @@ test.describe('terminal motion', () => {
     await input(page).fill('skills');
     await input(page).press('Enter');
     await expect(page.locator('[role="progressbar"][aria-valuetext]').first()).toBeVisible();
+    const repoLink = page.getByRole('link', { name: '4 repos using Python (Advanced) on GitHub' });
+    await expect(repoLink).toHaveAttribute('href', 'https://github.com/search?type=repositories&q=repo%3Amoghazy17%2Falpha%20repo%3Amoghazy17%2Fbeta%20repo%3Amoghazy17%2Fgamma%20repo%3Amoghazy17%2Fdelta');
+    await expect(repoLink).toHaveAttribute('target', '_blank');
+    await expect(repoLink).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
   test('screensaver dismisses with typing and Enter only dismisses', async ({ page }) => {

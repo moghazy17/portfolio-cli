@@ -4,7 +4,7 @@ import { validateAssistantCommandLine } from '../allowlist';
 import { commandRegistry } from '../../commands/registry';
 import { createShell } from '../../shell/shell';
 import { toLines } from '../../shell/lines';
-import type { CommandOutput, LiveServices, ShellResult, SkillEvidence } from '../../types';
+import type { CommandOutput, LiveServices, ShellResult, SkillEvidenceDetails } from '../../types';
 import { isExcludedRepo } from '../../exclusion';
 import { listRepos, lookupTech } from '../../inventory/lookup';
 import type { InventorySnapshot } from '../../inventory/types';
@@ -22,7 +22,7 @@ export interface AssistantDeps {
   inventory(): Promise<InventorySnapshot | null>;
   live?: AssistantLive;
   /** Data the read-only commands need (`who`, `guestbook`, skill bars), as the hosts provide it. */
-  commandServices?: { live?: LiveServices; skillEvidence?: (signal: AbortSignal) => Promise<SkillEvidence> };
+  commandServices?: { live?: LiveServices; skillEvidence?: (signal: AbortSignal) => Promise<SkillEvidenceDetails> };
   surface?: 'web' | 'ssh';
   origin?: string;
   signal?: AbortSignal;

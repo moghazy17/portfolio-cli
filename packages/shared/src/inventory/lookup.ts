@@ -14,7 +14,9 @@ export interface LookupResult {
   matchedTechs?: { id: string; label: string; evidence: Pick<EvidenceItem, 'repo' | 'file' | 'lastActivity' | 'kind'>[] }[];
 }
 
-export function lookupTech(snapshot: InventorySnapshot, query: string, now = new Date()): LookupResult {
+export interface LookupResultWithRepos extends LookupResult { repos: string[] }
+
+export function lookupTechWithRepos(snapshot: InventorySnapshot, query: string, now = new Date()): LookupResultWithRepos {
   const q = query.trim().toLowerCase();
   const techs = Object.values(snapshot.techs);
   let via: LookupResult['matchedVia'] = null;
@@ -50,13 +52,19 @@ export function lookupTech(snapshot: InventorySnapshot, query: string, now = new
   const readmeOnly = evidence.length ? [] : (snapshot.readmeMentions[readmeId] ?? matches.flatMap((tech) => snapshot.readmeMentions[tech.id] ?? []))
     .sort((a, b) => b.lastActivity.localeCompare(a.lastActivity)).slice(0, 3);
   const slim = (item: EvidenceItem) => ({ repo: item.repo, file: item.file, lastActivity: item.lastActivity, kind: item.kind });
+  const repos = [...new Set(evidence.map((item) => item.repo))];
   return {
     query, matchedTech: matches[0] ? { id: matches[0].id, label: matches[0].label } : null, matchedVia: via,
-    evidence: evidence.slice(0, 3).map(slim), totalRepos: new Set(evidence.map((item) => item.repo)).size,
+    evidence: evidence.slice(0, 3).map(slim), totalRepos: repos.length, repos,
     readmeOnly, inventoryGeneratedAt: snapshot.generatedAt,
     stale: now.getTime() - new Date(snapshot.generatedAt).getTime() > STALE_AFTER_MS,
     ...(matches.length > 1 ? { matchedTechs: matches.slice(0, 3).map((tech) => ({ id: tech.id, label: tech.label, evidence: tech.evidence.slice(0, 3).map(slim) })) } : {}),
   };
+}
+
+export function lookupTech(snapshot: InventorySnapshot, query: string, now = new Date()): LookupResult {
+  const { repos: _repos, ...result } = lookupTechWithRepos(snapshot, query, now);
+  return result;
 }
 
 export function listRepos(snapshot: InventorySnapshot, filters: {

@@ -1,5 +1,5 @@
 import type {
-  CommandContext, CommandDefinition, CommandResult, Line, LiveServices, ShellResult, ShellSession, SkillEvidence, Surface,
+  CommandContext, CommandDefinition, CommandResult, Line, LiveServices, ShellResult, ShellSession, SkillEvidenceDetails, Surface,
   UnknownCommandHandler, VfsPath,
 } from '../types';
 import { commandRegistry } from '../commands/registry';
@@ -22,7 +22,7 @@ export interface ShellOptions {
   registry?: CommandDefinition[];
   github?: (signal: AbortSignal) => Promise<GitHubStats>;
   live?: LiveServices;
-  skillEvidence?: (signal: AbortSignal) => Promise<SkillEvidence>;
+  skillEvidence?: (signal: AbortSignal) => Promise<SkillEvidenceDetails>;
 }
 
 export interface Shell {

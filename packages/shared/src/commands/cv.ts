@@ -1,4 +1,5 @@
-import type { CommandContext, CommandResult, SectionOutput, SkillEvidence } from '../types';
+import type { CommandContext, CommandResult, SectionOutput, SkillEvidenceDetails } from '../types';
+import { githubRepoSearchUrl } from '../github';
 import { content, cvData, itemIds } from '../content';
 import type { Content } from '../content/schema';
 import { toCVData } from '../content/view';
@@ -178,9 +179,9 @@ export async function skillsCommand(args: string[], ctx?: CommandContext): Promi
   };
   if (!ctx?.skillEvidence) return plain;
   let timer: ReturnType<typeof setTimeout> | undefined;
-  let evidence: SkillEvidence | null = null;
+  let details: SkillEvidenceDetails | null = null;
   try {
-    evidence = await Promise.race([
+    details = await Promise.race([
       ctx.skillEvidence(ctx.signal),
       new Promise<null>((resolve) => { timer = setTimeout(() => resolve(null), 2000); }),
     ]);
@@ -189,7 +190,8 @@ export async function skillsCommand(args: string[], ctx?: CommandContext): Promi
   } finally {
     if (timer) clearTimeout(timer);
   }
-  if (!evidence) return plain;
+  if (!details) return plain;
+  const { evidence, repos } = details;
   // Skills with public evidence get a bar; the rest stay listed without one, so nothing from the CV
   // disappears and nothing shows an empty bar. With no evidence at all the plain list is shown.
   const proven = (label: string) => (evidence[label] ?? 0) > 0;
@@ -206,8 +208,10 @@ export async function skillsCommand(args: string[], ctx?: CommandContext): Promi
         children: [
           ...withBars.map((label) => {
             const count = evidence[label];
+            const matchingRepos = repos[label] ?? [];
             return { type: 'progress' as const, label: label.padEnd(width),
-              value: count / max, note: `${count} ${count === 1 ? 'repo' : 'repos'}`, reveal: true };
+              value: count / max, note: `${count} ${count === 1 ? 'repo' : 'repos'}`,
+              ...(matchingRepos.length === count && { url: githubRepoSearchUrl(matchingRepos) }), reveal: true };
           }),
           ...(without.length ? [{ type: 'list' as const, items: without }] : []),
         ],

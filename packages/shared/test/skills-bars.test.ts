@@ -12,11 +12,13 @@ describe('skills evidence bars', () => {
     const evidence = Object.fromEntries(labels.map((label) => [label, 0]));
     evidence[labels[0]] = 6;
     evidence[labels[1]] = 1;
-    const shell = createShell({ ...options, skillEvidence: async () => evidence });
+    const repos = { [labels[0]]: ['a', 'b', 'c', 'd', 'e', 'f'], [labels[1]]: ['g'] };
+    const shell = createShell({ ...options, skillEvidence: async () => ({ evidence, repos }) });
     const result = await shell.run('skills');
     const progress = result.output.flatMap((node) => node.type === 'section' ? node.children : []).filter((node) => node.type === 'progress');
     expect(progress).toHaveLength(2);
-    expect(progress[0]).toMatchObject({ type: 'progress', value: 1, note: '6 repos', reveal: true });
+    expect(progress[0]).toMatchObject({ type: 'progress', value: 1, note: '6 repos', reveal: true,
+      url: 'https://github.com/search?type=repositories&q=repo%3Amoghazy17%2Fa%20repo%3Amoghazy17%2Fb%20repo%3Amoghazy17%2Fc%20repo%3Amoghazy17%2Fd%20repo%3Amoghazy17%2Fe%20repo%3Amoghazy17%2Ff' });
     expect(progress[1]).toMatchObject({ type: 'progress', value: 1 / 6, note: '1 repo', reveal: true });
     expect(progress.some((node) => node.type === 'progress' && node.label.trim() === labels[2])).toBe(false);
     // Skills without evidence are still listed, just without a bar.
@@ -26,13 +28,14 @@ describe('skills evidence bars', () => {
     expect(listed).toHaveLength(labels.length - 2);
     expect(result.output.filter((node) => node.type === 'section')).toHaveLength(cvData.skills.length);
     expect(toLines(result.output).at(-1)?.text).toBe('Bars: public GitHub repos using each skill (nightly).');
+    expect(toLines(result.output).some((line) => line.text.includes('github.com/search'))).toBe(false);
     const piped = await shell.run(`skills | grep -i ${labels[0].split(' ')[0]}`);
     expect(toLines(piped.output).some((line) => line.text.includes('6 repos'))).toBe(true);
   });
 
   it('preserves the plain list without evidence or when it fails', async () => {
     const plain = await createShell(options).run('skills');
-    const none = await createShell({ ...options, skillEvidence: async () => ({}) }).run('skills');
+    const none = await createShell({ ...options, skillEvidence: async () => ({ evidence: {}, repos: {} }) }).run('skills');
     expect(none.output).toEqual(plain.output);
     const rejected = await createShell({ ...options, skillEvidence: async () => { throw new Error('offline'); } }).run('skills');
     expect(rejected.output).toEqual(plain.output);

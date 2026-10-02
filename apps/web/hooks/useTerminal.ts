@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ASSISTANT_ERROR_MESSAGE, askAssistant, createAssistantUnknownHandler, createShell, formatSourcesLine, MAX_LINK_LENGTH,
-  bootSequence, guestbookEntryOutput, parseAddress, shouldType, SIGN_MESSAGES, themes, toAddress, welcomeCommand,
+  bootSequence, commandRegistry, guestbookEntryOutput, parseAddress, shouldType, SIGN_MESSAGES, suggestionsFor, themes, toAddress, welcomeCommand,
 } from '@ahmed-moghazy/shared';
 import type {
   AssistantEvent, AssistantTurn, CommandOutput, Completion, HistoryEntry, NoticeKind, SequenceStep, SignResult,
@@ -14,6 +14,8 @@ import { useThemeApplier } from './useThemeApplier';
 import { useReducedMotion } from './useReducedMotion';
 import { fetchSkillEvidence, liveServices } from '../lib/live-services';
 import { getTurnstileToken } from '../lib/turnstile-client';
+import { useTour } from './useTour';
+import { recordClientEvent } from '../lib/client-events';
 
 export type TerminalMode = 'command' | 'chat';
 
@@ -96,6 +98,9 @@ export function useTerminal() {
   const [running, setRunning] = useState(false);
   const [skip, setSkip] = useState(0);
   const [sequencePlaying, setSequencePlaying] = useState(false);
+  const [firstVisit, setFirstVisit] = useState(true);
+  const [lastCommand, setLastCommand] = useState<string>();
+  const [linkTour, setLinkTour] = useState(false);
   const [prefill, setPrefill] = useState<{ text: string; nonce: number } | null>(null);
   const activeSequenceRef = useRef<number | null>(null);
   const sequenceIdRef = useRef(0);
@@ -110,6 +115,11 @@ export function useTerminal() {
   const { push, up, down, reset } = useHistory();
   const { theme, setTheme } = useThemeApplier();
   const reducedMotion = useReducedMotion();
+  const { playing: tourPlaying, typed: tourText, finished: tourFinished, start: startTour, stop: stopTour, dismissFinished } = useTour();
+
+  useEffect(() => {
+    try { setFirstVisit(window.localStorage.getItem('discover:visited') !== '1'); } catch { /* Storage is optional. */ }
+  }, []);
 
   const skipBoot = useCallback(() => setBooting(false), []);
 
@@ -254,8 +264,11 @@ export function useTerminal() {
     if (askingRef.current === id) askingRef.current = null;
   }, [updateAssistant]);
 
-  const handleCommand = useCallback(async (input: string, opts: { origin?: 'typed' | 'link' } = {}) => {
+  const handleCommand = useCallback(async (input: string, opts: { origin?: 'typed' | 'link' | 'tour' } = {}) => {
     const isLink = opts.origin === 'link';
+    const isTour = opts.origin === 'tour';
+    if (!isTour) dismissFinished();
+    if (!isTour && tourPlaying) stopTour();
     skipBoot();
     setHistory((previous) => previous.map((entry) => entry.reveal ? { ...entry, reveal: false } : entry));
     skipSequence();
@@ -267,7 +280,12 @@ export function useTerminal() {
     if (!isLink) setShowWelcome(false);
     const shell = getShell();
     const cwdBefore = shell.session.cwd;
-    if (!isLink) push(input);
+    if (!isLink && !isTour) {
+      setFirstVisit(false);
+      try { window.localStorage.setItem('discover:visited', '1'); } catch { /* Storage is optional. */ }
+    }
+    // Tour steps are a demonstration: they never enter the visitor's history or the address bar.
+    if (!isLink && !isTour) push(input);
     const result = await shell.run(input, { signal: controller.signal });
     if (controllerRef.current === controller) {
       controllerRef.current = null;
@@ -276,6 +294,10 @@ export function useTerminal() {
     // A cancelled chain may already have changed directory.
     setPrompt(currentPrompt());
     if (controller.signal.aborted || result.cancelled) return;
+
+    const commandName = commandRegistry.find((entry) => entry.name === input.trim().split(/\s+/)[0] || entry.aliases.includes(input.trim().split(/\s+/)[0]))?.name;
+    setLastCommand(commandName);
+    setLinkTour(isLink && commandName === 'tour');
 
     if (isLink && result.ask) {
       setPrefill({ text: input, nonce: Date.now() });
@@ -307,9 +329,9 @@ export function useTerminal() {
       setHistory([]);
       if (isLink) setShowWelcome(false);
     }
-    if (result.theme && themes[result.theme]) setTheme(themes[result.theme], !isLink);
-    if (!isLink && result.openUrl) window.open(result.openUrl, '_blank', 'noopener,noreferrer');
-    if (!isLink && result.download) {
+    if (result.theme && themes[result.theme]) setTheme(themes[result.theme], !isLink && !isTour);
+    if (!isLink && !isTour && result.openUrl) window.open(result.openUrl, '_blank', 'noopener,noreferrer');
+    if (!isLink && !isTour && result.download) {
       let link: HTMLAnchorElement | null = null;
       try {
         link = document.createElement('a');
@@ -334,11 +356,11 @@ export function useTerminal() {
       output = [{ type: 'text', content: 'To sign, type this command in the web terminal.', style: { dim: true } }];
     }
     const resetWithoutOutput = (result.welcome || result.clear) && !output.length && !result.sequence;
-    if (mode === 'command' && !result.view) {
+    if (mode === 'command' && !result.view && !isTour) {
       syncAddress(resetWithoutOutput ? '' : input, cwdBefore);
     }
     if (resetWithoutOutput) {
-      if (result.mode === 'chat') setMode('chat');
+      if (result.mode === 'chat' && !isTour) setMode('chat');
       return;
     }
     const sequenceId = result.sequence ? ++sequenceIdRef.current : undefined;
@@ -351,7 +373,7 @@ export function useTerminal() {
       reveal: !isLink && !result.ask && !result.sequence && !/[|]/.test(input) && !reducedMotion && shouldType(output),
       sequence: result.sequence, sequenceId,
     }]);
-    if (result.sign && !isLink) {
+    if (result.sign && !isLink && !isTour) {
       setRunning(true);
       controllerRef.current = controller;
       try {
@@ -375,14 +397,29 @@ export function useTerminal() {
         }
       }
     }
-    if (result.mode === 'chat') setMode('chat');
+    if (result.mode === 'chat' && !isTour) setMode('chat');
     // Unlike openUrl and download, switching views only changes what is displayed, so links may do it.
-    if (result.view === 'gui') {
+    if (result.view === 'gui' && !isTour) {
       setViewCookie('gui');
       markGuiSeen();
       router.push('/gui');
     }
-  }, [currentPrompt, getShell, mode, push, router, runAssistant, setTheme, skipSequence, skipBoot, syncAddress, reducedMotion]);
+    if (result.tour && !isLink && !isTour) {
+      const startingTheme = theme;
+      void startTour(result.tour, {
+        reducedMotion,
+        run: (line) => handleCommand(line, { origin: 'tour' }),
+        cancel: () => { controllerRef.current?.abort(); controllerRef.current = null; setRunning(false); },
+        restoreTheme: () => setTheme(startingTheme, false),
+      });
+    }
+  }, [currentPrompt, getShell, mode, push, router, runAssistant, setTheme, skipSequence, skipBoot, syncAddress, reducedMotion, theme, startTour, stopTour, tourPlaying, dismissFinished]);
+
+  const suggestions = suggestionsFor({ firstVisit: firstVisit || linkTour, lastCommand: linkTour ? undefined : lastCommand, surface: 'web' });
+  const submitSuggestion = useCallback((line: string) => {
+    recordClientEvent('suggestion_taps');
+    void handleCommand(line);
+  }, [handleCommand]);
 
   useEffect(() => {
     if (ranLinkRef.current) return;
@@ -463,9 +500,9 @@ export function useTerminal() {
   }, []);
 
   return {
-    history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat, conversationRef, prefill, onPrefillApplied,
+    history, showWelcome, theme, scrollRef, handleCommand, submitSuggestion, suggestions, mode, exitChat, conversationRef, prefill, onPrefillApplied,
     booting, bootSteps: BOOT_STEPS, skipBoot, reducedMotion,
-    prompt, running, skip, sequencePlaying, finishSequence,
+    prompt, running, skip, sequencePlaying, finishSequence, tourPlaying, tourText, tourFinished,
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp: up, historyDown: down, resetHistoryCursor: reset,
   };

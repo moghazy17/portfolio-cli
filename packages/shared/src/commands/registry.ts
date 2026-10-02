@@ -16,6 +16,7 @@ import {
   welcomeCommand,
   whoamiCommand,
   guiCommand,
+  tourCommand,
 } from './utility';
 import { githubCommand } from './github';
 import {
@@ -233,6 +234,12 @@ export const commandRegistry: CommandDefinition[] = [
       examples: ['gui', 'startx'],
     },
     execute: guiCommand,
+  },
+  {
+    name: 'tour', description: 'Take a guided tour of the terminal', usage: 'tour', aliases: [],
+    surfaces: ['web', 'curl'],
+    man: { description: 'Play a skippable guided tour in the web terminal. On text clients, show where to start it.', examples: ['tour'] },
+    execute: tourCommand,
   },
   {
     name: 'who', assistant: true, bareOnly: true, description: 'Show people exploring now', usage: 'who', aliases: [],

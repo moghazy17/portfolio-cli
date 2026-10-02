@@ -3,6 +3,7 @@ import { cvData, profile } from '../content';
 import { themes, DEFAULT_THEME } from '../theme';
 import { ASCII_BANNER, WELCOME_SUBTITLE, WELCOME_HINT } from '../ascii';
 import { parseTimelineDate } from './helpers';
+import { tourSteps } from '../discover/tour';
 
 export const openTargets: Record<string, string> = {
   github: cvData.contact.github,
@@ -150,4 +151,9 @@ export function whoamiCommand(): CommandResult {
       },
     ],
   };
+}
+
+export function tourCommand(ctx: CommandContext): CommandResult {
+  if (ctx.surface !== 'web') return { output: [{ type: 'text', content: `The tour plays in the web terminal: ${ctx.origin}/tour` }] };
+  return { output: [{ type: 'text', content: 'Starting the tour…', style: { dim: true } }], tour: tourSteps() };
 }

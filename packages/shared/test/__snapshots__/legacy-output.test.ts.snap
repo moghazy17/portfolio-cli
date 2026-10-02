@@ -81,6 +81,10 @@ exports[`legacy command output > snapshots ? 1`] = `
           "Switch to the regular page",
         ],
         [
+          "tour",
+          "Take a guided tour of the terminal",
+        ],
+        [
           "who",
           "Show people exploring now",
         ],
@@ -1026,6 +1030,10 @@ exports[`legacy command output > snapshots h 1`] = `
           "Switch to the regular page",
         ],
         [
+          "tour",
+          "Take a guided tour of the terminal",
+        ],
+        [
           "who",
           "Show people exploring now",
         ],
@@ -1148,6 +1156,10 @@ exports[`legacy command output > snapshots help 1`] = `
         [
           "gui",
           "Switch to the regular page",
+        ],
+        [
+          "tour",
+          "Take a guided tour of the terminal",
         ],
         [
           "who",

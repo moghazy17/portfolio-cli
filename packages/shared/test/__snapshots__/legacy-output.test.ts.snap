@@ -77,6 +77,10 @@ exports[`legacy command output > snapshots ? 1`] = `
           "Chat with AI about Ahmed",
         ],
         [
+          "gui",
+          "Switch to the regular page",
+        ],
+        [
           "clear",
           "Clear the terminal",
         ],
@@ -1006,6 +1010,10 @@ exports[`legacy command output > snapshots h 1`] = `
           "Chat with AI about Ahmed",
         ],
         [
+          "gui",
+          "Switch to the regular page",
+        ],
+        [
           "clear",
           "Clear the terminal",
         ],
@@ -1112,6 +1120,10 @@ exports[`legacy command output > snapshots help 1`] = `
         [
           "chat",
           "Chat with AI about Ahmed",
+        ],
+        [
+          "gui",
+          "Switch to the regular page",
         ],
         [
           "clear",
@@ -1277,6 +1289,10 @@ exports[`legacy command output > snapshots menu items 1`] = `
   {
     "label": "chat             Chat with AI about Ahmed",
     "value": "chat",
+  },
+  {
+    "label": "gui              Switch to the regular page",
+    "value": "gui",
   },
 ]
 `;

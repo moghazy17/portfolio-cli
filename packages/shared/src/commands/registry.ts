@@ -15,6 +15,7 @@ import {
   themeCommand,
   welcomeCommand,
   whoamiCommand,
+  guiCommand,
 } from './utility';
 import { githubCommand } from './github';
 import {
@@ -218,6 +219,19 @@ export const commandRegistry: CommandDefinition[] = [
     menu: true,
     man: { description: `Start a conversation about ${profile.firstName}'s portfolio.`, examples: ['chat', 'ask'] },
     execute: () => chatCommand(),
+  },
+  {
+    name: 'gui',
+    description: 'Switch to the regular page',
+    usage: 'gui',
+    aliases: ['startx'],
+    surfaces: ['web', 'curl'],
+    menu: true,
+    man: {
+      description: 'Open the regular page: the same content in a conventional layout, no typing needed. startx — the classic way to start a desktop — does the same. On text clients it prints the page address.',
+      examples: ['gui', 'startx'],
+    },
+    execute: guiCommand,
   },
   {
     name: 'clear',

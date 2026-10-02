@@ -119,6 +119,51 @@ body {
   }
 }
 
+.gui-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  background: var(--accent);
+  color: var(--bg);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.gui-button-seen {
+  background: transparent;
+  color: var(--accent);
+  font-weight: normal;
+}
+
+.gui-button:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+@media (max-width: 768px) {
+  .gui-button {
+    min-height: 44px;
+    padding: 8px 14px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chrome-prompt {
+    display: none;
+  }
+
+  .gui-button {
+    margin-left: auto;
+  }
+}
+
 .assistant-thinking {
   animation: assistant-pulse 1.2s ease-in-out infinite;
 }

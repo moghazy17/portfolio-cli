@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   ASSISTANT_ERROR_MESSAGE, askAssistant, createAssistantUnknownHandler, createShell, formatSourcesLine, MAX_LINK_LENGTH,
   bootSequence, parseAddress, shouldType, themes, toAddress, welcomeCommand,
@@ -6,6 +7,8 @@ import {
 import type {
   AssistantEvent, AssistantTurn, CommandOutput, Completion, HistoryEntry, NoticeKind, SequenceStep,
 } from '@ahmed-moghazy/shared';
+import { peekSnapshot, saveSnapshot, takeSnapshot } from '../lib/terminal-snapshot';
+import { markGuiSeen, setViewCookie } from '../lib/view-cookie';
 import { useHistory } from './useHistory';
 import { useThemeApplier } from './useThemeApplier';
 import { useReducedMotion } from './useReducedMotion';
@@ -23,7 +26,7 @@ export interface AssistantEntryState {
     | { kind: 'notice'; notice: NoticeKind; message: string }>;
 }
 
-interface TerminalEntry extends HistoryEntry {
+export interface TerminalEntry extends HistoryEntry {
   reveal?: boolean;
   sequence?: SequenceStep[];
   sequenceDone?: boolean;
@@ -68,13 +71,27 @@ function answerText(state: AssistantEntryState): string {
   return state.parts.flatMap((part) => (part.kind === 'text' ? [part.text] : [])).join('').trim();
 }
 
+// A restored log must not replay a sequence or show an answer that is still streaming.
+function settleEntry(entry: TerminalEntry): TerminalEntry {
+  const shown = entry.reveal ? { ...entry, reveal: false } : entry;
+  const settled = shown.sequence && !shown.sequenceDone ? { ...shown, sequenceDone: true } : shown;
+  const { assistant } = settled;
+  return assistant && assistant.status !== 'done' && assistant.status !== 'cancelled'
+    ? { ...settled, assistant: { ...assistant, status: 'cancelled' } }
+    : settled;
+}
+
 export function useTerminal() {
-  const [history, setHistory] = useState<TerminalEntry[]>([]);
-  const [showWelcome, setShowWelcome] = useState(true);
+  const router = useRouter();
+  const restoredRef = useRef(peekSnapshot());
+  const [history, setHistory] = useState<TerminalEntry[]>(() => restoredRef.current?.history ?? []);
+  const [showWelcome, setShowWelcome] = useState(!restoredRef.current);
   const initialWelcomeRef = useRef(showWelcome);
   const [booting, setBooting] = useState(false);
   const [mode, setMode] = useState<TerminalMode>('command');
-  const [prompt, setPrompt] = useState('visitor@portfolio:~$');
+  const [prompt, setPrompt] = useState(restoredRef.current?.prompt ?? 'visitor@portfolio:~$');
+  const latestRef = useRef({ history, showWelcome, prompt });
+  latestRef.current = { history, showWelcome, prompt };
   const [running, setRunning] = useState(false);
   const [skip, setSkip] = useState(0);
   const [sequencePlaying, setSequencePlaying] = useState(false);
@@ -125,6 +142,7 @@ export function useTerminal() {
       shellRef.current = createShell({
         surface: 'web', origin: window.location.origin, onUnknownCommand: createAssistantUnknownHandler(),
         skillEvidence: fetchSkillEvidence,
+        ...(restoredRef.current && { initialCwd: restoredRef.current.cwd }),
       });
     }
     return shellRef.current;
@@ -145,6 +163,20 @@ export function useTerminal() {
 
   useEffect(() => () => {
     if (addressTimerRef.current !== null) clearTimeout(addressTimerRef.current);
+  }, []);
+
+  // The restored log is in state now; leaving it in the store would resurrect it on a later mount.
+  useEffect(() => {
+    takeSnapshot();
+  }, []);
+
+  // Keep the log and directory for the way back from the regular page. A terminal that was never
+  // used has nothing worth keeping, and returning to it should show the welcome as usual.
+  useEffect(() => () => {
+    const { history: log, showWelcome: welcome, prompt: shownPrompt } = latestRef.current;
+    if (!log.length && welcome) return;
+    controllerRef.current?.abort();
+    saveSnapshot({ history: log.map(settleEntry), cwd: shellRef.current?.session.cwd ?? '/', prompt: shownPrompt });
   }, []);
 
   const syncAddress = useCallback((line: string, cwdBefore: string) => {
@@ -297,7 +329,7 @@ export function useTerminal() {
       }];
     }
     const resetWithoutOutput = (result.welcome || result.clear) && !output.length && !result.sequence;
-    if (mode === 'command') {
+    if (mode === 'command' && !result.view) {
       syncAddress(resetWithoutOutput ? '' : input, cwdBefore);
     }
     if (resetWithoutOutput) {
@@ -315,12 +347,24 @@ export function useTerminal() {
       sequence: result.sequence, sequenceId,
     }]);
     if (result.mode === 'chat') setMode('chat');
-  }, [currentPrompt, getShell, mode, push, runAssistant, setTheme, skipSequence, skipBoot, syncAddress, reducedMotion]);
+    // Unlike openUrl and download, switching views only changes what is displayed, so links may do it.
+    if (result.view === 'gui') {
+      setViewCookie('gui');
+      markGuiSeen();
+      router.push('/gui');
+    }
+  }, [currentPrompt, getShell, mode, push, router, runAssistant, setTheme, skipSequence, skipBoot, syncAddress, reducedMotion]);
 
   useEffect(() => {
     if (ranLinkRef.current) return;
     ranLinkRef.current = true;
+    // A restored log already holds what the address ran, so only note that the terminal is the view.
+    if (restoredRef.current) {
+      setViewCookie('terminal');
+      return;
+    }
     const address = parseAddress(window.location.pathname, window.location.search);
+    if (address.kind === 'root') setViewCookie('terminal');
     if (address.kind === 'command' || address.kind === 'not-command') {
       void handleCommand(address.line, { origin: 'link' });
     } else if (address.kind === 'invalid') {

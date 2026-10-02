@@ -190,17 +190,29 @@ export async function skillsCommand(args: string[], ctx?: CommandContext): Promi
     if (timer) clearTimeout(timer);
   }
   if (!evidence) return plain;
-  const max = Math.max(1, ...categories.flatMap((cat) => cat.skills.map((label) => evidence[label] ?? 0)));
+  // Skills with public evidence get a bar; the rest stay listed without one, so nothing from the CV
+  // disappears and nothing shows an empty bar. With no evidence at all the plain list is shown.
+  const proven = (label: string) => (evidence[label] ?? 0) > 0;
+  if (!categories.some((cat) => cat.skills.some(proven))) return plain;
+  const max = Math.max(...categories.flatMap((cat) => cat.skills.filter(proven).map((label) => evidence[label])));
   return { output: [
     { type: 'text', content: 'Skills', style: { bold: true } },
-    ...categories.map((cat): SectionOutput => ({
-      type: 'section', item: ids.skill[cvData.skills.indexOf(cat)], title: cat.name,
-      children: cat.skills.map((label) => {
-        const count = evidence[label] ?? 0;
-        return { type: 'progress' as const, label: label.padEnd(Math.max(...cat.skills.map((skill) => skill.length))),
-          value: count / max, note: count === 0 ? 'no public repos' : `${count} ${count === 1 ? 'repo' : 'repos'}`, reveal: true };
-      }),
-    })),
+    ...categories.map((cat): SectionOutput => {
+      const withBars = cat.skills.filter(proven);
+      const without = cat.skills.filter((label) => !proven(label));
+      const width = Math.max(0, ...withBars.map((skill) => skill.length));
+      return {
+        type: 'section', item: ids.skill[cvData.skills.indexOf(cat)], title: cat.name,
+        children: [
+          ...withBars.map((label) => {
+            const count = evidence[label];
+            return { type: 'progress' as const, label: label.padEnd(width),
+              value: count / max, note: `${count} ${count === 1 ? 'repo' : 'repos'}`, reveal: true };
+          }),
+          ...(without.length ? [{ type: 'list' as const, items: without }] : []),
+        ],
+      };
+    }),
     { type: 'text', content: 'Bars: public GitHub repos using each skill (nightly).', style: { dim: true } },
   ] };
 }

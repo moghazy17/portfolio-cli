@@ -150,7 +150,7 @@ The portfolio shows it is a live place. A visitor types `who` and sees how many 
 
 - **Regular page (GUI view)**: a conventional presentation of the portfolio content; has its own address; mirrors the terminal's content.
 - **View preference**: per-browser memory of the last-used view (terminal or regular page) and whether the visitor has already seen the boot sequence; anonymous, stored only on the visitor's device.
-- **Skill level**: the measure each skill bar fills to — the number of Ahmed's public repositories that use that skill, from the nightly GitHub technology inventory, scaled against the most-used skill. Skills with no matching repository show an empty bar with a "no public repos" note rather than being hidden.
+- **Skill level**: the measure each skill bar fills to — the number of Ahmed's public repositories that use that skill, from the nightly GitHub technology inventory, scaled against the most-used skill. Skills with no matching repository get no bar but stay listed under their category, so nothing from the CV disappears; if no skill has evidence, the plain list is shown.
 - **Presence**: an anonymous, short-lived marker that a visitor is currently active, tagged by surface (web, later SSH); expires about 1 minute after the visitor's page stops checking in (well within the 2-minute target of SC-007).
 - **Guestbook entry**: name, message, time signed, and an identifier the owner uses to delete it; no visitor address is stored with it.
 

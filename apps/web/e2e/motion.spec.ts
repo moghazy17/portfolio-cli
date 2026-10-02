@@ -43,7 +43,7 @@ test.describe('terminal motion', () => {
   test('glitch skips, CRT persists, and skill bars show evidence', async ({ page }) => {
     test.skip(test.info().project.name.includes('reduced'));
     await page.addInitScript(() => localStorage.setItem('boot:v1', '1'));
-    await page.route('**/api/skills', async (route) => route.fulfill({ json: { evidence: { Python: 4 }, generatedAt: new Date().toISOString() } }));
+    await page.route('**/api/skills', async (route) => route.fulfill({ json: { evidence: { 'Python (Advanced)': 4 }, generatedAt: new Date().toISOString() } }));
     await page.goto('/');
     await expect(page.locator('.ascii-banner.glitch-reveal')).toBeVisible();
     await page.keyboard.press('x');

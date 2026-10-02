@@ -30,6 +30,7 @@ export interface AssistantEntryState {
 }
 
 export interface TerminalEntry extends HistoryEntry {
+  tourStepIndex?: number;
   reveal?: boolean;
   sequence?: SequenceStep[];
   sequenceDone?: boolean;
@@ -115,7 +116,11 @@ export function useTerminal() {
   const { push, up, down, reset } = useHistory();
   const { theme, setTheme } = useThemeApplier();
   const reducedMotion = useReducedMotion();
-  const { playing: tourPlaying, typed: tourText, finished: tourFinished, start: startTour, stop: stopTour, dismissFinished } = useTour();
+  const {
+    playing: tourPlaying, steps: tourSteps, index: tourIndex, lastRunIndex: tourLastRunIndex,
+    busy: tourBusy, typed: tourText, finished: tourFinished, focusRequest: tourFocusRequest,
+    start: startTour, next: nextTour, back: backTour, stop: stopTour, dismissFinished,
+  } = useTour();
 
   useEffect(() => {
     try { setFirstVisit(window.localStorage.getItem('discover:visited') !== '1'); } catch { /* Storage is optional. */ }
@@ -170,8 +175,16 @@ export function useTerminal() {
   }, [currentPrompt]);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
-  }, [history, tourPlaying]);
+    const log = scrollRef.current;
+    if (!log) return;
+    const entry = tourPlaying && tourIndex < tourLastRunIndex
+      ? log.querySelector<HTMLElement>(`[data-tour-step="${tourIndex}"]`) : null;
+    if (entry) {
+      log.scrollTo(0, log.scrollTop + entry.getBoundingClientRect().top - log.getBoundingClientRect().top - 12);
+    } else {
+      log.scrollTo(0, log.scrollHeight);
+    }
+  }, [history, tourPlaying, tourIndex, tourLastRunIndex]);
 
   useEffect(() => () => {
     if (addressTimerRef.current !== null) clearTimeout(addressTimerRef.current);
@@ -264,7 +277,7 @@ export function useTerminal() {
     if (askingRef.current === id) askingRef.current = null;
   }, [updateAssistant]);
 
-  const handleCommand = useCallback(async (input: string, opts: { origin?: 'typed' | 'link' | 'tour' } = {}) => {
+  const handleCommand = useCallback(async (input: string, opts: { origin?: 'typed' | 'link' | 'tour'; tourStepIndex?: number } = {}) => {
     const isLink = opts.origin === 'link';
     const isTour = opts.origin === 'tour';
     if (!isTour) dismissFinished();
@@ -312,7 +325,7 @@ export function useTerminal() {
       controllerRef.current = controller;
       setRunning(true);
       setHistory((previous) => [...previous, {
-        input, prompt: submittedPrompt, output: [], assistantId: id,
+        input, prompt: submittedPrompt, output: [], assistantId: id, tourStepIndex: opts.tourStepIndex,
         assistant: { question, status: 'thinking', parts: [] },
       }]);
       await runAssistant(question, id, controller);
@@ -369,7 +382,7 @@ export function useTerminal() {
       setSequencePlaying(true);
     }
     setHistory((previous) => [...previous, {
-      input, prompt: submittedPrompt, output,
+      input, prompt: submittedPrompt, output, tourStepIndex: opts.tourStepIndex,
       reveal: !isLink && !result.ask && !result.sequence && !/[|]/.test(input) && !reducedMotion && shouldType(output),
       sequence: result.sequence, sequenceId,
     }]);
@@ -408,7 +421,7 @@ export function useTerminal() {
       const startingTheme = theme;
       void startTour(result.tour, {
         reducedMotion,
-        run: (line) => handleCommand(line, { origin: 'tour' }),
+        run: (line, stepIndex) => handleCommand(line, { origin: 'tour', tourStepIndex: stepIndex }),
         cancel: () => { controllerRef.current?.abort(); controllerRef.current = null; setRunning(false); },
         restoreTheme: () => setTheme(startingTheme, false),
       });
@@ -456,6 +469,7 @@ export function useTerminal() {
   }, [getShell]);
 
   const cancel = useCallback(() => {
+    if (tourPlaying) { stopTour(); return; }
     if (skipSequence()) return;
     const asking = askingRef.current;
     if (asking !== null) {
@@ -464,9 +478,10 @@ export function useTerminal() {
     controllerRef.current?.abort();
     controllerRef.current = null;
     setRunning(false);
-  }, [skipSequence, updateAssistant]);
+  }, [skipSequence, updateAssistant, tourPlaying, stopTour]);
 
   const clearScreen = useCallback(() => {
+    if (tourPlaying) stopTour();
     skipSequence();
     // The answer being cleared has nowhere to render, so stop it instead of streaming unseen.
     if (askingRef.current !== null) {
@@ -476,7 +491,7 @@ export function useTerminal() {
     }
     setHistory([]);
     setShowWelcome(false);
-  }, [skipSequence]);
+  }, [skipSequence, tourPlaying, stopTour]);
 
   const onListCandidates = useCallback((input: string, candidates: string[]) => {
     setHistory((previous) => [...previous, {
@@ -502,7 +517,8 @@ export function useTerminal() {
   return {
     history, showWelcome, theme, scrollRef, handleCommand, submitSuggestion, suggestions, mode, exitChat, conversationRef, prefill, onPrefillApplied,
     booting, bootSteps: BOOT_STEPS, skipBoot, reducedMotion,
-    prompt, running, skip, sequencePlaying, finishSequence, tourPlaying, tourText, tourFinished,
+    prompt, running, skip, sequencePlaying, finishSequence, tourPlaying, tourSteps, tourIndex, tourBusy,
+    tourText, tourFinished, tourFocusRequest, nextTour, backTour, stopTour,
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp: up, historyDown: down, resetHistoryCursor: reset,
   };

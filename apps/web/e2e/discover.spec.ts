@@ -69,54 +69,101 @@ test('prompt example rotates, stays outside the input, and hides while typing', 
   await expect(example).toHaveCount(0);
 });
 
-test('tour stops on a key and restores the starting theme', async ({ page }) => {
+test('guided tour navigates without rerunning steps or reacting to page clicks and scrolls', async ({ page }) => {
   test.skip(reduced());
   await stubChat(page);
-  await page.clock.install();
+  await page.setViewportSize({ width: 360, height: 720 });
   await page.goto('/');
   await input(page).fill('theme dracula');
   await input(page).press('Enter');
-  await expect(page.locator('.terminal-container')).not.toHaveAttribute('data-effect', 'crt');
   await input(page).fill('tour');
   await input(page).press('Enter');
-  await expect(page.getByText('Starting the tour…')).toBeVisible();
-  const hint = page.locator('.tour-hint');
-  await expect(hint).toHaveAttribute('role', 'status');
-  await expect(hint).toBeVisible();
-  await page.clock.runFor(1_000);
-  await expect(page.locator('[role="log"]')).toContainText('About ');
+  const card = page.getByRole('region', { name: 'Tour' });
+  const next = card.getByRole('button', { name: 'Next →' });
+  await expect(card).toContainText('Step 1/5 · About');
+  await expect(page.locator('[data-tour-step="0"]')).toContainText('About ');
   await expect(page.getByText('Theme switched to "dracula".')).toBeVisible();
-  await expect(hint).toBeInViewport();
-  await page.keyboard.press('x');
-  await expect(hint).toHaveCount(0);
+  await expect(next).toBeFocused();
+  await expect(next).toHaveAttribute('aria-disabled', 'false');
+  const axe = await new AxeBuilder({ page }).include('.tour-card').analyze();
+  expect(axe.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''))).toEqual([]);
+  await next.click();
+  await expect(card).toContainText('Step 2/5 · Skills');
+  await expect(page.locator('[data-tour-step="1"]')).toContainText('Skills');
+  const count = await page.locator('[data-tour-step]').count();
+  await card.getByRole('button', { name: 'Back' }).click();
+  await expect(card).toContainText('Step 1/5 · About');
+  await expect(page.locator('[data-tour-step="0"]')).toBeInViewport();
+  expect(await page.locator('[data-tour-step]').count()).toBe(count);
+  await page.keyboard.press('Enter');
+  await expect(card).toContainText('Step 2/5 · Skills');
+  expect(await page.locator('[data-tour-step]').count()).toBe(count);
+  await page.keyboard.press('ArrowLeft');
+  await expect(card).toContainText('Step 1/5 · About');
+  await page.keyboard.press('ArrowRight');
+  await expect(card).toContainText('Step 2/5 · Skills');
+  expect(await page.locator('[data-tour-step]').count()).toBe(count);
+  await page.getByRole('log', { name: 'Terminal output' }).click({ position: { x: 4, y: 4 } });
+  await page.mouse.wheel(0, 200);
+  await expect(card).toBeInViewport();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.keyboard.press('ArrowRight');
+  await expect(card).toContainText('Step 3/5 · Ask anything');
+  await expect(next).toHaveAttribute('aria-disabled', 'false');
+  await next.click();
+  await expect(card).toContainText('Step 4/5 · Themes');
+  await expect(page.locator('.terminal-container')).toHaveAttribute('data-effect', 'crt');
+  await page.keyboard.press('Escape');
+  await expect(card).toHaveCount(0);
+  await expect(page.locator('.terminal-container')).not.toHaveAttribute('data-effect', 'crt');
+  await expect(page.locator('.tour-finish')).toHaveCount(0);
   await expect(input(page)).toHaveValue('');
   await expect.poll(() => page.evaluate(() => localStorage.getItem('terminal-theme'))).toBe('dracula');
-  const count = await page.locator('[role="log"] > div').count();
-  await page.clock.fastForward(60_000);
-  expect(await page.locator('[role="log"] > div').count()).toBe(count);
 });
 
-test('tour completes and a deep link never starts playback', async ({ page }) => {
+test('typing a visitor command exits the guided tour quietly', async ({ page }) => {
+  await page.goto('/');
+  await input(page).fill('tour');
+  await input(page).press('Enter');
+  const card = page.getByRole('region', { name: 'Tour' });
+  await expect(card).toBeVisible();
+  await input(page).fill('skills');
+  await expect(card).toHaveCount(0);
+  await expect(input(page)).toHaveValue('skills');
+  await expect(page.locator('.tour-finish')).toHaveCount(0);
+  await input(page).press('Enter');
+  await expect(page.locator('[role="log"]')).toContainText('Skills');
+});
+
+test('guided tour finishes and a deep link never starts it', async ({ page }) => {
   test.skip(reduced());
   await stubChat(page);
-  await page.clock.install();
   await page.goto('/tour');
   await expect(page.getByText('Starting the tour…')).toBeVisible();
-  await page.clock.fastForward(2_000);
+  await expect(page.getByRole('region', { name: 'Tour' })).toHaveCount(0);
   await expect(page.locator('.tour-finish')).toHaveCount(0);
   await expect(page.getByRole('navigation', { name: 'Suggestions' }).getByRole('button', { name: 'take the tour' })).toBeVisible();
   await page.getByRole('navigation', { name: 'Suggestions' }).getByRole('button', { name: 'take the tour' }).click();
-  await expect(page.locator('.tour-hint')).toBeVisible();
-  for (let step = 0; step < 12 && await page.locator('.tour-finish').count() === 0; step++) {
-    await page.clock.runFor(10_000);
+  const card = page.getByRole('region', { name: 'Tour' });
+  for (let step = 1; step < 5; step++) {
+    const next = card.getByRole('button', { name: 'Next →' });
+    await expect(next).toHaveAttribute('aria-disabled', 'false');
+    await next.click();
+    await expect(card).toContainText(`Step ${step + 1}/5`);
   }
+  await expect(page.locator('[data-tour-step="3"]')).toContainText('theme crt');
+  await expect(page.locator('.terminal-container')).toHaveAttribute('data-effect', 'crt');
+  const finish = card.getByRole('button', { name: 'Finish' });
+  await expect(finish).toHaveAttribute('aria-disabled', 'false');
+  await finish.click();
+  await expect(card).toHaveCount(0);
   await expect(page.getByText('Your turn')).toBeVisible();
-  await expect(page.locator('.tour-hint')).toHaveCount(0);
+  await expect(page.getByRole('navigation', { name: 'Suggestions' })).toBeVisible();
   await expect(input(page)).toHaveValue('');
   await expect(page.locator('.terminal-container')).not.toHaveAttribute('data-effect', 'crt');
 });
 
-test('tour waits for an assistant stream before starting the next step', async ({ page }) => {
+test('guided tour disables Next until the assistant stream finishes', async ({ page }) => {
   test.skip(reduced());
   let release: (() => void) | undefined;
   await page.route('**/api/chat', async (route) => {
@@ -124,27 +171,46 @@ test('tour waits for an assistant stream before starting the next step', async (
     await route.fulfill({ status: 200, headers: { 'content-type': 'text/event-stream', 'x-vercel-ai-ui-message-stream': 'v1' },
       body: 'data: {"type":"start"}\n\ndata: {"type":"text-start","id":"a"}\n\ndata: {"type":"text-delta","id":"a","delta":"Done."}\n\ndata: {"type":"text-end","id":"a"}\n\ndata: {"type":"finish"}\n\ndata: [DONE]\n\n' });
   });
-  await page.clock.install();
   await page.goto('/');
   await input(page).fill('tour');
   await input(page).press('Enter');
-  for (let step = 0; step < 8 && !release; step++) await page.clock.runFor(10_000);
-  expect(release).toBeDefined();
-  await page.clock.runFor(20_000);
+  const card = page.getByRole('region', { name: 'Tour' });
+  const next = card.getByRole('button', { name: 'Next →' });
+  await expect(next).toHaveAttribute('aria-disabled', 'false');
+  await next.click();
+  await expect(card).toContainText('Step 2/5 · Skills');
+  await expect(next).toHaveAttribute('aria-disabled', 'false');
+  await next.click();
+  await expect(card).toContainText('Step 3/5 · Ask anything');
+  await expect(next).toHaveAttribute('aria-disabled', 'true');
+  await expect.poll(() => Boolean(release)).toBe(true);
+  await page.keyboard.press('ArrowRight');
+  await expect(card).toContainText('Step 3/5 · Ask anything');
   await expect(page.locator('[role="log"]')).not.toContainText('theme crt');
   release!();
-  for (let step = 0; step < 8 && await page.locator('.tour-finish').count() === 0; step++) await page.clock.runFor(10_000);
-  await expect(page.getByText('Your turn')).toBeVisible();
+  await expect(next).toHaveAttribute('aria-disabled', 'false');
+  await expect(page.locator('[data-tour-step="2"]')).toContainText('Done.');
+  await next.click();
+  await expect(card).toContainText('Step 4/5 · Themes');
 });
 
 test('reduced-motion tour skips the CRT step', async ({ page }) => {
   test.skip(!reduced());
   await stubChat(page);
-  await page.clock.install();
   await page.goto('/');
   await input(page).fill('tour');
   await input(page).press('Enter');
-  for (let step = 0; step < 10 && await page.locator('.tour-finish').count() === 0; step++) await page.clock.runFor(10_000);
+  const card = page.getByRole('region', { name: 'Tour' });
+  await expect(card).toContainText('Step 1/4 · About');
+  for (let step = 1; step < 4; step++) {
+    const next = card.getByRole('button', { name: 'Next →' });
+    await expect(next).toHaveAttribute('aria-disabled', 'false');
+    await next.click();
+    await expect(card).toContainText(`Step ${step + 1}/4`);
+  }
+  await expect(card).toContainText("Step 4/4 · Who's here");
+  await expect(card.getByRole('button', { name: 'Finish' })).toHaveAttribute('aria-disabled', 'false');
+  await card.getByRole('button', { name: 'Finish' }).click();
   await expect(page.getByText('Your turn')).toBeVisible();
   await expect(page.locator('[role="log"]')).not.toContainText('theme crt');
 });

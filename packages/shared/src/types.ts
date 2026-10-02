@@ -272,7 +272,8 @@ export interface Suggestion {
 
 export interface TourStep {
   line: string;
-  pauseMs: number;
+  title: string;
+  caption: string;
   motion?: true;
 }
 

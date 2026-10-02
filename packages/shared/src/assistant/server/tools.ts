@@ -4,7 +4,7 @@ import { validateAssistantCommandLine } from '../allowlist';
 import { commandRegistry } from '../../commands/registry';
 import { createShell } from '../../shell/shell';
 import { toLines } from '../../shell/lines';
-import type { CommandOutput, ShellResult } from '../../types';
+import type { CommandOutput, LiveServices, ShellResult, SkillEvidence } from '../../types';
 import { isExcludedRepo } from '../../exclusion';
 import { listRepos, lookupTech } from '../../inventory/lookup';
 import type { InventorySnapshot } from '../../inventory/types';
@@ -21,6 +21,8 @@ export interface AssistantLive {
 export interface AssistantDeps {
   inventory(): Promise<InventorySnapshot | null>;
   live?: AssistantLive;
+  /** Data the read-only commands need (`who`, `guestbook`, skill bars), as the hosts provide it. */
+  commandServices?: { live?: LiveServices; skillEvidence?: (signal: AbortSignal) => Promise<SkillEvidence> };
   surface?: 'web' | 'ssh';
   origin?: string;
   signal?: AbortSignal;
@@ -102,7 +104,7 @@ export function createAssistantTools(deps: AssistantDeps, budget = createToolBud
         let result: ShellResult;
         try {
           result = await Promise.race([
-            createShell({ surface: deps.surface ?? 'web', origin: deps.origin ?? '' }).run(commandLine, { signal }),
+            createShell({ surface: deps.surface ?? 'web', origin: deps.origin ?? '', ...deps.commandServices }).run(commandLine, { signal }),
             cancelled,
           ]);
         } finally {

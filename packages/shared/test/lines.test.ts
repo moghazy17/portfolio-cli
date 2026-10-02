@@ -70,4 +70,20 @@ describe('toLines', () => {
       { text: 'ready', item: 'x', style: { bold: true } },
     ]);
   });
+
+  it('renders progress notes as twelve-cell bars and keeps percentages without notes', () => {
+    expect(toLines([
+      { type: 'progress', label: 'Empty', value: 0, note: 'no public repos' },
+      { type: 'progress', label: 'Partial', value: 0.67, note: '4 repos' },
+      { type: 'progress', label: 'Full', value: 1, note: '6 repos' },
+      { type: 'progress', label: 'Zero', value: 0 },
+      { type: 'progress', label: 'Complete', value: 1 },
+    ])).toEqual([
+      { text: 'Empty  ░░░░░░░░░░░░  no public repos' },
+      { text: 'Partial  ████████░░░░  4 repos' },
+      { text: 'Full  ████████████  6 repos' },
+      { text: 'Zero  0%' },
+      { text: 'Complete  100%' },
+    ]);
+  });
 });

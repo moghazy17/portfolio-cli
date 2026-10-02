@@ -13,7 +13,7 @@ function styleCodes(style: OutputStyle | undefined, theme: Theme): string {
   let codes = '';
   if (style.color) {
     const color = style.color in theme ? theme[style.color as keyof Theme] : style.color;
-    if (/^#[0-9a-f]{6}$/i.test(color)) {
+    if (typeof color === 'string' && /^#[0-9a-f]{6}$/i.test(color)) {
       const rgb = color.slice(1).match(/../g)!.map((part) => parseInt(part, 16));
       codes += `\x1b[38;2;${rgb.join(';')}m`;
     }

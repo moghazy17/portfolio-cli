@@ -1,13 +1,19 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   ASSISTANT_ERROR_MESSAGE, askAssistant, createAssistantUnknownHandler, createShell, formatSourcesLine, MAX_LINK_LENGTH,
-  parseAddress, themes, toAddress, welcomeCommand,
+  bootSequence, guestbookEntryOutput, parseAddress, shouldType, SIGN_MESSAGES, themes, toAddress, welcomeCommand,
 } from '@ahmed-moghazy/shared';
 import type {
-  AssistantEvent, AssistantTurn, CommandOutput, Completion, HistoryEntry, NoticeKind, SequenceStep,
+  AssistantEvent, AssistantTurn, CommandOutput, Completion, HistoryEntry, NoticeKind, SequenceStep, SignResult,
 } from '@ahmed-moghazy/shared';
+import { peekSnapshot, saveSnapshot, takeSnapshot } from '../lib/terminal-snapshot';
+import { markGuiSeen, setViewCookie } from '../lib/view-cookie';
 import { useHistory } from './useHistory';
 import { useThemeApplier } from './useThemeApplier';
+import { useReducedMotion } from './useReducedMotion';
+import { fetchSkillEvidence, liveServices } from '../lib/live-services';
+import { getTurnstileToken } from '../lib/turnstile-client';
 
 export type TerminalMode = 'command' | 'chat';
 
@@ -21,7 +27,8 @@ export interface AssistantEntryState {
     | { kind: 'notice'; notice: NoticeKind; message: string }>;
 }
 
-interface TerminalEntry extends HistoryEntry {
+export interface TerminalEntry extends HistoryEntry {
+  reveal?: boolean;
   sequence?: SequenceStep[];
   sequenceDone?: boolean;
   sequenceId?: number;
@@ -30,6 +37,8 @@ interface TerminalEntry extends HistoryEntry {
 }
 
 const MAX_EXCHANGES = 5;
+let bootStartedInPage = false;
+const BOOT_STEPS = bootSequence();
 
 function applyEvent(state: AssistantEntryState, event: AssistantEvent): AssistantEntryState {
   if (state.status === 'cancelled' || state.status === 'done') return state;
@@ -63,11 +72,27 @@ function answerText(state: AssistantEntryState): string {
   return state.parts.flatMap((part) => (part.kind === 'text' ? [part.text] : [])).join('').trim();
 }
 
+// A restored log must not replay a sequence or show an answer that is still streaming.
+function settleEntry(entry: TerminalEntry): TerminalEntry {
+  const shown = entry.reveal ? { ...entry, reveal: false } : entry;
+  const settled = shown.sequence && !shown.sequenceDone ? { ...shown, sequenceDone: true } : shown;
+  const { assistant } = settled;
+  return assistant && assistant.status !== 'done' && assistant.status !== 'cancelled'
+    ? { ...settled, assistant: { ...assistant, status: 'cancelled' } }
+    : settled;
+}
+
 export function useTerminal() {
-  const [history, setHistory] = useState<TerminalEntry[]>([]);
-  const [showWelcome, setShowWelcome] = useState(true);
+  const router = useRouter();
+  const restoredRef = useRef(peekSnapshot());
+  const [history, setHistory] = useState<TerminalEntry[]>(() => restoredRef.current?.history ?? []);
+  const [showWelcome, setShowWelcome] = useState(!restoredRef.current);
+  const initialWelcomeRef = useRef(showWelcome);
+  const [booting, setBooting] = useState(false);
   const [mode, setMode] = useState<TerminalMode>('command');
-  const [prompt, setPrompt] = useState('visitor@portfolio:~$');
+  const [prompt, setPrompt] = useState(restoredRef.current?.prompt ?? 'visitor@portfolio:~$');
+  const latestRef = useRef({ history, showWelcome, prompt });
+  latestRef.current = { history, showWelcome, prompt };
   const [running, setRunning] = useState(false);
   const [skip, setSkip] = useState(0);
   const [sequencePlaying, setSequencePlaying] = useState(false);
@@ -84,11 +109,42 @@ export function useTerminal() {
   const addressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { push, up, down, reset } = useHistory();
   const { theme, setTheme } = useThemeApplier();
+  const reducedMotion = useReducedMotion();
+
+  const skipBoot = useCallback(() => setBooting(false), []);
+
+  useEffect(() => {
+    if (bootStartedInPage || !initialWelcomeRef.current || window.location.pathname !== '/' || window.location.search || window.location.hash ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    try {
+      if (window.localStorage.getItem('boot:v1')) return;
+      window.localStorage.setItem('boot:v1', '1');
+    } catch {
+      // The in-memory flag still prevents a replay in this page.
+    }
+    bootStartedInPage = true;
+    setBooting(true);
+  }, []);
+
+  useEffect(() => {
+    if (!booting) return;
+    window.addEventListener('keydown', skipBoot);
+    window.addEventListener('pointerdown', skipBoot);
+    window.addEventListener('touchstart', skipBoot);
+    return () => {
+      window.removeEventListener('keydown', skipBoot);
+      window.removeEventListener('pointerdown', skipBoot);
+      window.removeEventListener('touchstart', skipBoot);
+    };
+  }, [booting, skipBoot]);
 
   const getShell = useCallback(() => {
     if (!shellRef.current) {
       shellRef.current = createShell({
         surface: 'web', origin: window.location.origin, onUnknownCommand: createAssistantUnknownHandler(),
+        skillEvidence: fetchSkillEvidence,
+        live: liveServices,
+        ...(restoredRef.current && { initialCwd: restoredRef.current.cwd }),
       });
     }
     return shellRef.current;
@@ -109,6 +165,20 @@ export function useTerminal() {
 
   useEffect(() => () => {
     if (addressTimerRef.current !== null) clearTimeout(addressTimerRef.current);
+  }, []);
+
+  // The restored log is in state now; leaving it in the store would resurrect it on a later mount.
+  useEffect(() => {
+    takeSnapshot();
+  }, []);
+
+  // Keep the log and directory for the way back from the regular page. A terminal that was never
+  // used has nothing worth keeping, and returning to it should show the welcome as usual.
+  useEffect(() => () => {
+    const { history: log, showWelcome: welcome, prompt: shownPrompt } = latestRef.current;
+    if (!log.length && welcome) return;
+    controllerRef.current?.abort();
+    saveSnapshot({ history: log.map(settleEntry), cwd: shellRef.current?.session.cwd ?? '/', prompt: shownPrompt });
   }, []);
 
   const syncAddress = useCallback((line: string, cwdBefore: string) => {
@@ -186,6 +256,8 @@ export function useTerminal() {
 
   const handleCommand = useCallback(async (input: string, opts: { origin?: 'typed' | 'link' } = {}) => {
     const isLink = opts.origin === 'link';
+    skipBoot();
+    setHistory((previous) => previous.map((entry) => entry.reveal ? { ...entry, reveal: false } : entry));
     skipSequence();
     controllerRef.current?.abort();
     const controller = new AbortController();
@@ -195,6 +267,7 @@ export function useTerminal() {
     if (!isLink) setShowWelcome(false);
     const shell = getShell();
     const cwdBefore = shell.session.cwd;
+    if (!isLink) push(input);
     const result = await shell.run(input, { signal: controller.signal });
     if (controllerRef.current === controller) {
       controllerRef.current = null;
@@ -209,7 +282,7 @@ export function useTerminal() {
       return;
     }
 
-    push(input);
+    if (isLink) push(input);
     if (result.ask) {
       const { question } = result.ask;
       const id = ++assistantIdRef.current;
@@ -234,7 +307,7 @@ export function useTerminal() {
       setHistory([]);
       if (isLink) setShowWelcome(false);
     }
-    if (result.theme && themes[result.theme]) setTheme(themes[result.theme]);
+    if (result.theme && themes[result.theme]) setTheme(themes[result.theme], !isLink);
     if (!isLink && result.openUrl) window.open(result.openUrl, '_blank', 'noopener,noreferrer');
     if (!isLink && result.download) {
       let link: HTMLAnchorElement | null = null;
@@ -257,8 +330,11 @@ export function useTerminal() {
         style: { dim: true },
       }];
     }
+    if (isLink && result.sign) {
+      output = [{ type: 'text', content: 'To sign, type this command in the web terminal.', style: { dim: true } }];
+    }
     const resetWithoutOutput = (result.welcome || result.clear) && !output.length && !result.sequence;
-    if (mode === 'command') {
+    if (mode === 'command' && !result.view) {
       syncAddress(resetWithoutOutput ? '' : input, cwdBefore);
     }
     if (resetWithoutOutput) {
@@ -272,15 +348,52 @@ export function useTerminal() {
     }
     setHistory((previous) => [...previous, {
       input, prompt: submittedPrompt, output,
+      reveal: !isLink && !result.ask && !result.sequence && !/[|]/.test(input) && !reducedMotion && shouldType(output),
       sequence: result.sequence, sequenceId,
     }]);
+    if (result.sign && !isLink) {
+      setRunning(true);
+      controllerRef.current = controller;
+      try {
+        const turnstileToken = await getTurnstileToken();
+        if (controller.signal.aborted) return;
+        const response = await fetch('/api/guestbook', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: controller.signal,
+          body: JSON.stringify({ ...result.sign, turnstileToken }),
+        });
+        const signed = await response.json() as SignResult;
+        if (controller.signal.aborted) return;
+        setHistory((previous) => [...previous, { input: '', output: signed.ok
+          ? [{ type: 'text', content: `Thanks for signing, ${signed.entry.name}!`, style: { color: 'success' } }, ...guestbookEntryOutput(signed.entry)]
+          : [{ type: 'error', content: signed.message }] }]);
+      } catch {
+        if (!controller.signal.aborted) setHistory((previous) => [...previous, { input: '', output: [{ type: 'error', content: SIGN_MESSAGES.human_check }] }]);
+      } finally {
+        if (controllerRef.current === controller) {
+          controllerRef.current = null;
+          setRunning(false);
+        }
+      }
+    }
     if (result.mode === 'chat') setMode('chat');
-  }, [currentPrompt, getShell, mode, push, runAssistant, setTheme, skipSequence, syncAddress]);
+    // Unlike openUrl and download, switching views only changes what is displayed, so links may do it.
+    if (result.view === 'gui') {
+      setViewCookie('gui');
+      markGuiSeen();
+      router.push('/gui');
+    }
+  }, [currentPrompt, getShell, mode, push, router, runAssistant, setTheme, skipSequence, skipBoot, syncAddress, reducedMotion]);
 
   useEffect(() => {
     if (ranLinkRef.current) return;
     ranLinkRef.current = true;
+    // A restored log already holds what the address ran, so only note that the terminal is the view.
+    if (restoredRef.current) {
+      setViewCookie('terminal');
+      return;
+    }
     const address = parseAddress(window.location.pathname, window.location.search);
+    if (address.kind === 'root') setViewCookie('terminal');
     if (address.kind === 'command' || address.kind === 'not-command') {
       void handleCommand(address.line, { origin: 'link' });
     } else if (address.kind === 'invalid') {
@@ -351,6 +464,7 @@ export function useTerminal() {
 
   return {
     history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat, conversationRef, prefill, onPrefillApplied,
+    booting, bootSteps: BOOT_STEPS, skipBoot, reducedMotion,
     prompt, running, skip, sequencePlaying, finishSequence,
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp: up, historyDown: down, resetHistoryCursor: reset,

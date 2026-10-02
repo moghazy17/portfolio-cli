@@ -34,7 +34,7 @@ describe('curl surface', () => {
 
   it('runs every routable command that is available on curl', async () => {
     for (const command of routableCommandNames) {
-      if (['chat', 'ask', 'ai', 'theme', 'clear', 'cls', 'github', 'gh'].includes(command)) continue;
+      if (['chat', 'ask', 'ai', 'theme', 'clear', 'cls', 'github', 'gh', 'sign'].includes(command)) continue;
       const line = command === 'man' ? 'man projects' : command === 'cat' ? 'cat about.md' : command === 'cd' ? 'cd /projects && pwd' : command;
       const response = await request('/', `?cmd=${encodeURIComponent(line)}`);
       expect(response.status, command).toBe(200);
@@ -43,7 +43,7 @@ describe('curl surface', () => {
   });
 
   it('rejects interactive-only commands with a link to the terminal', async () => {
-    for (const line of ['chat', 'theme dracula', 'clear']) {
+    for (const line of ['chat', 'theme dracula', 'clear', 'sign']) {
       const response = await request('/', `?cmd=${encodeURIComponent(line)}`);
       expect(response.status).toBe(400);
       expect(response.body).toContain('only available in the interactive terminal');

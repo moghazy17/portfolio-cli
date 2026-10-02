@@ -133,6 +133,8 @@ export interface ProgressOutput {
   type: 'progress';
   label: string;
   value: number;
+  note?: string;
+  reveal?: boolean;
 }
 
 export interface LinesOutput {
@@ -160,6 +162,33 @@ export interface OutputStyle {
 // ============================================================
 
 export type Surface = 'web' | 'ssh' | 'curl';
+
+export interface PresenceCount {
+  total: number;
+  bySurface: { web: number; ssh?: number };
+  at: string;
+}
+
+export interface GuestbookEntry {
+  id: string;
+  name: string;
+  message: string;
+  at: string;
+}
+
+export type SignReason = 'empty' | 'too_long' | 'link' | 'contact' | 'blocked'
+  | 'human_check' | 'rate_limited' | 'daily_cap' | 'unavailable' | 'bad_request';
+
+export type SignResult =
+  | { ok: true; entry: GuestbookEntry }
+  | { ok: false; reason: SignReason; message: string };
+
+export type SkillEvidence = Record<string, number>;
+
+export interface LiveServices {
+  presence(signal: AbortSignal): Promise<PresenceCount>;
+  guestbook(signal: AbortSignal): Promise<GuestbookEntry[]>;
+}
 
 export type CompletionSource =
   | 'projects' | 'experience' | 'skills' | 'themes' | 'open-targets'
@@ -194,6 +223,8 @@ export interface CommandDefinition {
   menu?: boolean;
   /** Whether the assistant may execute this command. */
   assistant?: boolean;
+  /** Treat input with arguments as unknown input; bare invocations still run this command. */
+  bareOnly?: boolean;
   surfaces?: Surface[];
   args?: ArgSpec;
   man?: ManPage;
@@ -210,6 +241,8 @@ export interface CommandContext {
   signal: AbortSignal;
   fs: FileSystem;
   github?: (signal: AbortSignal) => Promise<GitHubStats>;
+  live?: LiveServices;
+  skillEvidence?: (signal: AbortSignal) => Promise<SkillEvidence>;
   stdin?: Line[];
 }
 
@@ -226,6 +259,8 @@ export interface CommandResult {
   sequence?: SequenceStep[];
   /** Ask the host to answer an unknown input through the assistant. */
   ask?: { question: string };
+  view?: 'gui';
+  sign?: { name: string; message: string };
 }
 
 export interface SequenceStep {
@@ -304,4 +339,5 @@ export interface Theme {
   dimmed: string;
   error: string;
   success: string;
+  effects?: { crt?: boolean };
 }

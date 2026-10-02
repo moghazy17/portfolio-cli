@@ -3,6 +3,7 @@ import { buildLogEntry, classifyOutcome, createAssistantModel, createAssistantSt
 import { ASSISTANT_ERROR_MESSAGE, MAX_QUESTION_LENGTH } from '@ahmed-moghazy/shared';
 import { NextResponse } from 'next/server';
 import { getInventory } from '../../../lib/inventory-store';
+import { serverLiveServices, serverSkillEvidence } from '../../../lib/live-services-server';
 import { classifyError, logChatEvent } from '../../../lib/chat-log';
 import { checkAssistantLimits } from '../../../lib/assistant-limits';
 import { logQuestion } from '../../../lib/question-log';
@@ -71,7 +72,10 @@ export async function POST(req: Request) {
   const stream = createAssistantStream({
     messages,
     surface: body.surface,
-    deps: { inventory: getInventory, live: createLiveGitHub(), origin: origin ?? '' },
+    deps: {
+      inventory: getInventory, live: createLiveGitHub(), origin: origin ?? '',
+      commandServices: { live: serverLiveServices, skillEvidence: serverSkillEvidence },
+    },
     model: createAssistantModel(process.env, { onFallback: () => logChatEvent('fallback') }),
     signal: req.signal,
     onError: (error) => {

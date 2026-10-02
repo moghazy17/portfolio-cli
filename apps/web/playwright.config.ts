@@ -13,6 +13,11 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+    {
+      name: 'chromium-reduced-motion',
+      use: { ...devices['Desktop Chrome'], contextOptions: { reducedMotion: 'reduce' } },
+      testMatch: /motion\.spec\.ts|gui\.spec\.ts/,
+    },
   ],
   webServer: {
     command: process.env.CI

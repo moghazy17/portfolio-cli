@@ -19,6 +19,7 @@
     "test:e2e": "npm run test:e2e -w ahmed-moghazy-web"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.63.0",
     "typescript": "^5.7.0"
   },

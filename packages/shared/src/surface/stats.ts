@@ -1,4 +1,15 @@
-export type SurfaceEventKind = 'curl_requests' | 'curl_rate_limited' | 'deep_links';
+export type SurfaceEventKind = 'curl_requests' | 'curl_rate_limited' | 'deep_links' | 'gui_visits' | 'guestbook_signed' | 'guestbook_rejected';
+
+export interface SurfaceDay {
+  date: string;
+  curl_requests: number;
+  curl_rate_limited: number;
+  deep_links: number;
+  gui_visits: number;
+  guestbook_signed: number;
+  guestbook_rejected: number;
+  presence_peak: number;
+}
 
 export interface SurfaceStatsClient {
   hincrby(key: string, field: SurfaceEventKind, n: number): Promise<number>;
@@ -34,7 +45,7 @@ export async function readSurfaceStats(
   client: SurfaceStatsClient | null,
   days: number,
   now = new Date(),
-): Promise<{ daily: Array<{ date: string; curl_requests: number; curl_rate_limited: number; deep_links: number }> } | null> {
+): Promise<{ daily: SurfaceDay[] } | null> {
   if (!client) return null;
   const dates = Array.from({ length: Math.max(0, days) }, (_, index) =>
     new Date(now.getTime() - index * 86_400_000),
@@ -49,6 +60,10 @@ export async function readSurfaceStats(
           curl_requests: Number(counts.curl_requests ?? 0),
           curl_rate_limited: Number(counts.curl_rate_limited ?? 0),
           deep_links: Number(counts.deep_links ?? 0),
+          gui_visits: Number(counts.gui_visits ?? 0),
+          guestbook_signed: Number(counts.guestbook_signed ?? 0),
+          guestbook_rejected: Number(counts.guestbook_rejected ?? 0),
+          presence_peak: Number(counts.presence_peak ?? 0),
         };
       }),
     };

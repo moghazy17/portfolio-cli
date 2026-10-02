@@ -19,6 +19,22 @@ export default function WelcomeScreen({
   onMenuSelect,
 }: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [glitch, setGlitch] = useState(true);
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setGlitch(false); return; }
+    const settle = () => setGlitch(false);
+    window.addEventListener('keydown', settle, { once: true });
+    window.addEventListener('pointerdown', settle, { once: true });
+    window.addEventListener('touchstart', settle, { once: true });
+    const timer = setTimeout(settle, 620);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('keydown', settle);
+      window.removeEventListener('pointerdown', settle);
+      window.removeEventListener('touchstart', settle);
+    };
+  }, []);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -46,7 +62,8 @@ export default function WelcomeScreen({
   return (
     <div style={{ marginBottom: '24px' }}>
       <pre
-        className="ascii-banner"
+        className={`ascii-banner${glitch ? ' glitch-reveal' : ''}`}
+        data-text={ASCII_BANNER}
         style={{
           color: 'var(--primary)',
           fontSize: '10px',

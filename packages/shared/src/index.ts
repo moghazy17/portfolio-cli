@@ -3,6 +3,8 @@ export { cvData, content, contentVersion, generatedAt, profile, site, itemIds, s
 export type { ItemId, ItemKind } from './content';
 export * from './commands/index';
 export * from './theme';
+export { bootSequence } from './motion/boot';
+export { shouldType, TYPE_MAX_LINES, TYPE_MAX_MS } from './motion/reveal';
 export * from './ascii';
 export * from './github';
 export { createTimedCache } from './timed-cache';
@@ -12,3 +14,6 @@ export * from './render';
 export * from './assistant';
 export * from './exclusion';
 export * from './surface';
+export { GUESTBOOK_LIMITS, SIGN_MESSAGES, sanitizeGuestbookText, validateGuestbookEntry } from './guestbook/validate';
+export { formatRelative } from './guestbook/time';
+export { guestbookEntryOutput } from './commands/live';

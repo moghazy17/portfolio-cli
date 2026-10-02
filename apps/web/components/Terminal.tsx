@@ -1,6 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { getMenuItems } from '@ahmed-moghazy/shared';
+import { hasSeenGui } from '../lib/view-cookie';
 import AssistantAnswer from './AssistantAnswer';
 import CommandLine from './CommandLine';
 import OutputRenderer from './OutputRenderer';
@@ -9,21 +12,56 @@ import WelcomeScreen from './WelcomeScreen';
 
 import ChatRenderer from './ChatRenderer';
 import { useTerminal } from '../hooks/useTerminal';
+import { useIdle } from '../hooks/useIdle';
+import CrtFilter from './CrtFilter';
+import { usePresence } from '../hooks/usePresence';
+
+const Screensaver = dynamic(() => import('./Screensaver'), { ssr: false });
 
 const menuItems = getMenuItems();
 
 export default function Terminal() {
+  const presence = usePresence();
   const {
     history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat, conversationRef,
     prompt, running, skip, sequencePlaying, finishSequence,
     prefill, onPrefillApplied,
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp, historyDown, resetHistoryCursor,
+    booting, bootSteps, skipBoot, reducedMotion,
   } = useTerminal();
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const update = () => setVisible(!document.hidden);
+    update();
+    document.addEventListener('visibilitychange', update);
+    return () => document.removeEventListener('visibilitychange', update);
+  }, []);
+  const { idle, reset } = useIdle(60_000, visible && !reducedMotion && !running && !sequencePlaying && !booting);
+  useEffect(() => { if (idle) document.querySelector<HTMLInputElement>('.terminal-container input')?.focus(); }, [idle]);
+  useEffect(() => {
+    if (!idle) return;
+    const dismiss = (event: Event) => {
+      if (event instanceof KeyboardEvent && event.key === 'Enter') {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      reset();
+      const input = document.querySelector<HTMLInputElement>('.terminal-container input');
+      input?.focus();
+      if (!(event instanceof KeyboardEvent)) requestAnimationFrame(() => input?.focus());
+    };
+    for (const name of ['keydown', 'pointermove', 'pointerdown', 'wheel', 'scroll', 'touchstart']) window.addEventListener(name, dismiss, true);
+    return () => { for (const name of ['keydown', 'pointermove', 'pointerdown', 'wheel', 'scroll', 'touchstart']) window.removeEventListener(name, dismiss, true); };
+  }, [idle, reset]);
+  // Prominent until either view has been used once; read after mount so the server markup matches.
+  const [guiSeen, setGuiSeen] = useState(false);
+  useEffect(() => setGuiSeen(hasSeenGui()), []);
 
   return (
     <div
       className="terminal-container"
+      data-effect={theme.effects?.crt ? 'crt' : undefined}
       style={{
         flex: 1,
         display: 'flex',
@@ -32,8 +70,10 @@ export default function Terminal() {
         margin: '0 auto',
         width: '100%',
         padding: '16px',
+        position: 'relative',
       }}
     >
+      {theme.effects?.crt && <CrtFilter />}
       {/* Terminal window chrome */}
       <div
         style={{
@@ -74,6 +114,7 @@ export default function Terminal() {
           }}
         />
         <span
+          className="chrome-prompt"
           style={{
             marginLeft: 'auto',
             color: 'var(--dimmed)',
@@ -82,6 +123,31 @@ export default function Terminal() {
         >
           {prompt}
         </span>
+        {presence && <span aria-label={`${presence.total} exploring now`} style={{ color: 'var(--dimmed)', fontSize: 12, whiteSpace: 'nowrap' }}>{presence.total} online</span>}
+        <button
+          type="button"
+          data-testid="open-gui"
+          className={`gui-button${guiSeen ? ' gui-button-seen' : ''}`}
+          onClick={() => handleCommand('gui')}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="14"
+            height="14"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <rect x="3" y="4" width="18" height="14" rx="2" />
+            <path d="M8 21h8" />
+            <path d="M12 18v3" />
+          </svg>
+          Regular view
+        </button>
       </div>
 
       {/* Scrollable output area */}
@@ -100,7 +166,11 @@ export default function Terminal() {
           borderRight: '1px solid rgba(255,255,255,0.05)',
         }}
       >
-        {showWelcome && (
+        {booting && <div data-testid="boot">
+          <SequencePlayer steps={bootSteps} final={[]} theme={theme} skip={skip} onDone={skipBoot} />
+          <div style={{ color: 'var(--dimmed)' }}>press any key to skip</div>
+        </div>}
+        {showWelcome && !booting && (
           <WelcomeScreen
             showMenu={false}
             menuItems={menuItems}
@@ -129,7 +199,7 @@ export default function Terminal() {
                 onDone={() => finishSequence(entry.sequenceId!)}
               />
             ) : (
-              <OutputRenderer output={entry.output} theme={theme} />
+              <OutputRenderer output={entry.output} theme={theme} reveal={entry.reveal} />
             )}
           </div>
         ))}
@@ -198,6 +268,8 @@ export default function Terminal() {
           </button>
         ))}
       </div>
+
+      {idle && <Screensaver color={theme.primary} />}
 
     </div>
   );

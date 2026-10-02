@@ -4,6 +4,7 @@ import { resolveVisitorIp } from '@ahmed-moghazy/shared/assistant-server';
 import { after } from 'next/server';
 import { getGitHubStatsCached } from '../../../lib/github-stats';
 import { redis } from '../../../lib/redis';
+import { serverLiveServices, serverSkillEvidence } from '../../../lib/live-services-server';
 import { recordSurfaceEvent } from '../../../lib/surface-stats';
 
 export const dynamic = 'force-dynamic';
@@ -43,6 +44,8 @@ export async function GET(request: Request): Promise<Response> {
     color: wantsColor(search),
     origin: url.origin,
     github: getGitHubStatsCached,
+    live: serverLiveServices,
+    skillEvidence: serverSkillEvidence,
   });
   return new Response(response.body, { status: response.status, headers: textHeaders });
 }

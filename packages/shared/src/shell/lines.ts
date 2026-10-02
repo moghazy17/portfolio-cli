@@ -50,9 +50,14 @@ export function toLines(output: CommandOutput[]): Line[] {
         case 'link':
           lines.push({ text: `${node.text}: ${node.url}`, href: node.url, ...(item && { item }) });
           break;
-        case 'progress':
-          lines.push({ text: `${node.label}  ${Math.round(node.value * 100)}%`, ...(item && { item }) });
+        case 'progress': {
+          const filled = Math.round(node.value * 12);
+          const value = node.note === undefined
+            ? `${Math.round(node.value * 100)}%`
+            : `${'█'.repeat(filled)}${'░'.repeat(12 - filled)}  ${node.note}`;
+          lines.push({ text: `${node.label}  ${value}`, ...(item && { item }) });
           break;
+        }
         case 'lines':
           lines.push(...node.lines.map((line) => ({ ...line, ...((line.item || item) && { item: line.item || item }) })));
           break;

@@ -15,6 +15,7 @@ import {
   themeCommand,
   welcomeCommand,
   whoamiCommand,
+  guiCommand,
 } from './utility';
 import { githubCommand } from './github';
 import {
@@ -31,6 +32,7 @@ import { catCommand, cdCommand, lsCommand, pwdCommand, readOnlyCommand, treeComm
 import type { CommandContext } from '../types';
 import { manCommand } from './man';
 import { resumeCommand } from './resume';
+import { whoCommand, guestbookCommand, signCommand } from './live';
 
 function lineCount(ctx: CommandContext, name: 'head' | 'tail'): CommandResult {
   const raw = ctx.flags.lines ?? '10';
@@ -131,7 +133,7 @@ export const commandRegistry: CommandDefinition[] = [
     menu: true,
     args: { positional: [{ name: 'category', complete: 'skills' }] },
     man: { description: 'Show skill categories or filter by category.', examples: ['skills', 'skills data'] },
-    execute: (ctx) => skillsCommand(ctx.args),
+    execute: (ctx) => skillsCommand(ctx.args, ctx),
   },
   {
     name: 'certifications',
@@ -218,6 +220,37 @@ export const commandRegistry: CommandDefinition[] = [
     menu: true,
     man: { description: `Start a conversation about ${profile.firstName}'s portfolio.`, examples: ['chat', 'ask'] },
     execute: () => chatCommand(),
+  },
+  {
+    name: 'gui',
+    description: 'Switch to the regular page',
+    usage: 'gui',
+    aliases: ['startx'],
+    surfaces: ['web', 'curl'],
+    menu: true,
+    man: {
+      description: 'Open the regular page: the same content in a conventional layout, no typing needed. startx — the classic way to start a desktop — does the same. On text clients it prints the page address.',
+      examples: ['gui', 'startx'],
+    },
+    execute: guiCommand,
+  },
+  {
+    name: 'who', assistant: true, bareOnly: true, description: 'Show people exploring now', usage: 'who', aliases: [],
+    surfaces: ['web', 'curl'],
+    man: { description: 'Show the number of people currently exploring the site.', examples: ['who'] },
+    execute: whoCommand,
+  },
+  {
+    name: 'guestbook', assistant: true, description: 'Read recent guestbook entries', usage: 'guestbook', aliases: [],
+    surfaces: ['web', 'curl'],
+    man: { description: 'Read the newest guestbook entries and learn how to sign.', examples: ['guestbook'] },
+    execute: guestbookCommand,
+  },
+  {
+    name: 'sign', description: 'Sign the guestbook', usage: 'sign "<message>" --name <name>', aliases: [],
+    surfaces: ['web'], args: { positional: [{ name: 'message', required: true }], flags: [{ short: 'n', long: 'name', value: 'string', description: 'Your name' }] },
+    man: { description: 'Sign the guestbook after a human check. Available in the web terminal.', examples: ['sign "Hello!" --name Sam', 'sign "Nice work" -n Sam'] },
+    execute: signCommand,
   },
   {
     name: 'clear',

@@ -11,14 +11,21 @@ function resumeUrl(path: string, origin: string): string {
   }
 }
 
+/** The published CV's path and download filename, or null while no CV is published. */
+export function resumeDownload(data: Content = content): { url: string; filename: string } | null {
+  if (!data.cv.available) return null;
+  return { url: data.cv.path, filename: `${data.resume.basics.name.trim().split(/\s+/).join('-')}-CV.pdf` };
+}
+
 export function resumeCommand(ctx: CommandContext, data: Content = content): CommandResult {
-  if (!data.cv.available) {
+  const download = resumeDownload(data);
+  if (!download) {
     return { status: 'error', output: [{ type: 'error', content: 'resume: CV not published yet' }] };
   }
-  const filename = `${data.resume.basics.name.trim().split(/\s+/).join('-')}-CV.pdf`;
+  const { filename } = download;
   if (ctx.surface === 'web') {
     return {
-      download: { url: data.cv.path, filename },
+      download,
       output: [
         { type: 'text', content: 'Downloading resume…', style: { color: 'success' } },
         { type: 'link', text: filename, url: data.cv.path },

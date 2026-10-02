@@ -10,12 +10,12 @@ function stackBadges(techStack: string): string[] {
 export default function GuiProjects() {
   return (
     <Section id="projects" title="Projects">
-      <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {cvData.projects.map((project) => {
           const links = content.writeups[project.shortName]?.links ?? [];
           return (
-            <li key={project.shortName} className="flex">
-              <article className="flex w-full flex-col gap-4 rounded-2xl border border-border bg-card p-6 transition-colors hover:border-accent">
+            <li key={project.shortName} className="flex min-w-0">
+              <article className="flex w-full min-w-0 flex-col gap-4 rounded-2xl border border-border bg-card p-5 transition-colors [overflow-wrap:anywhere] hover:border-accent sm:p-6">
                 <div>
                   {project.isGraduation && (
                     <p className="mb-2 font-code text-xs font-semibold uppercase tracking-wide text-accent">Graduation project</p>

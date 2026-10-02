@@ -15,6 +15,8 @@ import { useTerminal } from '../hooks/useTerminal';
 import { useIdle } from '../hooks/useIdle';
 import CrtFilter from './CrtFilter';
 import { usePresence } from '../hooks/usePresence';
+import { useKeyboardInset } from '../hooks/useKeyboardInset';
+import SuggestionBar from './SuggestionBar';
 
 const Screensaver = dynamic(() => import('./Screensaver'), { ssr: false });
 
@@ -22,9 +24,10 @@ const menuItems = getMenuItems();
 
 export default function Terminal() {
   const presence = usePresence();
+  useKeyboardInset();
   const {
-    history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat, conversationRef,
-    prompt, running, skip, sequencePlaying, finishSequence,
+    history, showWelcome, theme, scrollRef, handleCommand, submitSuggestion, suggestions, mode, exitChat, conversationRef,
+    prompt, running, skip, sequencePlaying, finishSequence, tourPlaying, tourText, tourFinished,
     prefill, onPrefillApplied,
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp, historyDown, resetHistoryCursor,
@@ -37,8 +40,8 @@ export default function Terminal() {
     document.addEventListener('visibilitychange', update);
     return () => document.removeEventListener('visibilitychange', update);
   }, []);
-  const { idle, reset } = useIdle(60_000, visible && !reducedMotion && !running && !sequencePlaying && !booting);
-  useEffect(() => { if (idle) document.querySelector<HTMLInputElement>('.terminal-container input')?.focus(); }, [idle]);
+  const { idle, reset } = useIdle(60_000, visible && !reducedMotion && !running && !sequencePlaying && !tourPlaying && !booting);
+  useEffect(() => { if (idle && window.matchMedia('(pointer: fine)').matches) document.querySelector<HTMLInputElement>('.terminal-container input')?.focus(); }, [idle]);
   useEffect(() => {
     if (!idle) return;
     const dismiss = (event: Event) => {
@@ -48,8 +51,10 @@ export default function Terminal() {
       }
       reset();
       const input = document.querySelector<HTMLInputElement>('.terminal-container input');
-      input?.focus();
-      if (!(event instanceof KeyboardEvent)) requestAnimationFrame(() => input?.focus());
+      if (window.matchMedia('(pointer: fine)').matches) {
+        input?.focus();
+        if (!(event instanceof KeyboardEvent)) requestAnimationFrame(() => input?.focus());
+      }
     };
     for (const name of ['keydown', 'pointermove', 'pointerdown', 'wheel', 'scroll', 'touchstart']) window.addEventListener(name, dismiss, true);
     return () => { for (const name of ['keydown', 'pointermove', 'pointerdown', 'wheel', 'scroll', 'touchstart']) window.removeEventListener(name, dismiss, true); };
@@ -70,6 +75,7 @@ export default function Terminal() {
         margin: '0 auto',
         width: '100%',
         padding: '16px',
+        paddingBottom: 'calc(16px + var(--keyboard-inset, 0px))',
         position: 'relative',
       }}
     >
@@ -158,6 +164,7 @@ export default function Terminal() {
         aria-live="polite"
         style={{
           flex: 1,
+          minHeight: 0,
           overflow: 'auto',
           padding: '16px',
           background: 'var(--bg)',
@@ -204,25 +211,30 @@ export default function Terminal() {
           </div>
         ))}
 
+        {tourFinished && !tourPlaying && <div className="tour-finish" role="status">Your turn</div>}
         {mode === 'chat' ? (
           <ChatRenderer onExit={exitChat} conversationRef={conversationRef} theme={theme} />
         ) : (
-          <CommandLine
-            prefill={prefill}
-            onPrefillApplied={onPrefillApplied}
-            onSubmit={handleCommand}
-            complete={complete}
-            historyUp={historyUp}
-            historyDown={historyDown}
-            resetHistoryCursor={resetHistoryCursor}
-            onListCandidates={onListCandidates}
-            onAbandon={onAbandon}
-            cancel={cancel}
-            clearScreen={clearScreen}
-            prompt={prompt}
-            running={running}
-            sequencePlaying={sequencePlaying}
-          />
+          <div>
+            {!running && !sequencePlaying && !tourPlaying && !booting && <SuggestionBar items={suggestions} onSelect={submitSuggestion} />}
+            <CommandLine
+              prefill={prefill}
+              onPrefillApplied={onPrefillApplied}
+              onSubmit={handleCommand}
+              complete={complete}
+              historyUp={historyUp}
+              historyDown={historyDown}
+              resetHistoryCursor={resetHistoryCursor}
+              onListCandidates={onListCandidates}
+              onAbandon={onAbandon}
+              cancel={cancel}
+              clearScreen={clearScreen}
+              prompt={prompt}
+              running={running}
+              sequencePlaying={sequencePlaying}
+              tourText={tourText}
+            />
+          </div>
         )}
       </div>
 
@@ -231,12 +243,13 @@ export default function Terminal() {
         className="menu-bar"
         style={{
           display: 'flex',
-          flexWrap: 'wrap',
+          flexWrap: 'nowrap',
           gap: '6px',
           padding: '10px 16px',
           borderTop: '1px solid var(--dimmed)',
           background: 'rgba(255,255,255,0.03)',
           borderRadius: '0 0 8px 8px',
+          overflowX: 'auto',
         }}
       >
         {menuItems.map((item) => (
@@ -268,6 +281,8 @@ export default function Terminal() {
           </button>
         ))}
       </div>
+
+      <div className="shortcut-hint">Press ? for shortcuts</div>
 
       {idle && <Screensaver color={theme.primary} />}
 

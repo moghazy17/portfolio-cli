@@ -261,6 +261,19 @@ export interface CommandResult {
   ask?: { question: string };
   view?: 'gui';
   sign?: { name: string; message: string };
+  tour?: TourStep[];
+}
+
+export interface Suggestion {
+  label: string;
+  line: string;
+  kind: 'command' | 'question';
+}
+
+export interface TourStep {
+  line: string;
+  pauseMs: number;
+  motion?: true;
 }
 
 export interface SequenceStep {

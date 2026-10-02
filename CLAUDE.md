@@ -54,7 +54,7 @@ npm run eval:assistant -w @ahmed-moghazy/shared  # Golden-question assistant eva
 - `registry.ts` — `commandRegistry` array of `CommandDefinition` objects and command metadata
 - `engine.ts` — backward-compatible `executeCommand()`, `getCompletions()`, and `getMenuItems()` wrappers
 - `cv.ts` — CV data commands (about, education, experience, projects, skills, certifications, contact)
-- `utility.ts` — Utility commands (open, timeline, theme, welcome, whoami, gui/startx)
+- `utility.ts` — Utility commands (open, timeline, theme, welcome, whoami, gui/startx, tour)
 - `live.ts` — Live commands over injected `ctx.live`: `who` (presence; `bareOnly`, so `who …` with words goes to the assistant), `guestbook`, `sign` (web only, returns a `sign` effect)
 - `github.ts` — Live GitHub stats command (uses `fetchGitHubData` from `../github`)
 - `chat.ts` — AI chat mode entry command
@@ -66,6 +66,8 @@ npm run eval:assistant -w @ahmed-moghazy/shared  # Golden-question assistant eva
 
 `src/surface/` holds the access-surface logic shared by the web host and the curl route: `parseAddress()`/`toAddress()` (one address format for browsers and text clients: command paths like `/skills/llm` plus `/?cmd=`), `isTextClient()`, `wantsColor()`, `runTextRequest()`/`curlIndex()` (curl responses and the root guide), `rateLimitedResponse()`, and `recordSurfaceEvent()`/`readSurfaceStats()` (anonymous daily counters over an injected Redis client).
 
+`src/discover/` defines the shared suggestion sets, rotating prompt examples, and scripted tour steps. The `tour` command returns a structured effect on web and a web address on curl.
+
 `src/shell/` contains the tokenizer, parser, argument parsing, filters, completion, history,
 suggestions, unknown-command handling, and output-to-lines conversion. `src/vfs/` provides
 `buildFileSystem()` and path helpers; `src/render/ansi.ts` provides `renderAnsi()`.
@@ -73,7 +75,7 @@ suggestions, unknown-command handling, and output-to-lines conversion. `src/vfs/
 Each `CommandDefinition` includes its name, aliases, description, usage, `execute()` function,
 and metadata such as `kind`, `menu`, `surfaces`, `args`, `man`, and `hidden`. `CommandResult`
 contains `output: CommandOutput[]` plus optional effects: `clear`, `mode`, `openUrl`, `status`,
-`theme`, `welcome`, `download`, `sequence`, and `ask` (hand unknown input to the AI assistant).
+`theme`, `welcome`, `download`, `sequence`, `tour`, and `ask` (hand unknown input to the AI assistant).
 `CommandDefinition.assistant: true` marks the read-only commands the assistant may run. `createShell()` also accepts an
 `onUnknownCommand` hook for host-specific handling of unrecognised input.
 
@@ -98,7 +100,9 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 - `components/SequencePlayer.tsx` — Skippable command-sequence playback with reduced-motion support
 - `components/ChatRenderer.tsx` — AI chat mode; renders the same assistant parts as in-shell answers and shares the session conversation
 - `components/AssistantAnswer.tsx` — Renders an in-shell assistant answer (command output, text, sources, notices; `aria-busy` while streaming)
-- `hooks/useTerminal.ts` — Owns the shell instance, cancellation, command effects (including `ask` → streamed assistant answer), and terminal state
+- `hooks/useTerminal.ts` — Owns the shell instance, cancellation, command effects (including `ask` → streamed assistant answer and `tour`), suggestions, and terminal state
+- `hooks/useTour.ts`, `hooks/useKeyboardInset.ts` — Skippable tour playback and mobile keyboard positioning
+- `components/SuggestionBar.tsx`, `components/ShortcutSheet.tsx` — Suggested next steps and desktop keyboard help
 - `hooks/useHistory.ts` — LocalStorage-backed wrapper around the shared history state
 - `hooks/useThemeApplier.ts` — Applies theme CSS custom properties and remembers the chosen theme
 - `app/gui/` — The regular page (`/gui`): static with hourly revalidation, Tailwind (no Preflight) and `motion` scoped to this route; components in `components/gui/`
@@ -114,6 +118,7 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 - `app/api/chat-stats/route.ts` — Private usage report and question log (`?log=1`), bearer-token guarded and rate-limited
 - `app/api/content/route.ts` — Versioned portfolio-content API with ETag caching
 - `app/api/term/route.ts` — Terminal text for text clients (`?nocolor`), rate-limited at 60/min per IP (fails open), counted in the usage report
+- `app/api/events/route.ts` — Allow-listed, rate-limited anonymous discoverability counters
 - `lib/surface-stats.ts` — Binds the shared surface counters to Redis; `/api/chat-stats` includes them as `surfaces.daily`
 - `lib/github-stats.ts` — Cached (10 min, Redis + memory), token-authenticated GitHub stats for the `github` command over curl
 - `app/api/presence/route.ts` — Presence heartbeat (POST) and count (GET), 60/min per IP
@@ -126,7 +131,7 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 - Theme switching uses CSS custom properties applied to `document.documentElement`
 - `DEFAULT_THEME` and `themes` from `packages/shared/src/theme.ts` initialize and update the web terminal theme
 - Links run commands on load but never perform `openUrl`/`download`; an `ask` result from a link only prefills the prompt. The address bar follows the last command via `history.replaceState` (questions are never written)
-- `useTerminal` applies `CommandResult` effects: `openUrl`, `theme`, `welcome`, `download`, `sequence`, `clear`, `mode`, and `ask` (streams the assistant answer in place)
+- `useTerminal` applies `CommandResult` effects: `openUrl`, `theme`, `welcome`, `download`, `sequence`, `tour`, `clear`, `mode`, and `ask` (streams the assistant answer in place)
 - The web app uses `transpilePackages: ['@ahmed-moghazy/shared']` in `next.config.js`
 - Redis caching in web app is conditional — works without env vars (graceful degradation)
 - For local end-to-end checks, run `npm run build:web`, then `cd apps/web && CI=1 npx playwright test` (set `E2E_PORT` to use a port other than 3100)

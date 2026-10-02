@@ -54,6 +54,8 @@ curl returns content only; questions for the AI assistant need the web terminal.
 
 ## Try it
 
+- Tap a suggestion above the prompt to explore without typing, or run `tour` for a skippable guided visit.
+- On desktop, press `?` at an empty prompt for the keyboard shortcut sheet.
 - Press `Tab` for completion and `↑`/`↓` to browse history; use `Ctrl+C` to cancel and `Ctrl+L` to clear.
 - Pipe output into filters, for example `projects | grep rag`.
 - Explore with `ls`, `cd`, `cat`, and `tree`; use `man <command>` for details and `resume` for the PDF.
@@ -92,6 +94,7 @@ The terminal has two modes, switchable with **Tab**:
 | `welcome` | `home`, `banner` | Show the ASCII banner |
 | `whoami` | — | Easter egg |
 | `clear` | `cls` | Clear the terminal |
+| `tour` | — | Guided, skippable terminal visit |
 
 **Filter examples:**
 ```

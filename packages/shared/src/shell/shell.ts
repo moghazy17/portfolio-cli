@@ -32,7 +32,7 @@ export interface Shell {
   readonly session: Readonly<ShellSession>;
 }
 
-const effectKeys = ['clear', 'mode', 'openUrl', 'theme', 'welcome', 'download', 'sequence', 'ask', 'view', 'sign'] as const;
+const effectKeys = ['clear', 'mode', 'openUrl', 'theme', 'welcome', 'download', 'sequence', 'ask', 'view', 'sign', 'tour'] as const;
 
 function failure(message: string): CommandResult {
   return { output: [{ type: 'error', content: message }], status: 'error' };

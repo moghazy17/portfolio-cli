@@ -165,5 +165,5 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-`specs/005-living-portfolio/plan.md` (Spec 005 — living portfolio: GUI mode, terminal motion, presence and guestbook)
+`specs/006-discoverability/plan.md` (Spec 006 — discoverability: suggestions, prompt examples, tour, shortcuts and mobile polish)
 <!-- SPECKIT END -->

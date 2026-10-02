@@ -14,12 +14,14 @@ import ChatRenderer from './ChatRenderer';
 import { useTerminal } from '../hooks/useTerminal';
 import { useIdle } from '../hooks/useIdle';
 import CrtFilter from './CrtFilter';
+import { usePresence } from '../hooks/usePresence';
 
 const Screensaver = dynamic(() => import('./Screensaver'), { ssr: false });
 
 const menuItems = getMenuItems();
 
 export default function Terminal() {
+  const presence = usePresence();
   const {
     history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat, conversationRef,
     prompt, running, skip, sequencePlaying, finishSequence,
@@ -121,6 +123,7 @@ export default function Terminal() {
         >
           {prompt}
         </span>
+        {presence && <span aria-label={`${presence.total} exploring now`} style={{ color: 'var(--dimmed)', fontSize: 12, whiteSpace: 'nowrap' }}>{presence.total} online</span>}
         <button
           type="button"
           data-testid="open-gui"

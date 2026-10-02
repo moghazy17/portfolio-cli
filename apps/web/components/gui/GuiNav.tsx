@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { markGuiSeen, setViewCookie } from '../../lib/view-cookie';
 import { MenuIcon, TerminalIcon } from './icons';
+import PresenceBadge from './PresenceBadge';
 
 interface Props {
   name: string;
@@ -26,6 +27,7 @@ export default function GuiNav({ name, links }: Props) {
     <nav aria-label="Sections" className="sticky top-0 z-40 border-b border-border bg-bg/90 backdrop-blur">
       <div className="mx-auto flex min-h-14 max-w-5xl items-center gap-2 px-4 sm:px-6">
         <a href="#hero" className="min-w-0 flex-1 truncate py-2 font-semibold sm:flex-none sm:pr-4">{name}</a>
+        <PresenceBadge />
 
         <ul className="hidden items-center sm:flex">
           {links.map((link) => (

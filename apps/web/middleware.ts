@@ -20,7 +20,12 @@ function rewriteHome(request: NextRequest, noindex = false): NextResponse {
 function handleBrowserRequest(request: NextRequest, event: NextFetchEvent): NextResponse {
   const { pathname, search } = request.nextUrl;
   // The regular page is a real route, not a deep link to the `gui` command.
-  if (pathname === '/gui' || pathname === '/gui/') return NextResponse.next();
+  if (pathname === '/gui' || pathname === '/gui/') {
+    if (request.headers.get('sec-fetch-dest') === 'document' || request.headers.get('rsc') === '1') {
+      event.waitUntil(recordSurfaceEvent('gui_visits'));
+    }
+    return NextResponse.next();
+  }
   if (pathname === '/' && search === '' && readViewCookie(request) === 'gui') {
     const response = NextResponse.redirect(new URL('/gui', request.url), 307);
     response.headers.set('Cache-Control', 'private, no-store');

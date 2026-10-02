@@ -5,6 +5,7 @@ import { after } from 'next/server';
 import { getGitHubStatsCached } from '../../../lib/github-stats';
 import { getInventory } from '../../../lib/inventory-store';
 import { redis } from '../../../lib/redis';
+import { serverLiveServices } from '../../../lib/live-services-server';
 import { recordSurfaceEvent } from '../../../lib/surface-stats';
 
 export const dynamic = 'force-dynamic';
@@ -44,6 +45,7 @@ export async function GET(request: Request): Promise<Response> {
     color: wantsColor(search),
     origin: url.origin,
     github: getGitHubStatsCached,
+    live: serverLiveServices,
     skillEvidence: async () => {
       const snapshot = await getInventory();
       if (!snapshot || Date.now() - Date.parse(snapshot.generatedAt) > STALE_AFTER_MS) throw new Error('No current inventory');

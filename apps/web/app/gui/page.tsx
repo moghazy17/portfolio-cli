@@ -1,8 +1,12 @@
 import type { Metadata } from 'next';
-import { profile, site } from '@ahmed-moghazy/shared';
+import { unstable_cache } from 'next/cache';
+import { cvData, profile, site } from '@ahmed-moghazy/shared';
+import { skillEvidence, STALE_AFTER_MS } from '@ahmed-moghazy/shared/assistant-server';
+import { getInventory } from '../../lib/inventory-store';
 import GuiAbout from '../../components/gui/GuiAbout';
 import GuiContact from '../../components/gui/GuiContact';
 import GuiHero from '../../components/gui/GuiHero';
+import GuiGuestbook from '../../components/gui/GuiGuestbook';
 import GuiNav from '../../components/gui/GuiNav';
 import GuiProjects from '../../components/gui/GuiProjects';
 import GuiSkills from '../../components/gui/GuiSkills';
@@ -34,10 +38,18 @@ const navLinks = [
   { href: '#experience', label: 'Experience' },
   { href: '#projects', label: 'Projects' },
   { href: '#skills', label: 'Skills' },
+  { href: '#guestbook', label: 'Guestbook' },
   { href: '#contact', label: 'Contact' },
 ];
 
-export default function GuiPage() {
+const getGuiSkillEvidence = unstable_cache(async () => {
+  const inventory = await getInventory();
+  return inventory && Number.isFinite(Date.parse(inventory.generatedAt)) && Date.now() - Date.parse(inventory.generatedAt) <= STALE_AFTER_MS
+    ? skillEvidence(inventory, cvData.skills) : null;
+}, ['gui-skill-evidence'], { revalidate: 3600 });
+
+export default async function GuiPage() {
+  const evidence = await getGuiSkillEvidence();
   return (
     <>
       <ViewMemory />
@@ -47,7 +59,8 @@ export default function GuiPage() {
         <Reveal><GuiAbout /></Reveal>
         <Reveal><GuiTimeline /></Reveal>
         <Reveal><GuiProjects /></Reveal>
-        <Reveal><GuiSkills /></Reveal>
+        <Reveal><GuiSkills evidence={evidence ?? undefined} /></Reveal>
+        <Reveal><GuiGuestbook /></Reveal>
         <Reveal><GuiContact /></Reveal>
       </main>
     </>

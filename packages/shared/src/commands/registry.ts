@@ -32,6 +32,7 @@ import { catCommand, cdCommand, lsCommand, pwdCommand, readOnlyCommand, treeComm
 import type { CommandContext } from '../types';
 import { manCommand } from './man';
 import { resumeCommand } from './resume';
+import { whoCommand, guestbookCommand, signCommand } from './live';
 
 function lineCount(ctx: CommandContext, name: 'head' | 'tail'): CommandResult {
   const raw = ctx.flags.lines ?? '10';
@@ -232,6 +233,24 @@ export const commandRegistry: CommandDefinition[] = [
       examples: ['gui', 'startx'],
     },
     execute: guiCommand,
+  },
+  {
+    name: 'who', assistant: true, bareOnly: true, description: 'Show people exploring now', usage: 'who', aliases: [],
+    surfaces: ['web', 'curl'],
+    man: { description: 'Show the number of people currently exploring the site.', examples: ['who'] },
+    execute: whoCommand,
+  },
+  {
+    name: 'guestbook', assistant: true, description: 'Read recent guestbook entries', usage: 'guestbook', aliases: [],
+    surfaces: ['web', 'curl'],
+    man: { description: 'Read the newest guestbook entries and learn how to sign.', examples: ['guestbook'] },
+    execute: guestbookCommand,
+  },
+  {
+    name: 'sign', description: 'Sign the guestbook', usage: 'sign "<message>" --name <name>', aliases: [],
+    surfaces: ['web'], args: { positional: [{ name: 'message', required: true }], flags: [{ short: 'n', long: 'name', value: 'string', description: 'Your name' }] },
+    man: { description: 'Sign the guestbook after a human check. Available in the web terminal.', examples: ['sign "Hello!" --name Sam', 'sign "Nice work" -n Sam'] },
+    execute: signCommand,
   },
   {
     name: 'clear',

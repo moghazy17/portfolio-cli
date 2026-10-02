@@ -33,11 +33,14 @@ describe('surface stats', () => {
     await recordSurfaceEvent(client, 'curl_requests', now);
     await recordSurfaceEvent(client, 'curl_rate_limited', now);
     await recordSurfaceEvent(client, 'deep_links', now);
+    await recordSurfaceEvent(client, 'gui_visits', now);
+    await recordSurfaceEvent(client, 'guestbook_signed', now);
+    await recordSurfaceEvent(client, 'guestbook_rejected', now);
 
-    expect(client.writes.map((write) => write.key)).toEqual(['surface:stats:2026-10-01', 'surface:stats:2026-10-01', 'surface:stats:2026-10-01']);
+    expect(client.writes.map((write) => write.key)).toEqual(Array(6).fill('surface:stats:2026-10-01'));
     expect(new Set(client.writes.map((write) => write.key))).toEqual(new Set(['surface:stats:2026-10-01']));
     expect(client.writes.every((write) => /^surface:stats:\d{4}-\d{2}-\d{2}$/.test(write.key))).toBe(true);
-    expect(new Set(client.writes.map((write) => write.field))).toEqual(new Set(['curl_requests', 'curl_rate_limited', 'deep_links']));
+    expect(new Set(client.writes.map((write) => write.field))).toEqual(new Set(['curl_requests', 'curl_rate_limited', 'deep_links', 'gui_visits', 'guestbook_signed', 'guestbook_rejected']));
     expect(client.writes.every((write) => !/(?:\d{1,3}\.){3}\d{1,3}|\/|\?/.test(`${write.key}:${write.field}`))).toBe(true);
   });
 
@@ -72,8 +75,8 @@ describe('surface stats', () => {
 
     await expect(readSurfaceStats(client, 2, new Date('2026-10-02T12:00:00.000Z'))).resolves.toEqual({
       daily: [
-        { date: '2026-10-02', curl_requests: 0, curl_rate_limited: 0, deep_links: 0 },
-        { date: '2026-10-01', curl_requests: 1, curl_rate_limited: 0, deep_links: 0 },
+        { date: '2026-10-02', curl_requests: 0, curl_rate_limited: 0, deep_links: 0, gui_visits: 0, guestbook_signed: 0, guestbook_rejected: 0, presence_peak: 0 },
+        { date: '2026-10-01', curl_requests: 1, curl_rate_limited: 0, deep_links: 0, gui_visits: 0, guestbook_signed: 0, guestbook_rejected: 0, presence_peak: 0 },
       ],
     });
   });

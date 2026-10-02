@@ -27,13 +27,13 @@ describe('assistant command allowlist', () => {
     expect(stats.totalStars).toBe(2);
   });
   it('accepts read-only commands, pipelines and aliases', () => {
-    for (const line of ['projects', 'projects | grep -i rag | head -n 3', 'cat about.md', 'proj | wc -l']) {
+    for (const line of ['projects', 'projects | grep -i rag | head -n 3', 'cat about.md', 'proj | wc -l', 'who', 'guestbook']) {
       expect(validateAssistantCommandLine(line, commandRegistry)).toEqual({ ok: true });
     }
   });
 
   it('rejects commands with effects or side effects', () => {
-    for (const line of ['theme dracula', 'cd projects', 'resume', 'sudo hire-me', 'chat', 'clear', 'open github']) {
+    for (const line of ['theme dracula', 'cd projects', 'resume', 'sudo hire-me', 'chat', 'clear', 'open github', 'sign "hi" --name Sam']) {
       const result = validateAssistantCommandLine(line, commandRegistry);
       expect(result).toMatchObject({ ok: false, reason: 'not-allowed' });
     }
@@ -69,6 +69,7 @@ describe('assistant command allowlist', () => {
         "experience",
         "github",
         "grep",
+        "guestbook",
         "head",
         "help",
         "ls",
@@ -81,6 +82,7 @@ describe('assistant command allowlist', () => {
         "timeline",
         "tree",
         "wc",
+        "who",
         "whoami",
       ]
     `);

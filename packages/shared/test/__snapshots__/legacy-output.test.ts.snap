@@ -81,6 +81,18 @@ exports[`legacy command output > snapshots ? 1`] = `
           "Switch to the regular page",
         ],
         [
+          "who",
+          "Show people exploring now",
+        ],
+        [
+          "guestbook",
+          "Read recent guestbook entries",
+        ],
+        [
+          "sign "<message>" --name <name>",
+          "Sign the guestbook",
+        ],
+        [
           "clear",
           "Clear the terminal",
         ],
@@ -1014,6 +1026,18 @@ exports[`legacy command output > snapshots h 1`] = `
           "Switch to the regular page",
         ],
         [
+          "who",
+          "Show people exploring now",
+        ],
+        [
+          "guestbook",
+          "Read recent guestbook entries",
+        ],
+        [
+          "sign "<message>" --name <name>",
+          "Sign the guestbook",
+        ],
+        [
           "clear",
           "Clear the terminal",
         ],
@@ -1124,6 +1148,18 @@ exports[`legacy command output > snapshots help 1`] = `
         [
           "gui",
           "Switch to the regular page",
+        ],
+        [
+          "who",
+          "Show people exploring now",
+        ],
+        [
+          "guestbook",
+          "Read recent guestbook entries",
+        ],
+        [
+          "sign "<message>" --name <name>",
+          "Sign the guestbook",
         ],
         [
           "clear",

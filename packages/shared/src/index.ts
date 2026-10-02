@@ -14,3 +14,6 @@ export * from './render';
 export * from './assistant';
 export * from './exclusion';
 export * from './surface';
+export { GUESTBOOK_LIMITS, SIGN_MESSAGES, sanitizeGuestbookText, validateGuestbookEntry } from './guestbook/validate';
+export { formatRelative } from './guestbook/time';
+export { guestbookEntryOutput } from './commands/live';

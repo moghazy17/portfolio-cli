@@ -55,6 +55,12 @@ function routeWord(line: string, registry: CommandDefinition[]): string {
   return findCommand(registry, name) ? name : word;
 }
 
+function hasBareOnlyArguments(line: string): boolean {
+  const leading = line.match(/^(?:\\.|[^\s|&;<>\\])*/)![0];
+  const remainder = line.slice(leading.length).trimStart();
+  return remainder.length > 0 && !/^[|&;<>]/.test(remainder);
+}
+
 function mergeEffects(target: ShellResult, source: CommandResult): void {
   for (const key of effectKeys) {
     if (source[key] !== undefined) Object.assign(target, { [key]: source[key] });
@@ -144,7 +150,8 @@ export function createShell(options: ShellOptions): Shell {
         return failure('error: input too long (max 1000 characters)');
       }
       const word = routeWord(trimmed, registry);
-      if (word && !findCommand(registry, word)) {
+      const command = findCommand(registry, word);
+      if (word && (!command || (command.bareOnly && hasBareOnlyArguments(trimmed)))) {
         const suggestion = /^\S+$/.test(trimmed) ? suggestCommand(word, registry) : undefined;
         const result = await unknown({ raw: line, word, suggestion }, {
           session, surface: options.surface, origin: options.origin, signal, fs: fs(),

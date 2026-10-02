@@ -223,6 +223,8 @@ export interface CommandDefinition {
   menu?: boolean;
   /** Whether the assistant may execute this command. */
   assistant?: boolean;
+  /** Treat input with arguments as unknown input; bare invocations still run this command. */
+  bareOnly?: boolean;
   surfaces?: Surface[];
   args?: ArgSpec;
   man?: ManPage;

@@ -2,17 +2,18 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ASSISTANT_ERROR_MESSAGE, askAssistant, createAssistantUnknownHandler, createShell, formatSourcesLine, MAX_LINK_LENGTH,
-  bootSequence, parseAddress, shouldType, themes, toAddress, welcomeCommand,
+  bootSequence, guestbookEntryOutput, parseAddress, shouldType, SIGN_MESSAGES, themes, toAddress, welcomeCommand,
 } from '@ahmed-moghazy/shared';
 import type {
-  AssistantEvent, AssistantTurn, CommandOutput, Completion, HistoryEntry, NoticeKind, SequenceStep,
+  AssistantEvent, AssistantTurn, CommandOutput, Completion, HistoryEntry, NoticeKind, SequenceStep, SignResult,
 } from '@ahmed-moghazy/shared';
 import { peekSnapshot, saveSnapshot, takeSnapshot } from '../lib/terminal-snapshot';
 import { markGuiSeen, setViewCookie } from '../lib/view-cookie';
 import { useHistory } from './useHistory';
 import { useThemeApplier } from './useThemeApplier';
 import { useReducedMotion } from './useReducedMotion';
-import { fetchSkillEvidence } from '../lib/live-services';
+import { fetchSkillEvidence, liveServices } from '../lib/live-services';
+import { getTurnstileToken } from '../lib/turnstile-client';
 
 export type TerminalMode = 'command' | 'chat';
 
@@ -142,6 +143,7 @@ export function useTerminal() {
       shellRef.current = createShell({
         surface: 'web', origin: window.location.origin, onUnknownCommand: createAssistantUnknownHandler(),
         skillEvidence: fetchSkillEvidence,
+        live: liveServices,
         ...(restoredRef.current && { initialCwd: restoredRef.current.cwd }),
       });
     }
@@ -328,6 +330,9 @@ export function useTerminal() {
         style: { dim: true },
       }];
     }
+    if (isLink && result.sign) {
+      output = [{ type: 'text', content: 'To sign, type this command in the web terminal.', style: { dim: true } }];
+    }
     const resetWithoutOutput = (result.welcome || result.clear) && !output.length && !result.sequence;
     if (mode === 'command' && !result.view) {
       syncAddress(resetWithoutOutput ? '' : input, cwdBefore);
@@ -346,6 +351,30 @@ export function useTerminal() {
       reveal: !isLink && !result.ask && !result.sequence && !/[|]/.test(input) && !reducedMotion && shouldType(output),
       sequence: result.sequence, sequenceId,
     }]);
+    if (result.sign && !isLink) {
+      setRunning(true);
+      controllerRef.current = controller;
+      try {
+        const turnstileToken = await getTurnstileToken();
+        if (controller.signal.aborted) return;
+        const response = await fetch('/api/guestbook', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: controller.signal,
+          body: JSON.stringify({ ...result.sign, turnstileToken }),
+        });
+        const signed = await response.json() as SignResult;
+        if (controller.signal.aborted) return;
+        setHistory((previous) => [...previous, { input: '', output: signed.ok
+          ? [{ type: 'text', content: `Thanks for signing, ${signed.entry.name}!`, style: { color: 'success' } }, ...guestbookEntryOutput(signed.entry)]
+          : [{ type: 'error', content: signed.message }] }]);
+      } catch {
+        if (!controller.signal.aborted) setHistory((previous) => [...previous, { input: '', output: [{ type: 'error', content: SIGN_MESSAGES.human_check }] }]);
+      } finally {
+        if (controllerRef.current === controller) {
+          controllerRef.current = null;
+          setRunning(false);
+        }
+      }
+    }
     if (result.mode === 'chat') setMode('chat');
     // Unlike openUrl and download, switching views only changes what is displayed, so links may do it.
     if (result.view === 'gui') {

@@ -170,5 +170,5 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-`specs/006-discoverability/plan.md` (Spec 006 — discoverability: suggestions, prompt examples, tour, shortcuts and mobile polish)
+`specs/007-unified-command-bar/plan.md` (Spec 007 — unified command bar: one bottom bar with suggestions and an all-commands sheet)
 <!-- SPECKIT END -->

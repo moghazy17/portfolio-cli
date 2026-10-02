@@ -3,7 +3,7 @@ import { cvData, slugify } from '../content';
 import { renderAnsi } from '../render';
 import { createShell } from '../shell';
 import { createAssistantUnknownHandler } from '../assistant';
-import type { CommandOutput, LiveServices, SkillEvidence } from '../types';
+import type { CommandOutput, LiveServices, SkillEvidenceDetails } from '../types';
 import type { GitHubStats } from '../github';
 import type { AddressResult } from './address';
 
@@ -13,7 +13,7 @@ export interface TextRequest {
   origin: string;
   github?: (signal: AbortSignal) => Promise<GitHubStats>;
   live?: LiveServices;
-  skillEvidence?: (signal: AbortSignal) => Promise<SkillEvidence>;
+  skillEvidence?: (signal: AbortSignal) => Promise<SkillEvidenceDetails>;
 }
 
 export interface TextResponse {

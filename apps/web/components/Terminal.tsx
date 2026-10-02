@@ -16,6 +16,7 @@ import CrtFilter from './CrtFilter';
 import { usePresence } from '../hooks/usePresence';
 import { useKeyboardInset } from '../hooks/useKeyboardInset';
 import CommandBar from './CommandBar';
+import TourCard from './TourCard';
 
 const Screensaver = dynamic(() => import('./Screensaver'), { ssr: false });
 
@@ -24,7 +25,8 @@ export default function Terminal() {
   useKeyboardInset();
   const {
     history, showWelcome, theme, scrollRef, handleCommand, submitSuggestion, suggestions, mode, exitChat, conversationRef,
-    prompt, running, skip, sequencePlaying, finishSequence, tourPlaying, tourText, tourFinished,
+    prompt, running, skip, sequencePlaying, finishSequence, tourPlaying, tourSteps, tourIndex, tourBusy,
+    tourText, tourFinished, tourFocusRequest, nextTour, backTour, stopTour,
     prefill, onPrefillApplied,
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp, historyDown, resetHistoryCursor,
@@ -178,7 +180,9 @@ export default function Terminal() {
         {showWelcome && !booting && <WelcomeScreen />}
 
         {history.map((entry, i) => (
-          <div key={i} style={{ marginBottom: '16px' }}>
+          <div key={i} data-tour-step={entry.tourStepIndex}
+            data-tour={entry.tourSessionId !== undefined && entry.tourStepIndex !== undefined ? `${entry.tourSessionId}:${entry.tourStepIndex}` : undefined}
+            style={{ marginBottom: '16px' }}>
             {entry.prompt && (
               <div>
                 <span style={{ color: 'var(--accent)', userSelect: 'none' }}>
@@ -203,6 +207,15 @@ export default function Terminal() {
           </div>
         ))}
 
+        {tourPlaying && <TourCard
+          steps={tourSteps}
+          index={tourIndex}
+          busy={tourBusy}
+          focusRequest={tourFocusRequest}
+          onBack={backTour}
+          onNext={nextTour}
+          onExit={() => stopTour(false, true)}
+        />}
         {tourFinished && !tourPlaying && <div className="tour-finish" role="status">Your turn</div>}
         {mode === 'chat' ? (
           <ChatRenderer onExit={exitChat} conversationRef={conversationRef} theme={theme} />
@@ -225,6 +238,8 @@ export default function Terminal() {
               running={running}
               sequencePlaying={sequencePlaying}
               tourText={tourText}
+              tourActive={tourPlaying}
+              onTourInput={() => stopTour()}
             />
           </div>
         )}

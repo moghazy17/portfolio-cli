@@ -24,6 +24,8 @@ interface Props {
   running: boolean;
   sequencePlaying: boolean;
   tourText: string | null;
+  tourActive: boolean;
+  onTourInput: () => void;
 }
 
 export default function CommandLine({
@@ -43,6 +45,8 @@ export default function CommandLine({
   running,
   sequencePlaying,
   tourText,
+  tourActive,
+  onTourInput,
 }: Props) {
   const [input, setInput] = useState('');
   const [exampleIndex, setExampleIndex] = useState(0);
@@ -72,10 +76,17 @@ export default function CommandLine({
   }, []);
 
   const tourWasActive = useRef(false);
+  const tourTakenOver = useRef(false);
   useEffect(() => {
-    if (tourText !== null) { tourWasActive.current = true; setInput(tourText); }
-    else if (tourWasActive.current) { tourWasActive.current = false; setInput(''); }
+    if (tourText !== null) {
+      if (!tourTakenOver.current) { tourWasActive.current = true; setInput(tourText); }
+    } else {
+      if (tourWasActive.current && !tourTakenOver.current) setInput('');
+      tourWasActive.current = false;
+      tourTakenOver.current = false;
+    }
   }, [tourText]);
+  useEffect(() => { if (!tourActive) tourTakenOver.current = false; }, [tourActive]);
 
   const closeSheet = () => { setSheetOpen(false); requestAnimationFrame(() => inputRef.current?.focus()); };
 
@@ -123,7 +134,12 @@ export default function CommandLine({
 
     switch (e.key) {
       case 'Enter':
+        if (tourActive && tourText !== null && !tourTakenOver.current) {
+          e.preventDefault();
+          break;
+        }
         if (input.trim()) {
+          e.preventDefault();
           onSubmit(input);
           setInput('');
           resetHistoryCursor();
@@ -163,12 +179,20 @@ export default function CommandLine({
         {prompt}
       </span>
       <div className="command-input-wrap">
-        {!input && tourText === null && <span className="prompt-example" aria-hidden="true">{example}</span>}
+        {!input && tourText === null && !tourActive && <span className="prompt-example" aria-hidden="true">{example}</span>}
         <input
           ref={inputRef}
           type="text"
           value={input}
-          onChange={(e) => { previousTab.current = false; resetHistoryCursor(); setInput(e.target.value); }}
+          onChange={(e) => {
+            previousTab.current = false;
+            resetHistoryCursor();
+            if (tourActive && e.target.value !== tourText) {
+              tourTakenOver.current = true;
+              onTourInput();
+            }
+            setInput(e.target.value);
+          }}
           onKeyDown={handleKeyDown}
           enterKeyHint="go"
           spellCheck={false}

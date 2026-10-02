@@ -4,6 +4,11 @@ import { isExcludedRepo } from './exclusion';
 export const GITHUB_USERNAME = cvData.contact.github.replace('https://github.com/', '');
 export const GITHUB_API_BASE = 'https://api.github.com';
 
+export function githubRepoSearchUrl(repos: string[]): string {
+  const query = repos.map((repo) => `repo:${GITHUB_USERNAME}/${repo}`).join(' ');
+  return `https://github.com/search?type=repositories&q=${encodeURIComponent(query)}`;
+}
+
 export interface GitHubUser {
   public_repos: number;
   followers: number;

@@ -4,9 +4,10 @@ import { validateAssistantCommandLine } from '../allowlist';
 import { commandRegistry } from '../../commands/registry';
 import { createShell } from '../../shell/shell';
 import { toLines } from '../../shell/lines';
-import type { CommandOutput, LiveServices, ShellResult, SkillEvidence } from '../../types';
+import type { CommandOutput, LiveServices, ShellResult, SkillEvidenceDetails } from '../../types';
 import { isExcludedRepo } from '../../exclusion';
 import { listRepos, lookupTech } from '../../inventory/lookup';
+import { filterSnapshotToCurrentRepos } from '../../inventory/current';
 import type { InventorySnapshot } from '../../inventory/types';
 import { redactSecrets } from '../sanitize';
 import type { CodeHit, LiveRepo, LiveRepoDetail, RecentActivity } from './live-types';
@@ -22,7 +23,7 @@ export interface AssistantDeps {
   inventory(): Promise<InventorySnapshot | null>;
   live?: AssistantLive;
   /** Data the read-only commands need (`who`, `guestbook`, skill bars), as the hosts provide it. */
-  commandServices?: { live?: LiveServices; skillEvidence?: (signal: AbortSignal) => Promise<SkillEvidence> };
+  commandServices?: { live?: LiveServices; skillEvidence?: (signal: AbortSignal) => Promise<SkillEvidenceDetails> };
   surface?: 'web' | 'ssh';
   origin?: string;
   signal?: AbortSignal;
@@ -61,7 +62,7 @@ export function capResult(value: object): Record<string, unknown> {
 
 export function createAssistantTools(deps: AssistantDeps, budget = createToolBudget(), now: () => Date = () => new Date()) {
   let searched = false;
-  // The live list only refreshes exclusions made since the last build. When GitHub is down,
+  // The live list catches repos made private or excluded since the last build. When GitHub is down,
   // the snapshot (which already dropped excluded repos at build time) is used on its own.
   const current = async () => {
     if (!deps.live) return null;
@@ -72,14 +73,7 @@ export function createAssistantTools(deps: AssistantDeps, budget = createToolBud
     const snapshot = await deps.inventory();
     if (!snapshot) return null;
     const live = await current();
-    if (!live) return snapshot;
-    const allowed = included(live);
-    const repos = Object.fromEntries(Object.entries(snapshot.repos).filter(([name]) => allowed.has(name)));
-    const techs = Object.fromEntries(Object.entries(snapshot.techs).map(([id, tech]) => [id, { ...tech, evidence: tech.evidence.filter((item) => allowed.has(item.repo)) }]).filter(([, tech]) => (tech as InventorySnapshot['techs'][string]).evidence.length));
-    return { ...snapshot, repos, techs,
-      packages: Object.fromEntries(Object.entries(snapshot.packages).map(([key, items]) => [key, items.filter((item) => allowed.has(item.repo))])),
-      readmeMentions: Object.fromEntries(Object.entries(snapshot.readmeMentions).map(([key, items]) => [key, items.filter((item) => allowed.has(item.repo))])),
-      stats: { ...snapshot.stats, repoCount: Object.keys(repos).length, techCount: Object.keys(techs).length } } as InventorySnapshot;
+    return filterSnapshotToCurrentRepos(snapshot, live);
   };
   const execute = <T extends object>(fn: () => Promise<T>) => async () => {
     if (!budget.take()) return { budgetExhausted: true };

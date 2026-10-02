@@ -40,6 +40,19 @@ html, body { overflow-x: hidden; }
 .command-input-wrap { flex: 1; min-width: 0; position: relative; }
 .prompt-example { position: absolute; inset: 0 auto auto 0; color: color-mix(in srgb, var(--fg) 78%, var(--bg)); pointer-events: none; white-space: nowrap; overflow: hidden; max-width: 100%; }
 .tour-finish { color: var(--accent); margin: 12px 0; font-weight: bold; }
+.tour-card { position: sticky; bottom: 24px; z-index: 2; min-width: 0; max-width: 100%; padding: 12px; margin: 12px 0; border: 1px solid var(--primary); border-radius: 8px; background: var(--bg); color: var(--fg); overflow-wrap: anywhere; }
+.tour-card-heading { color: var(--accent); font-weight: bold; }
+.tour-card-caption { margin: 8px 0; }
+.tour-card-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.tour-card-actions button { min-height: 44px; padding: 8px 12px; border: 1px solid var(--primary); border-radius: 4px; background: transparent; color: var(--fg); font: inherit; cursor: pointer; }
+.tour-card-actions button:hover { background: var(--primary); color: var(--bg); }
+.tour-card-actions button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tour-card-actions button[aria-disabled="true"] { color: var(--dimmed); border-color: var(--dimmed); opacity: .6; cursor: default; }
+.tour-card-actions button[aria-disabled="true"]:hover { background: transparent; color: var(--dimmed); }
+.tour-card-keys { margin-top: 8px; color: color-mix(in srgb, var(--dimmed) 60%, var(--fg)); font-size: 12px; }
+@media (pointer: coarse) { .tour-card-keys { display: none; } }
+.skill-repo-link:hover { text-decoration-thickness: 2px !important; }
+.skill-repo-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .shortcut-backdrop { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 16px; background: rgba(0,0,0,.7); }
 .shortcut-sheet { width: min(420px, 100%); padding: 24px; border: 1px solid var(--primary); border-radius: 8px; background: var(--bg); color: var(--fg); box-shadow: 0 12px 40px rgba(0,0,0,.4); }
 .shortcut-sheet h2 { margin-bottom: 16px; color: var(--primary); }

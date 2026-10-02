@@ -14,7 +14,7 @@ Decisions taken from the request and the existing product (no open questions):
 - The existing menu bar stays as fixed navigation; suggestions are a separate row that changes with context.
 - Tapping an assistant-question suggestion sends that question, because the visitor chose it (unlike a link, which only prefills).
 - The tour is never started automatically; it is offered as a suggestion on first visit and by the `tour` command.
-- The tour's theme change is temporary: the visitor's own theme is restored when the tour ends or is skipped.
+- The tour's theme change is temporary: the visitor's own theme is restored on Finish or Exit.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -56,20 +56,22 @@ When the prompt is empty, dim example text cycles every few seconds — `try: sk
 
 ### User Story 3 - Guided tour (Priority: P3)
 
-A visitor taps "take the tour" or types `tour` and watches a roughly 60-second showcase: commands are typed out and run one after another — the welcome, `skills` with its bars, one assistant question answered with sources, a brief switch to the `crt` theme, `who` — ending with "Your turn" and fresh suggestions. Any key, tap or Esc stops the tour at once and leaves the terminal usable.
+A visitor taps "take the tour" or types `tour` and gets a guided showcase. The first command runs immediately; a card explains each step and lets the visitor move with Back, Next, or Exit at their own pace. The steps show `about`, `skills` with its bars, an assistant question answered with sources, a temporary `crt` theme, and `who`. Finish restores the visitor's theme and shows "Your turn" with fresh suggestions. Clicking or scrolling the page leaves the tour active.
 
 **Why this priority**: the "get impressed" moment for visitors who will never type, but it builds on suggestions and is only offered, never forced.
 
-**Independent Test**: start the tour, let it finish, start it again and skip mid-way, and confirm the theme and prompt are back to normal both times.
+**Independent Test**: start the tour, move forward and back, finish it, then start again and exit mid-way; confirm the original theme returns both times.
 
 **Acceptance Scenarios**:
 
-1. **Given** a visitor runs `tour` (or taps its suggestion), **When** the tour plays, **Then** each step's command is typed into the prompt, run, and its output shown, with a visible "press any key to stop" hint.
-2. **Given** the tour is playing, **When** the visitor presses any key, taps, or presses Esc, **Then** the tour stops immediately, no further steps run, the theme is restored, and the prompt is ready.
-3. **Given** the tour finishes, **When** the last step completes, **Then** the visitor's own theme is restored and a "Your turn" line with fresh suggestions appears.
-4. **Given** the assistant is unavailable or the visitor has reached their question limit, **When** the tour reaches its question step, **Then** the step shows the normal notice and the tour continues.
-5. **Given** reduced motion, **When** the tour plays, **Then** commands appear without typing animation, and the theme step is skipped.
-6. **Given** curl, **When** `tour` is requested, **Then** a short message says the tour is available in the web terminal.
+1. **Given** a visitor runs `tour` (or taps its suggestion), **When** it starts, **Then** `about` runs immediately and a card shows Step 1/5, its caption, and Back, Next, and Exit controls.
+2. **Given** a step has finished, **When** the visitor chooses Next or presses Enter or ArrowRight with an empty prompt, **Then** the next command runs once; Back or ArrowLeft revisits earlier output without rerunning it.
+3. **Given** a command or assistant answer is still running, **When** its step is shown, **Then** Next is disabled until that work finishes.
+4. **Given** the tour is active, **When** the visitor clicks or scrolls the page, **Then** the tour remains active; Exit, Esc, or entering their own command ends it quietly and restores the theme.
+5. **Given** the visitor chooses Finish on the last step, **Then** the visitor's own theme is restored and a "Your turn" line with fresh suggestions appears.
+6. **Given** the assistant is unavailable or the visitor has reached their question limit, **When** the visitor reaches its question step, **Then** the step shows the normal notice and Next becomes available.
+7. **Given** reduced motion, **When** the tour starts, **Then** commands appear without typing animation, the theme step is skipped, and the card shows four steps.
+8. **Given** curl, **When** `tour` is requested, **Then** a short message says the tour is available in the web terminal.
 
 ---
 
@@ -119,10 +121,10 @@ On desktop, pressing `?` on an empty prompt opens a small cheat sheet of keyboar
 
 **Tour**
 
-- **FR-008**: A `tour` command MUST play a scripted showcase of about 60 seconds whose steps are defined in shared code: welcome, `skills`, one assistant question, a temporary `crt` theme, `who`, then "Your turn" with fresh suggestions.
-- **FR-009**: Each tour step MUST type its command into the prompt (instant under reduced motion) and run it through the normal command path.
-- **FR-010**: Any key, tap or Esc MUST stop the tour immediately; no later step may run after stopping.
-- **FR-011**: The tour MUST restore the visitor's theme when it ends or stops, MUST NOT persist the temporary theme, and MUST skip the theme step under reduced motion.
+- **FR-008**: A `tour` command MUST start a visitor-paced guided showcase whose shared steps have a title and caption: `about`, `skills`, one assistant question, a temporary `crt` theme, and `who`. A card MUST show the current step and Back, Next, and Exit controls.
+- **FR-009**: The first step MUST run immediately. Each new step MUST type its command into the prompt (instant under reduced motion) and run through the normal command path. Back and revisited steps MUST show existing output without rerunning commands. Next MUST remain unavailable until the current command or answer finishes.
+- **FR-010**: With an empty prompt, Enter or ArrowRight MUST advance, ArrowLeft MUST go back, and Esc MUST exit. Typing or submitting a visitor command MUST exit quietly; pointer and scroll activity MUST leave the tour active. Finish alone MUST show "Your turn" and count as a completed tour.
+- **FR-011**: The tour MUST restore the visitor's theme on Finish or Exit, MUST NOT persist the temporary theme, and MUST skip the theme step under reduced motion, showing the resulting four-step count.
 - **FR-012**: The tour MUST NOT run from a deep link, MUST NOT perform sign, open, download or view-switch actions, and over curl MUST return a web-only message.
 
 **Desktop and mobile**
@@ -145,7 +147,7 @@ On desktop, pressing `?` on an empty prompt opens a small cheat sheet of keyboar
 ### Measurable Outcomes
 
 - **SC-001**: A visitor can reach projects, skills, an assistant answer, the guestbook and the regular page using only taps, with no typing, on a 320 px phone.
-- **SC-002**: The tour completes in 70 seconds or less and can be stopped within 100 ms of a key press or tap, leaving the original theme and an empty prompt.
+- **SC-002**: A visitor can move through the tour at their own pace, revisit prior steps without rerunning them, and exit with the original theme restored.
 - **SC-003**: Loading the site on a touch device never opens the on-screen keyboard.
 - **SC-004**: No horizontal page scrolling at 320 px with suggestions and the menu bar visible.
 - **SC-005**: Accessibility checks report no serious or critical issues with suggestions, the prompt example and the cheat sheet present.

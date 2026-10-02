@@ -1,6 +1,7 @@
 import { isTextClient, parseAddress, wantsColor } from '@ahmed-moghazy/shared';
 import { NextResponse, type NextFetchEvent, type NextRequest } from 'next/server';
 import { recordSurfaceEvent } from './lib/surface-stats';
+import { readViewCookie } from './lib/view-cookie';
 
 function handleTextClient(request: NextRequest): NextResponse | null {
   if (!isTextClient(request.headers.get('user-agent'))) return null;
@@ -17,6 +18,15 @@ function rewriteHome(request: NextRequest, noindex = false): NextResponse {
 }
 
 function handleBrowserRequest(request: NextRequest, event: NextFetchEvent): NextResponse {
+  const { pathname, search } = request.nextUrl;
+  // The regular page is a real route, not a deep link to the `gui` command.
+  if (pathname === '/gui' || pathname === '/gui/') return NextResponse.next();
+  if (pathname === '/' && search === '' && readViewCookie(request) === 'gui') {
+    const response = NextResponse.redirect(new URL('/gui', request.url), 307);
+    response.headers.set('Cache-Control', 'private, no-store');
+    response.headers.set('Vary', 'Cookie');
+    return response;
+  }
   const address = parseAddress(request.nextUrl.pathname, request.nextUrl.search);
   if (
     (address.kind === 'command' || address.kind === 'not-command')

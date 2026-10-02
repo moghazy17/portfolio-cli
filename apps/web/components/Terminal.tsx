@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { getMenuItems } from '@ahmed-moghazy/shared';
+import { hasSeenGui } from '../lib/view-cookie';
 import AssistantAnswer from './AssistantAnswer';
 import CommandLine from './CommandLine';
 import OutputRenderer from './OutputRenderer';
@@ -20,6 +22,9 @@ export default function Terminal() {
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp, historyDown, resetHistoryCursor,
   } = useTerminal();
+  // Prominent until either view has been used once; read after mount so the server markup matches.
+  const [guiSeen, setGuiSeen] = useState(false);
+  useEffect(() => setGuiSeen(hasSeenGui()), []);
 
   return (
     <div
@@ -74,6 +79,7 @@ export default function Terminal() {
           }}
         />
         <span
+          className="chrome-prompt"
           style={{
             marginLeft: 'auto',
             color: 'var(--dimmed)',
@@ -82,6 +88,30 @@ export default function Terminal() {
         >
           {prompt}
         </span>
+        <button
+          type="button"
+          data-testid="open-gui"
+          className={`gui-button${guiSeen ? ' gui-button-seen' : ''}`}
+          onClick={() => handleCommand('gui')}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="14"
+            height="14"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <rect x="3" y="4" width="18" height="14" rx="2" />
+            <path d="M8 21h8" />
+            <path d="M12 18v3" />
+          </svg>
+          Regular view
+        </button>
       </div>
 
       {/* Scrollable output area */}

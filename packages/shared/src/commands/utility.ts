@@ -1,4 +1,4 @@
-import type { CommandResult } from '../types';
+import type { CommandContext, CommandResult } from '../types';
 import { cvData, profile } from '../content';
 import { themes, DEFAULT_THEME } from '../theme';
 import { ASCII_BANNER, WELCOME_SUBTITLE, WELCOME_HINT } from '../ascii';
@@ -123,6 +123,16 @@ export function welcomeCommand(): CommandResult {
       { type: 'text', content: WELCOME_HINT, style: { dim: true } },
     ],
   };
+}
+
+export function guiCommand(ctx: CommandContext): CommandResult {
+  if (ctx.surface === 'web') {
+    return {
+      output: [{ type: 'text', content: 'Opening the regular page…', style: { color: 'success' } }],
+      view: 'gui',
+    };
+  }
+  return { output: [{ type: 'text', content: `Prefer a regular web page? Open ${ctx.origin}/gui` }] };
 }
 
 export function whoamiCommand(): CommandResult {

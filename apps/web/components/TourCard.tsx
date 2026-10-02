@@ -31,7 +31,7 @@ export default function TourCard({ steps, index, busy, focusRequest, onBack, onN
       <p className="tour-card-caption" aria-live="polite">{steps[index].caption}</p>
       <div className="tour-card-actions">
         <button type="button" aria-disabled={index === 0} onClick={() => { if (index > 0) onBack(); }}>Back</button>
-        <button ref={nextRef} type="button" aria-disabled={busy} onClick={() => { if (!busy) onNext(); }}>
+        <button ref={nextRef} data-tour-next type="button" aria-disabled={busy} onClick={() => { if (!busy) onNext(); }}>
           {index === steps.length - 1 ? 'Finish' : 'Next →'}
         </button>
         <button type="button" onClick={onExit}>Exit</button>

@@ -134,6 +134,10 @@ export default function CommandLine({
 
     switch (e.key) {
       case 'Enter':
+        if (tourActive && tourText !== null && !tourTakenOver.current) {
+          e.preventDefault();
+          break;
+        }
         if (input.trim()) {
           e.preventDefault();
           onSubmit(input);

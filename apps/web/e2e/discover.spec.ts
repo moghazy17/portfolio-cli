@@ -95,11 +95,14 @@ test('guided tour navigates without rerunning steps or reacting to page clicks a
   await expect(card).toContainText('Step 1/5 · About');
   await expect(page.locator('[data-tour-step="0"]')).toBeInViewport();
   expect(await page.locator('[data-tour-step]').count()).toBe(count);
+  await next.focus();
   await page.keyboard.press('Enter');
   await expect(card).toContainText('Step 2/5 · Skills');
   expect(await page.locator('[data-tour-step]').count()).toBe(count);
+  await next.focus();
   await page.keyboard.press('ArrowLeft');
   await expect(card).toContainText('Step 1/5 · About');
+  await next.focus();
   await page.keyboard.press('ArrowRight');
   await expect(card).toContainText('Step 2/5 · Skills');
   expect(await page.locator('[data-tour-step]').count()).toBe(count);
@@ -107,6 +110,7 @@ test('guided tour navigates without rerunning steps or reacting to page clicks a
   await page.mouse.wheel(0, 200);
   await expect(card).toBeInViewport();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await next.focus();
   await page.keyboard.press('ArrowRight');
   await expect(card).toContainText('Step 3/5 · Ask anything');
   await expect(next).toHaveAttribute('aria-disabled', 'false');
@@ -127,12 +131,69 @@ test('typing a visitor command exits the guided tour quietly', async ({ page }) 
   await input(page).press('Enter');
   const card = page.getByRole('region', { name: 'Tour' });
   await expect(card).toBeVisible();
+  await expect(card.getByRole('button', { name: /^Next/ })).toHaveAttribute('aria-disabled', 'false');
+  await expect(input(page)).toHaveValue('');
   await input(page).fill('skills');
   await expect(card).toHaveCount(0);
   await expect(input(page)).toHaveValue('skills');
   await expect(page.locator('.tour-finish')).toHaveCount(0);
   await input(page).press('Enter');
   await expect(page.locator('[role="log"]')).toContainText('Skills');
+});
+
+test('Enter activates focused tour buttons and Exit returns focus to the prompt', async ({ page }) => {
+  await page.goto('/');
+  await input(page).fill('tour');
+  await input(page).press('Enter');
+  const card = page.getByRole('region', { name: 'Tour' });
+  const next = card.getByRole('button', { name: /^Next/ });
+  await expect(next).toHaveAttribute('aria-disabled', 'false');
+  await next.click();
+  await expect(card).toContainText('Step 2/');
+  const count = await page.locator('[data-tour-step]').count();
+  const back = card.getByRole('button', { name: 'Back' });
+  await back.focus();
+  await page.keyboard.press('Enter');
+  await expect(card).toContainText('Step 1/');
+  expect(await page.locator('[data-tour-step]').count()).toBe(count);
+  await next.focus();
+  await page.keyboard.press('Tab');
+  const exit = card.getByRole('button', { name: 'Exit' });
+  await expect(exit).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(card).toHaveCount(0);
+  await expect(input(page)).toBeFocused();
+  await page.keyboard.type('skills');
+  await expect(input(page)).toHaveValue('skills');
+});
+
+test('Back scrolls to the current tour session after a previous tour', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 420 });
+  await page.goto('/');
+  await input(page).fill('tour');
+  await input(page).press('Enter');
+  const card = page.getByRole('region', { name: 'Tour' });
+  const firstEntry = page.locator('[data-tour-step="0"]').first();
+  await expect(firstEntry).toContainText('About ');
+  const firstSession = (await firstEntry.getAttribute('data-tour'))!.split(':')[0];
+  await card.getByRole('button', { name: 'Exit' }).click();
+  await expect(card).toHaveCount(0);
+  await expect(input(page)).toHaveValue('');
+  await input(page).fill('tour');
+  await input(page).press('Enter');
+  await expect(page.locator('[data-tour-step="0"]')).toHaveCount(2);
+  const secondEntry = page.locator('[data-tour-step="0"]').last();
+  await expect(secondEntry).toContainText('About ');
+  const secondSession = (await secondEntry.getAttribute('data-tour'))!.split(':')[0];
+  expect(secondSession).not.toBe(firstSession);
+  const next = card.getByRole('button', { name: /^Next/ });
+  await expect(next).toHaveAttribute('aria-disabled', 'false');
+  await next.click();
+  await expect(card).toContainText('Step 2/');
+  await card.getByRole('button', { name: 'Back' }).click();
+  await expect(card).toContainText('Step 1/');
+  await expect(page.locator(`[data-tour="${secondSession}:0"]`)).toBeInViewport();
+  await expect(page.locator(`[data-tour="${firstSession}:0"]`)).not.toBeInViewport();
 });
 
 test('guided tour finishes and a deep link never starts it', async ({ page }) => {
@@ -160,6 +221,7 @@ test('guided tour finishes and a deep link never starts it', async ({ page }) =>
   await expect(page.getByText('Your turn')).toBeVisible();
   await expect(page.getByRole('navigation', { name: 'Suggestions' })).toBeVisible();
   await expect(input(page)).toHaveValue('');
+  await expect(input(page)).toBeFocused();
   await expect(page.locator('.terminal-container')).not.toHaveAttribute('data-effect', 'crt');
 });
 
@@ -184,6 +246,13 @@ test('guided tour disables Next until the assistant stream finishes', async ({ p
   await expect(card).toContainText('Step 3/5 · Ask anything');
   await expect(next).toHaveAttribute('aria-disabled', 'true');
   await expect.poll(() => Boolean(release)).toBe(true);
+  await expect(input(page)).toHaveValue('What RAG work has he done?');
+  const entriesBefore = await page.locator('[data-tour-step]').count();
+  const addressBefore = page.url();
+  await input(page).press('Enter');
+  await expect(card).toContainText('Step 3/5');
+  expect(await page.locator('[data-tour-step]').count()).toBe(entriesBefore);
+  expect(page.url()).toBe(addressBefore);
   await page.keyboard.press('ArrowRight');
   await expect(card).toContainText('Step 3/5 · Ask anything');
   await expect(page.locator('[role="log"]')).not.toContainText('theme crt');
@@ -238,6 +307,13 @@ test('touch load leaves the keyboard closed', async ({ browser }) => {
   await page.goto('/');
   await expect(input(page)).not.toBeFocused();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await input(page).fill('tour');
+  await input(page).press('Enter');
+  const card = page.getByRole('region', { name: 'Tour' });
+  await expect(card).toBeVisible();
+  await card.getByRole('button', { name: 'Exit' }).click();
+  await expect(card).toHaveCount(0);
+  await expect(input(page)).not.toBeFocused();
   await context.close();
 });
 

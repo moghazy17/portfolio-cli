@@ -15,12 +15,13 @@ function delay(ms: number, signal: AbortSignal): Promise<void> {
 
 interface TourOptions {
   reducedMotion: boolean;
-  run: (line: string, stepIndex: number) => Promise<void>;
+  run: (line: string, stepIndex: number, sessionId: string) => Promise<void>;
   cancel: () => void;
   restoreTheme: () => void;
 }
 
 interface TourSession {
+  id: string;
   steps: TourStep[];
   index: number;
   lastRunIndex: number;
@@ -30,6 +31,8 @@ interface TourSession {
   options: TourOptions;
 }
 
+let sessionCounter = 0;
+
 export function useTour() {
   const [steps, setSteps] = useState<TourStep[]>([]);
   const [index, setIndex] = useState(0);
@@ -38,10 +41,11 @@ export function useTour() {
   const [typed, setTyped] = useState<string | null>(null);
   const [finished, setFinished] = useState(false);
   const [focusRequest, setFocusRequest] = useState(0);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const sessionRef = useRef<TourSession | null>(null);
   const playing = steps.length > 0;
 
-  const stop = useCallback((completed = false) => {
+  const stop = useCallback((completed = false, focusPrompt = false) => {
     const session = sessionRef.current;
     if (!session) return;
     sessionRef.current = null;
@@ -50,9 +54,15 @@ export function useTour() {
     session.options.restoreTheme();
     if (completed) recordClientEvent('tours_completed');
     setSteps([]);
+    setSessionId(null);
     setTyped(null);
     setBusy(false);
     setFinished(completed);
+    if (focusPrompt) requestAnimationFrame(() => {
+      if (!window.matchMedia('(pointer: coarse)').matches) {
+        document.querySelector<HTMLInputElement>('.terminal-container .command-input-wrap input')?.focus({ preventScroll: true });
+      }
+    });
   }, []);
   const dismissFinished = useCallback(() => setFinished(false), []);
 
@@ -80,7 +90,7 @@ export function useTour() {
         await delay(20, session.controller.signal);
       }
       if (session.controller.signal.aborted) return;
-      await session.options.run(step.line, stepIndex);
+      await session.options.run(step.line, stepIndex, session.id);
     } finally {
       if (sessionRef.current === session) {
         session.busy = false;
@@ -96,10 +106,12 @@ export function useTour() {
     const filtered = allSteps.filter((step) => !options.reducedMotion || !step.motion);
     if (!filtered.length) return;
     const session: TourSession = {
+      id: String(++sessionCounter),
       steps: filtered, index: 0, lastRunIndex: -1, busy: false,
       controller: new AbortController(), startedAt: performance.now(), options,
     };
     sessionRef.current = session;
+    setSessionId(session.id);
     setSteps(filtered);
     setIndex(0);
     setFinished(false);
@@ -111,7 +123,7 @@ export function useTour() {
   const next = useCallback(() => {
     const session = sessionRef.current;
     if (!session || session.busy) return;
-    if (session.index === session.steps.length - 1) { stop(true); return; }
+    if (session.index === session.steps.length - 1) { stop(true, true); return; }
     session.index += 1;
     setIndex(session.index);
     if (session.index > session.lastRunIndex) void runStep(session, session.index);
@@ -128,10 +140,12 @@ export function useTour() {
     if (!playing) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.timeStamp <= (sessionRef.current?.startedAt ?? 0)) return;
+      if (event.key === 'Escape') { event.preventDefault(); stop(false, true); return; }
       if (event.altKey || event.ctrlKey || event.metaKey) return;
       const prompt = document.querySelector<HTMLInputElement>('.terminal-container .command-input-wrap input');
-      if (event.target instanceof HTMLInputElement && event.target !== prompt) return;
-      if (event.key === 'Escape') { event.preventDefault(); stop(); return; }
+      const active = document.activeElement;
+      const nextButton = document.querySelector<HTMLButtonElement>('.tour-card [data-tour-next]');
+      if (active !== prompt && active !== nextButton && active !== document.body) return;
       if (prompt?.value) return;
       if (event.key === 'Enter' || event.key === 'ArrowRight') { event.preventDefault(); next(); }
       if (event.key === 'ArrowLeft') { event.preventDefault(); back(); }
@@ -140,5 +154,5 @@ export function useTour() {
     return () => window.removeEventListener('keydown', onKeyDown, true);
   }, [playing, next, back, stop]);
 
-  return { playing, steps, index, lastRunIndex, busy, typed, finished, focusRequest, start, next, back, stop, dismissFinished };
+  return { playing, steps, index, lastRunIndex, sessionId, busy, typed, finished, focusRequest, start, next, back, stop, dismissFinished };
 }

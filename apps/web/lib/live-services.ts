@@ -15,7 +15,7 @@ export const liveServices: LiveServices = {
 };
 
 export async function fetchSkillEvidence(signal: AbortSignal): Promise<SkillEvidenceDetails> {
-  const response = await fetch('/api/skills', { signal });
+  const response = await fetch('/api/skills?v=2', { signal });
   if (!response.ok) throw new Error(`Skill evidence unavailable (${response.status})`);
   const data = await response.json() as Partial<SkillEvidenceDetails>;
   return { evidence: data.evidence ?? {}, repos: data.repos ?? {} };

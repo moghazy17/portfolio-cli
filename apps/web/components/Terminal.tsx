@@ -180,7 +180,9 @@ export default function Terminal() {
         {showWelcome && !booting && <WelcomeScreen />}
 
         {history.map((entry, i) => (
-          <div key={i} data-tour-step={entry.tourStepIndex} style={{ marginBottom: '16px' }}>
+          <div key={i} data-tour-step={entry.tourStepIndex}
+            data-tour={entry.tourSessionId !== undefined && entry.tourStepIndex !== undefined ? `${entry.tourSessionId}:${entry.tourStepIndex}` : undefined}
+            style={{ marginBottom: '16px' }}>
             {entry.prompt && (
               <div>
                 <span style={{ color: 'var(--accent)', userSelect: 'none' }}>
@@ -212,7 +214,7 @@ export default function Terminal() {
           focusRequest={tourFocusRequest}
           onBack={backTour}
           onNext={nextTour}
-          onExit={() => stopTour()}
+          onExit={() => stopTour(false, true)}
         />}
         {tourFinished && !tourPlaying && <div className="tour-finish" role="status">Your turn</div>}
         {mode === 'chat' ? (

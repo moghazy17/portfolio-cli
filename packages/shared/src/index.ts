@@ -3,6 +3,8 @@ export { cvData, content, contentVersion, generatedAt, profile, site, itemIds, s
 export type { ItemId, ItemKind } from './content';
 export * from './commands/index';
 export * from './theme';
+export { bootSequence } from './motion/boot';
+export { shouldType, TYPE_MAX_LINES, TYPE_MAX_MS } from './motion/reveal';
 export * from './ascii';
 export * from './github';
 export { createTimedCache } from './timed-cache';

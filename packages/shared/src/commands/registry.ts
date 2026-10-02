@@ -131,7 +131,7 @@ export const commandRegistry: CommandDefinition[] = [
     menu: true,
     args: { positional: [{ name: 'category', complete: 'skills' }] },
     man: { description: 'Show skill categories or filter by category.', examples: ['skills', 'skills data'] },
-    execute: (ctx) => skillsCommand(ctx.args),
+    execute: (ctx) => skillsCommand(ctx.args, ctx),
   },
   {
     name: 'certifications',

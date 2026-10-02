@@ -1,4 +1,4 @@
-import type { CommandResult, SectionOutput } from '../types';
+import type { CommandContext, CommandResult, SectionOutput, SkillEvidence } from '../types';
 import { content, cvData, itemIds } from '../content';
 import type { Content } from '../content/schema';
 import { toCVData } from '../content/view';
@@ -142,7 +142,7 @@ export function projectsCommand(args: string[]): CommandResult {
   };
 }
 
-export function skillsCommand(args: string[]): CommandResult {
+export async function skillsCommand(args: string[], ctx?: CommandContext): Promise<CommandResult> {
   let categories = cvData.skills;
 
   if (args.length > 0) {
@@ -170,12 +170,39 @@ export function skillsCommand(args: string[]): CommandResult {
     children: [{ type: 'list', items: cat.skills }],
   }));
 
-  return {
+  const plain: CommandResult = {
     output: [
       { type: 'text', content: 'Skills', style: { bold: true } },
       ...sections,
     ],
   };
+  if (!ctx?.skillEvidence) return plain;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let evidence: SkillEvidence | null = null;
+  try {
+    evidence = await Promise.race([
+      ctx.skillEvidence(ctx.signal),
+      new Promise<null>((resolve) => { timer = setTimeout(() => resolve(null), 2000); }),
+    ]);
+  } catch {
+    return plain;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+  if (!evidence) return plain;
+  const max = Math.max(1, ...categories.flatMap((cat) => cat.skills.map((label) => evidence[label] ?? 0)));
+  return { output: [
+    { type: 'text', content: 'Skills', style: { bold: true } },
+    ...categories.map((cat): SectionOutput => ({
+      type: 'section', item: ids.skill[cvData.skills.indexOf(cat)], title: cat.name,
+      children: cat.skills.map((label) => {
+        const count = evidence[label] ?? 0;
+        return { type: 'progress' as const, label: label.padEnd(Math.max(...cat.skills.map((skill) => skill.length))),
+          value: count / max, note: count === 0 ? 'no public repos' : `${count} ${count === 1 ? 'repo' : 'repos'}`, reveal: true };
+      }),
+    })),
+    { type: 'text', content: 'Bars: public GitHub repos using each skill (nightly).', style: { dim: true } },
+  ] };
 }
 
 export function certificationsCommand(): CommandResult {

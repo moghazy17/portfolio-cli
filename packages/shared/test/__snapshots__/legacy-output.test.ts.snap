@@ -2309,6 +2309,7 @@ exports[`legacy command output > snapshots theme 1`] = `
         "matrix (default)",
         "dracula",
         "nord",
+        "crt",
       ],
       "type": "list",
     },
@@ -2338,6 +2339,7 @@ exports[`legacy command output > snapshots theme 2`] = `
         "matrix (default)",
         "dracula",
         "nord",
+        "crt",
       ],
       "type": "list",
     },
@@ -2370,7 +2372,7 @@ exports[`legacy command output > snapshots theme zzz 1`] = `
 {
   "output": [
     {
-      "content": "Unknown theme "zzz". Available: matrix, dracula, nord",
+      "content": "Unknown theme "zzz". Available: matrix, dracula, nord, crt",
       "style": {
         "color": "error",
       },

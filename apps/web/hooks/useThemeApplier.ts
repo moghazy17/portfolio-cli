@@ -1,9 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { themes, DEFAULT_THEME } from '@ahmed-moghazy/shared';
 import type { Theme } from '@ahmed-moghazy/shared';
 
 export function useThemeApplier() {
   const [theme, setTheme] = useState<Theme>(themes[DEFAULT_THEME]);
+
+  useEffect(() => {
+    try {
+      const name = localStorage.getItem('terminal-theme');
+      if (name && themes[name]) setTheme(themes[name]);
+    } catch {
+      // Private browsing can deny storage.
+    }
+  }, []);
+
+  const applyTheme = useCallback((next: Theme, persist = true) => {
+    setTheme(next);
+    if (persist) {
+      try { localStorage.setItem('terminal-theme', next.name); } catch { /* Storage is optional. */ }
+    }
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -18,5 +34,5 @@ export function useThemeApplier() {
     document.body.style.backgroundColor = theme.background;
   }, [theme]);
 
-  return { theme, setTheme };
+  return { theme, setTheme: applyTheme };
 }

@@ -1,8 +1,9 @@
 import { Ratelimit } from '@upstash/ratelimit';
-import { parseAddress, rateLimitedResponse, runTextRequest, wantsColor } from '@ahmed-moghazy/shared';
-import { resolveVisitorIp } from '@ahmed-moghazy/shared/assistant-server';
+import { cvData, parseAddress, rateLimitedResponse, runTextRequest, wantsColor } from '@ahmed-moghazy/shared';
+import { resolveVisitorIp, skillEvidence, STALE_AFTER_MS } from '@ahmed-moghazy/shared/assistant-server';
 import { after } from 'next/server';
 import { getGitHubStatsCached } from '../../../lib/github-stats';
+import { getInventory } from '../../../lib/inventory-store';
 import { redis } from '../../../lib/redis';
 import { recordSurfaceEvent } from '../../../lib/surface-stats';
 
@@ -43,6 +44,11 @@ export async function GET(request: Request): Promise<Response> {
     color: wantsColor(search),
     origin: url.origin,
     github: getGitHubStatsCached,
+    skillEvidence: async () => {
+      const snapshot = await getInventory();
+      if (!snapshot || Date.now() - Date.parse(snapshot.generatedAt) > STALE_AFTER_MS) throw new Error('No current inventory');
+      return skillEvidence(snapshot, cvData.skills);
+    },
   });
   return new Response(response.body, { status: response.status, headers: textHeaders });
 }

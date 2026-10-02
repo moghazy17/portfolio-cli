@@ -53,6 +53,45 @@ body {
   border-width: 0;
 }
 
+.ascii-banner.glitch-reveal { position: relative; animation: glitch-base 600ms steps(2, end) 1; }
+.ascii-banner.glitch-reveal::before,
+.ascii-banner.glitch-reveal::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  white-space: pre;
+  pointer-events: none;
+}
+.ascii-banner.glitch-reveal::before { color: #ff5470; clip-path: inset(15% 0 65%); animation: glitch-left 600ms steps(2, end) 1; }
+.ascii-banner.glitch-reveal::after { color: #44d9ff; clip-path: inset(65% 0 15%); animation: glitch-right 600ms steps(2, end) 1; }
+@keyframes glitch-base { 0%, 45% { transform: translateX(1px); } 50%, 100% { transform: none; } }
+@keyframes glitch-left { 0%, 50% { transform: translateX(-4px); } 55%, 100% { transform: none; } }
+@keyframes glitch-right { 0%, 50% { transform: translateX(4px); } 55%, 100% { transform: none; } }
+
+.skill-fill { animation: skill-fill 600ms ease-out both; transform-origin: left; }
+[data-reveal="typing"] { pointer-events: none; }
+@keyframes skill-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+.terminal-container[data-effect="crt"] { isolation: isolate; border-radius: 14px; text-shadow: 0 0 5px color-mix(in srgb, var(--primary) 45%, transparent); }
+.terminal-container[data-effect="crt"]::before,
+.terminal-container[data-effect="crt"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 4;
+}
+.terminal-container[data-effect="crt"]::before { background: repeating-linear-gradient(to bottom, transparent 0 3px, rgba(0,0,0,.18) 3px 4px); }
+.terminal-container[data-effect="crt"]::after { box-shadow: inset 0 0 70px 20px rgba(0,0,0,.55); }
+@media (min-width: 768px) {
+  .terminal-container[data-effect="crt"] { filter: url(#crt-barrel); }
+}
+@supports (-webkit-hyphens: none) {
+  .terminal-container[data-effect="crt"] { filter: none; }
+}
+
 @media (max-width: 768px) {
   .ascii-banner {
     font-size: 7px !important;
@@ -95,6 +134,12 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .ascii-banner.glitch-reveal,
+  .ascii-banner.glitch-reveal::before,
+  .ascii-banner.glitch-reveal::after,
+  .skill-fill { animation: none; }
+  .ascii-banner.glitch-reveal::before,
+  .ascii-banner.glitch-reveal::after { content: none; }
   .assistant-thinking {
     animation: none;
     opacity: 0.6;

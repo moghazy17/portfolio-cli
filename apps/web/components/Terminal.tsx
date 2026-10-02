@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { getMenuItems } from '@ahmed-moghazy/shared';
 import AssistantAnswer from './AssistantAnswer';
 import CommandLine from './CommandLine';
@@ -9,6 +11,10 @@ import WelcomeScreen from './WelcomeScreen';
 
 import ChatRenderer from './ChatRenderer';
 import { useTerminal } from '../hooks/useTerminal';
+import { useIdle } from '../hooks/useIdle';
+import CrtFilter from './CrtFilter';
+
+const Screensaver = dynamic(() => import('./Screensaver'), { ssr: false });
 
 const menuItems = getMenuItems();
 
@@ -19,11 +25,37 @@ export default function Terminal() {
     prefill, onPrefillApplied,
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp, historyDown, resetHistoryCursor,
+    booting, bootSteps, skipBoot, reducedMotion,
   } = useTerminal();
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const update = () => setVisible(!document.hidden);
+    update();
+    document.addEventListener('visibilitychange', update);
+    return () => document.removeEventListener('visibilitychange', update);
+  }, []);
+  const { idle, reset } = useIdle(60_000, visible && !reducedMotion && !running && !sequencePlaying && !booting);
+  useEffect(() => { if (idle) document.querySelector<HTMLInputElement>('.terminal-container input')?.focus(); }, [idle]);
+  useEffect(() => {
+    if (!idle) return;
+    const dismiss = (event: Event) => {
+      if (event instanceof KeyboardEvent && event.key === 'Enter') {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      reset();
+      const input = document.querySelector<HTMLInputElement>('.terminal-container input');
+      input?.focus();
+      if (!(event instanceof KeyboardEvent)) requestAnimationFrame(() => input?.focus());
+    };
+    for (const name of ['keydown', 'pointermove', 'pointerdown', 'wheel', 'scroll', 'touchstart']) window.addEventListener(name, dismiss, true);
+    return () => { for (const name of ['keydown', 'pointermove', 'pointerdown', 'wheel', 'scroll', 'touchstart']) window.removeEventListener(name, dismiss, true); };
+  }, [idle, reset]);
 
   return (
     <div
       className="terminal-container"
+      data-effect={theme.effects?.crt ? 'crt' : undefined}
       style={{
         flex: 1,
         display: 'flex',
@@ -32,8 +64,10 @@ export default function Terminal() {
         margin: '0 auto',
         width: '100%',
         padding: '16px',
+        position: 'relative',
       }}
     >
+      {theme.effects?.crt && <CrtFilter />}
       {/* Terminal window chrome */}
       <div
         style={{
@@ -100,7 +134,11 @@ export default function Terminal() {
           borderRight: '1px solid rgba(255,255,255,0.05)',
         }}
       >
-        {showWelcome && (
+        {booting && <div data-testid="boot">
+          <SequencePlayer steps={bootSteps} final={[]} theme={theme} skip={skip} onDone={skipBoot} />
+          <div style={{ color: 'var(--dimmed)' }}>press any key to skip</div>
+        </div>}
+        {showWelcome && !booting && (
           <WelcomeScreen
             showMenu={false}
             menuItems={menuItems}
@@ -129,7 +167,7 @@ export default function Terminal() {
                 onDone={() => finishSequence(entry.sequenceId!)}
               />
             ) : (
-              <OutputRenderer output={entry.output} theme={theme} />
+              <OutputRenderer output={entry.output} theme={theme} reveal={entry.reveal} />
             )}
           </div>
         ))}
@@ -198,6 +236,8 @@ export default function Terminal() {
           </button>
         ))}
       </div>
+
+      {idle && <Screensaver color={theme.primary} />}
 
     </div>
   );

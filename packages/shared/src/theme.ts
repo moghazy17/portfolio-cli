@@ -34,6 +34,11 @@ export const themes: Record<string, Theme> = {
     error: '#bf616a',
     success: '#a3be8c',
   },
+  crt: {
+    name: 'crt', primary: '#33ff66', secondary: '#1e9b43', accent: '#70ff89',
+    background: '#0a0f0a', foreground: '#b6ffb0', dimmed: '#63946a',
+    error: '#ff7777', success: '#33ff66', effects: { crt: true },
+  },
 };
 
 export const DEFAULT_THEME = 'matrix';

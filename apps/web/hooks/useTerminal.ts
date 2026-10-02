@@ -1,13 +1,15 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   ASSISTANT_ERROR_MESSAGE, askAssistant, createAssistantUnknownHandler, createShell, formatSourcesLine, MAX_LINK_LENGTH,
-  parseAddress, themes, toAddress, welcomeCommand,
+  bootSequence, parseAddress, shouldType, themes, toAddress, welcomeCommand,
 } from '@ahmed-moghazy/shared';
 import type {
   AssistantEvent, AssistantTurn, CommandOutput, Completion, HistoryEntry, NoticeKind, SequenceStep,
 } from '@ahmed-moghazy/shared';
 import { useHistory } from './useHistory';
 import { useThemeApplier } from './useThemeApplier';
+import { useReducedMotion } from './useReducedMotion';
+import { fetchSkillEvidence } from '../lib/live-services';
 
 export type TerminalMode = 'command' | 'chat';
 
@@ -22,6 +24,7 @@ export interface AssistantEntryState {
 }
 
 interface TerminalEntry extends HistoryEntry {
+  reveal?: boolean;
   sequence?: SequenceStep[];
   sequenceDone?: boolean;
   sequenceId?: number;
@@ -30,6 +33,8 @@ interface TerminalEntry extends HistoryEntry {
 }
 
 const MAX_EXCHANGES = 5;
+let bootStartedInPage = false;
+const BOOT_STEPS = bootSequence();
 
 function applyEvent(state: AssistantEntryState, event: AssistantEvent): AssistantEntryState {
   if (state.status === 'cancelled' || state.status === 'done') return state;
@@ -66,6 +71,8 @@ function answerText(state: AssistantEntryState): string {
 export function useTerminal() {
   const [history, setHistory] = useState<TerminalEntry[]>([]);
   const [showWelcome, setShowWelcome] = useState(true);
+  const initialWelcomeRef = useRef(showWelcome);
+  const [booting, setBooting] = useState(false);
   const [mode, setMode] = useState<TerminalMode>('command');
   const [prompt, setPrompt] = useState('visitor@portfolio:~$');
   const [running, setRunning] = useState(false);
@@ -84,11 +91,40 @@ export function useTerminal() {
   const addressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { push, up, down, reset } = useHistory();
   const { theme, setTheme } = useThemeApplier();
+  const reducedMotion = useReducedMotion();
+
+  const skipBoot = useCallback(() => setBooting(false), []);
+
+  useEffect(() => {
+    if (bootStartedInPage || !initialWelcomeRef.current || window.location.pathname !== '/' || window.location.search || window.location.hash ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    try {
+      if (window.localStorage.getItem('boot:v1')) return;
+      window.localStorage.setItem('boot:v1', '1');
+    } catch {
+      // The in-memory flag still prevents a replay in this page.
+    }
+    bootStartedInPage = true;
+    setBooting(true);
+  }, []);
+
+  useEffect(() => {
+    if (!booting) return;
+    window.addEventListener('keydown', skipBoot);
+    window.addEventListener('pointerdown', skipBoot);
+    window.addEventListener('touchstart', skipBoot);
+    return () => {
+      window.removeEventListener('keydown', skipBoot);
+      window.removeEventListener('pointerdown', skipBoot);
+      window.removeEventListener('touchstart', skipBoot);
+    };
+  }, [booting, skipBoot]);
 
   const getShell = useCallback(() => {
     if (!shellRef.current) {
       shellRef.current = createShell({
         surface: 'web', origin: window.location.origin, onUnknownCommand: createAssistantUnknownHandler(),
+        skillEvidence: fetchSkillEvidence,
       });
     }
     return shellRef.current;
@@ -186,6 +222,8 @@ export function useTerminal() {
 
   const handleCommand = useCallback(async (input: string, opts: { origin?: 'typed' | 'link' } = {}) => {
     const isLink = opts.origin === 'link';
+    skipBoot();
+    setHistory((previous) => previous.map((entry) => entry.reveal ? { ...entry, reveal: false } : entry));
     skipSequence();
     controllerRef.current?.abort();
     const controller = new AbortController();
@@ -195,6 +233,7 @@ export function useTerminal() {
     if (!isLink) setShowWelcome(false);
     const shell = getShell();
     const cwdBefore = shell.session.cwd;
+    if (!isLink) push(input);
     const result = await shell.run(input, { signal: controller.signal });
     if (controllerRef.current === controller) {
       controllerRef.current = null;
@@ -209,7 +248,7 @@ export function useTerminal() {
       return;
     }
 
-    push(input);
+    if (isLink) push(input);
     if (result.ask) {
       const { question } = result.ask;
       const id = ++assistantIdRef.current;
@@ -234,7 +273,7 @@ export function useTerminal() {
       setHistory([]);
       if (isLink) setShowWelcome(false);
     }
-    if (result.theme && themes[result.theme]) setTheme(themes[result.theme]);
+    if (result.theme && themes[result.theme]) setTheme(themes[result.theme], !isLink);
     if (!isLink && result.openUrl) window.open(result.openUrl, '_blank', 'noopener,noreferrer');
     if (!isLink && result.download) {
       let link: HTMLAnchorElement | null = null;
@@ -272,10 +311,11 @@ export function useTerminal() {
     }
     setHistory((previous) => [...previous, {
       input, prompt: submittedPrompt, output,
+      reveal: !isLink && !result.ask && !result.sequence && !/[|]/.test(input) && !reducedMotion && shouldType(output),
       sequence: result.sequence, sequenceId,
     }]);
     if (result.mode === 'chat') setMode('chat');
-  }, [currentPrompt, getShell, mode, push, runAssistant, setTheme, skipSequence, syncAddress]);
+  }, [currentPrompt, getShell, mode, push, runAssistant, setTheme, skipSequence, skipBoot, syncAddress, reducedMotion]);
 
   useEffect(() => {
     if (ranLinkRef.current) return;
@@ -351,6 +391,7 @@ export function useTerminal() {
 
   return {
     history, showWelcome, theme, scrollRef, handleCommand, mode, exitChat, conversationRef, prefill, onPrefillApplied,
+    booting, bootSteps: BOOT_STEPS, skipBoot, reducedMotion,
     prompt, running, skip, sequencePlaying, finishSequence,
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp: up, historyDown: down, resetHistoryCursor: reset,

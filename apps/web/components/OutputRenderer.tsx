@@ -1,13 +1,46 @@
 'use client';
 
 import type { CommandOutput, Theme } from '@ahmed-moghazy/shared';
+import { useEffect, useState } from 'react';
+import { useTypewriter } from '../hooks/useTypewriter';
 
 interface Props {
   output: CommandOutput[];
   theme: Theme;
+  reveal?: boolean;
 }
 
-export default function OutputRenderer({ output, theme }: Props) {
+function contentLength(output: CommandOutput[]): number {
+  return output.reduce((sum, node) => sum + (node.type === 'section' ? node.title.length + contentLength(node.children)
+    : node.type === 'text' || node.type === 'ascii' || node.type === 'error' ? node.content.length
+    : node.type === 'list' ? node.items.join('').length
+    : node.type === 'table' ? node.headers.join('').length + node.rows.flat().join('').length
+    : node.type === 'link' ? node.text.length + node.url.length
+    : node.type === 'progress' ? node.label.length + (node.note?.length ?? 0)
+    : node.type === 'lines' ? node.lines.map((line) => line.text).join('').length : 0), 0);
+}
+
+function partial(output: CommandOutput[], budget: number): CommandOutput[] {
+  let left = budget;
+  const take = (value: string) => { const part = value.slice(0, left); left -= part.length; return part; };
+  const walk = (nodes: CommandOutput[]): CommandOutput[] => nodes.map((node): CommandOutput => {
+    if (node.type === 'section') return { ...node, title: take(node.title), children: walk(node.children) };
+    if (node.type === 'text' || node.type === 'ascii' || node.type === 'error') return { ...node, content: take(node.content) };
+    if (node.type === 'list') return { ...node, items: node.items.map(take) };
+    if (node.type === 'table') return { ...node, headers: node.headers.map(take), rows: node.rows.map((row) => row.map(take)) };
+    if (node.type === 'link') return { ...node, text: take(node.text), url: take(node.url) };
+    if (node.type === 'lines') return { ...node, lines: node.lines.map((line) => ({ ...line, text: take(line.text) })) };
+    if (node.type === 'progress') { take(node.label); take(node.note ?? ''); return node; }
+    return node;
+  });
+  return walk(output);
+}
+
+export default function OutputRenderer({ output, theme, reveal = false }: Props) {
+  const total = contentLength(output);
+  const { budget } = useTypewriter(total, reveal);
+  const typing = reveal && budget < total;
+  const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const resolveColor = (color?: string): string | undefined => {
     if (!color) return undefined;
     const map: Record<string, string> = {
@@ -20,7 +53,7 @@ export default function OutputRenderer({ output, theme }: Props) {
     return map[color] || color;
   };
 
-  const renderBlock = (block: CommandOutput, index: number): React.ReactNode => {
+  const renderBlock = (block: CommandOutput, index: number, animated = true): React.ReactNode => {
     switch (block.type) {
       case 'text':
         return (
@@ -52,7 +85,7 @@ export default function OutputRenderer({ output, theme }: Props) {
             >
               {block.title}
             </div>
-            {block.children.map((child, i) => renderBlock(child, i))}
+            {block.children.map((child, i) => renderBlock(child, i, animated))}
           </div>
         );
 
@@ -178,7 +211,10 @@ export default function OutputRenderer({ output, theme }: Props) {
             aria-valuetext={block.note}
             style={{ whiteSpace: 'pre', fontFamily: 'var(--font-mono)' }}
           >
-            {`${block.label} ${'█'.repeat(Math.round(block.value * 20))}${'░'.repeat(20 - Math.round(block.value * 20))} ${block.note === undefined ? `${Math.round(block.value * 100)}%` : block.note}`}
+            {block.label} <span className={animated && block.reveal && !reduced ? 'skill-fill' : undefined}
+              style={{ display: 'inline-block', width: `${Math.round(block.value * 20)}ch`, overflow: 'hidden', verticalAlign: 'bottom' }}>
+              {'█'.repeat(Math.round(block.value * 20))}
+            </span>{'░'.repeat(20 - Math.round(block.value * 20))} {block.note ?? `${Math.round(block.value * 100)}%`}
           </div>
         );
 
@@ -209,5 +245,12 @@ export default function OutputRenderer({ output, theme }: Props) {
     }
   };
 
-  return <div style={{ marginTop: '8px' }}>{output.map(renderBlock)}</div>;
+  return <>
+    <div className={typing ? 'sr-only' : undefined} style={{ marginTop: '8px' }}>
+      {output.map((block, index) => renderBlock(block, index))}
+    </div>
+    {typing && <div aria-hidden="true" data-reveal="typing" style={{ marginTop: '8px' }}>
+      {partial(output, budget).map((block, index) => renderBlock(block, index, false))}
+    </div>}
+  </>;
 }

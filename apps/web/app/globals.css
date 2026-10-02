@@ -40,6 +40,7 @@ html, body { overflow-x: hidden; }
 .command-input-wrap { flex: 1; min-width: 0; position: relative; }
 .prompt-example { position: absolute; inset: 0 auto auto 0; color: color-mix(in srgb, var(--fg) 78%, var(--bg)); pointer-events: none; white-space: nowrap; overflow: hidden; max-width: 100%; }
 .tour-finish { color: var(--accent); margin: 12px 0; font-weight: bold; }
+.tour-hint { color: var(--dimmed); margin: 12px 0; }
 .shortcut-backdrop { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 16px; background: rgba(0,0,0,.7); }
 .shortcut-sheet { width: min(420px, 100%); padding: 24px; border: 1px solid var(--primary); border-radius: 8px; background: var(--bg); color: var(--fg); box-shadow: 0 12px 40px rgba(0,0,0,.4); }
 .shortcut-sheet h2 { margin-bottom: 16px; color: var(--primary); }

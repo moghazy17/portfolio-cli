@@ -56,7 +56,7 @@ When the prompt is empty, dim example text cycles every few seconds — `try: sk
 
 ### User Story 3 - Guided tour (Priority: P3)
 
-A visitor taps "take the tour" or types `tour` and watches a roughly 60-second showcase: commands are typed out and run one after another — the welcome, `skills` with its bars, one assistant question answered with sources, a brief switch to the `crt` theme, `who` — ending with "Your turn" and fresh suggestions. Any key, tap or Esc stops the tour at once and leaves the terminal usable.
+A visitor taps "take the tour" or types `tour` and watches a roughly 60-second showcase: commands are typed out and run one after another — `about`, `skills` with its bars, one assistant question answered with sources, a brief switch to the `crt` theme, `who` — ending with "Your turn" and fresh suggestions. Any key, tap or Esc stops the tour at once and leaves the terminal usable.
 
 **Why this priority**: the "get impressed" moment for visitors who will never type, but it builds on suggestions and is only offered, never forced.
 
@@ -119,7 +119,7 @@ On desktop, pressing `?` on an empty prompt opens a small cheat sheet of keyboar
 
 **Tour**
 
-- **FR-008**: A `tour` command MUST play a scripted showcase of about 60 seconds whose steps are defined in shared code: welcome, `skills`, one assistant question, a temporary `crt` theme, `who`, then "Your turn" with fresh suggestions.
+- **FR-008**: A `tour` command MUST play a scripted showcase of about 60 seconds whose steps are defined in shared code: `about`, `skills`, one assistant question, a temporary `crt` theme, `who`, then "Your turn" with fresh suggestions.
 - **FR-009**: Each tour step MUST type its command into the prompt (instant under reduced motion) and run it through the normal command path.
 - **FR-010**: Any key, tap or Esc MUST stop the tour immediately; no later step may run after stopping.
 - **FR-011**: The tour MUST restore the visitor's theme when it ends or stops, MUST NOT persist the temporary theme, and MUST skip the theme step under reduced motion.

@@ -80,7 +80,15 @@ test('tour stops on a key and restores the starting theme', async ({ page }) => 
   await input(page).fill('tour');
   await input(page).press('Enter');
   await expect(page.getByText('Starting the tour…')).toBeVisible();
+  const hint = page.locator('.tour-hint');
+  await expect(hint).toHaveAttribute('role', 'status');
+  await expect(hint).toBeVisible();
+  await page.clock.runFor(1_000);
+  await expect(page.locator('[role="log"]')).toContainText('About ');
+  await expect(page.getByText('Theme switched to "dracula".')).toBeVisible();
+  await expect(hint).toBeInViewport();
   await page.keyboard.press('x');
+  await expect(hint).toHaveCount(0);
   await expect(input(page)).toHaveValue('');
   await expect.poll(() => page.evaluate(() => localStorage.getItem('terminal-theme'))).toBe('dracula');
   const count = await page.locator('[role="log"] > div').count();
@@ -98,10 +106,12 @@ test('tour completes and a deep link never starts playback', async ({ page }) =>
   await expect(page.locator('.tour-finish')).toHaveCount(0);
   await expect(page.getByRole('navigation', { name: 'Suggestions' }).getByRole('button', { name: 'take the tour' })).toBeVisible();
   await page.getByRole('navigation', { name: 'Suggestions' }).getByRole('button', { name: 'take the tour' }).click();
+  await expect(page.locator('.tour-hint')).toBeVisible();
   for (let step = 0; step < 12 && await page.locator('.tour-finish').count() === 0; step++) {
     await page.clock.runFor(10_000);
   }
   await expect(page.getByText('Your turn')).toBeVisible();
+  await expect(page.locator('.tour-hint')).toHaveCount(0);
   await expect(input(page)).toHaveValue('');
   await expect(page.locator('.terminal-container')).not.toHaveAttribute('data-effect', 'crt');
 });

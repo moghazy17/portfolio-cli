@@ -203,6 +203,7 @@ export default function Terminal() {
           </div>
         ))}
 
+        {tourPlaying && <div className="tour-hint" role="status">Tour playing — press any key or tap to stop</div>}
         {tourFinished && !tourPlaying && <div className="tour-finish" role="status">Your turn</div>}
         {mode === 'chat' ? (
           <ChatRenderer onExit={exitChat} conversationRef={conversationRef} theme={theme} />

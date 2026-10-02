@@ -65,8 +65,11 @@ describe('discoverability definitions', () => {
 
   it('defines a bounded tour and exposes it only as a web effect', async () => {
     const steps = tourSteps();
-    expect(steps.map((step) => step.line)).toEqual(['welcome', 'skills', 'What RAG work has he done?', 'theme crt', 'who']);
+    expect(steps.map((step) => step.line)).toEqual(['about', 'skills', 'What RAG work has he done?', 'theme crt', 'who']);
+    expect(steps.every((step) => !['welcome', 'clear'].includes(step.line))).toBe(true);
+    expect(steps[0].line.length * 35).toBeLessThan(1_000);
     expect(steps.find((step) => step.line === 'theme crt')?.motion).toBe(true);
+    expect(steps.reduce((sum, step) => sum + step.pauseMs + step.line.length * 35, 0)).toBeGreaterThanOrEqual(45_000);
     expect(steps.reduce((sum, step) => sum + step.pauseMs + step.line.length * 35, 0)).toBeLessThanOrEqual(70_000);
     expect((await createShell({ surface: 'web', origin: '' }).run('tour')).tour).toEqual(steps);
     const curl = await createShell({ surface: 'curl', origin: 'https://example.test' }).run('tour');

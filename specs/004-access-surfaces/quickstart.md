@@ -26,7 +26,7 @@ Then type `skills` and check that the address bar shows `/skills` and that Back 
 ```bash
 curl localhost:3000                         # guide
 curl localhost:3000/projects                # colored
-curl "localhost:3000/projects?nocolor"      # plain
+curl "localhost:3000/projects?nocolor=1"    # plain
 curl "localhost:3000/?cmd=projects%20%7C%20grep%20-i%20rag"
 curl -i localhost:3000/nonsense             # 404 not-found text
 curl -i "localhost:3000/?cmd=what%20is%20his%20stack"   # 404, never reaches the AI

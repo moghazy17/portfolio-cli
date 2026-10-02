@@ -10,7 +10,7 @@
 | 2a | US1: T004, T007–T012 (worktree `004-us1`) | ✅ reviewed + 1 test fix, merged | 10cf708, merge 03d9dd4 |
 | 2b | US2: T013–T020 (worktree `004-us2`) | ✅ reviewed, merged; guide fix after live check | 22ba467, merge a69c340, da98a61 |
 | 3 | Merge both lanes, full gates, Polish T021–T023 | ✅ middleware conflict resolved by hand; docs by the orchestrator | (this commit) |
-| — | T024 Vercel apex domain | owner, after deploy | — |
+| — | T024 Vercel apex domain + production checks | ✅ done; bare `?nocolor` fixed in the follow-up PR | — |
 
 ## Review notes
 
@@ -40,6 +40,13 @@
 - **Fixes, in parallel worktrees**: Codex `gpt-6-sol` (high) took the engine and security fixes, and Codex `gpt-5.6-terra` (high) took the route, host and tests. Both were reviewed. **Orchestrator fix**: the new GitHub cache let one disconnecting curl client cancel the shared refresh and trigger the 60 s cooldown for everyone. The refresh now depends only on its own timeout, with a regression test.
 - **Decision recorded**: a bare `clear`/`welcome` writes `/`, but a reset followed by output (`clear && projects`) keeps the command line, so the link reproduces the screen.
 - **Gates (orchestrator, merged branch)**: typecheck; 55 files / 429 tests; build; Playwright 49/49. Live re-check against `next start`: every reproduction now behaves as the contract says.
+
+### Production checks after merge (PR #13, `c24e5b8`)
+- **curl**: correct statuses: 200 `/`, `/projects`, `/skills/llm`, `/github`; 404 `/nonsense`, questions, `pwd && nonsense`, the `%FF` link and the C1 escape link; 400 `/theme` and `/projects/no-such-project`. The guide's `-G --data-urlencode` example works as printed. `/api/content` still returns JSON.
+- **Browser**: HTML on `/`, `/projects` and `/whatever`; `noindex` only on the non-command path; `X-Frame-Options: DENY` everywhere. `www` and `http://` both 308 to `https://moghazy.me`.
+- **CDN**: never mixed curl and browser responses, in either request order and on the cached `/` (`X-Vercel-Cache: HIT` for the browser while curl still got text).
+- **Usage report**: `surfaces.daily` live (75 curl requests, 0 rate-limited, 32 deep links on the first day).
+- **Found in production**: Vercel drops a bare `?nocolor` before it reaches the route (`?nocolor=1` works). Fixed in a follow-up: the middleware normalises the flag, and the guide and docs show `nocolor=1`.
 
 ## Needs your eyes
 

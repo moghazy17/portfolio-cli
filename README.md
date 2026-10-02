@@ -35,7 +35,7 @@ A link only ever shows something. It never opens other sites or starts downloads
 ```bash
 curl https://moghazy.me                 # guide
 curl https://moghazy.me/projects        # any command, as colored text
-curl "https://moghazy.me/projects?nocolor"
+curl "https://moghazy.me/projects?nocolor=1"
 curl -G https://moghazy.me --data-urlencode "cmd=projects | grep -i rag"
 ```
 

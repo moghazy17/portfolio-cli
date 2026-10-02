@@ -218,7 +218,7 @@
   - under Key Patterns, add "links run commands but never perform `openUrl`/`download`/`ask`"
   - note that `/api/chat-stats` now includes `surfaces.daily`
 - [X] T023 [P] Update the root `plan.md` roadmap: mark Spec 003 (repo `specs/004-access-surfaces`) as deep links + curl shipped, with SSH deferred for hosting cost and moved to a later milestone. Add the Vercel apex-domain step.
-- [ ] T024 Manual deploy step (Ahmed): in the Vercel dashboard, make `moghazy.me` serve the deployment directly instead of 307-redirecting to `www` (research R12). Then run the quickstart "Production checks" and confirm `/api/chat-stats` shows `surfaces.daily` the next day.
+- [X] T024 Manual deploy step (Ahmed): in the Vercel dashboard, make `moghazy.me` serve the deployment directly instead of 307-redirecting to `www` (research R12). Then run the quickstart "Production checks" and confirm `/api/chat-stats` shows `surfaces.daily` the next day.
 
 ---
 

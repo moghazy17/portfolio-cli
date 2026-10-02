@@ -54,7 +54,7 @@ curl returns content only; questions for the AI assistant need the web terminal.
 
 ## Try it
 
-- Tap a suggestion above the prompt to explore without typing, or run `tour` for a skippable guided visit.
+- Tap a suggestion in the bottom command bar to explore without typing, or open **☰ all** for the complete command list. Run `tour` for a skippable guided visit.
 - On desktop, press `?` at an empty prompt for the keyboard shortcut sheet.
 - Press `Tab` for completion and `↑`/`↓` to browse history; use `Ctrl+C` to cancel and `Ctrl+L` to clear.
 - Pipe output into filters, for example `projects | grep rag`.

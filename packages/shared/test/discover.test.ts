@@ -1,10 +1,39 @@
 import { describe, expect, it } from 'vitest';
 import { commandRegistry } from '../src/commands/registry';
 import { createShell } from '../src/shell/shell';
-import { PROMPT_EXAMPLES, suggestionsFor } from '../src/discover/suggestions';
+import { PROMPT_EXAMPLES, promptExamplesFor, suggestionsFor } from '../src/discover/suggestions';
+import { WELCOME_HINT, WELCOME_SHORTCUT_HINT } from '../src/ascii';
+import { getMenuGroups, getMenuItems } from '../src/commands/engine';
 import { tourSteps } from '../src/discover/tour';
 
 describe('discoverability definitions', () => {
+  it('uses the shared concise welcome hints', () => {
+    expect(WELCOME_HINT).toBe('Tap a suggestion, or just type a command or question.');
+    expect(WELCOME_HINT).not.toMatch(/arrow keys|menu below/i);
+    expect(WELCOME_SHORTCUT_HINT).toBe('Press ? for shortcuts.');
+  });
+
+  it('groups every menu command exactly once', () => {
+    const groups = getMenuGroups();
+    expect(groups.map((group) => group.heading)).toEqual(['About me', 'Work', 'Explore']);
+    expect(groups[0].items.map((item) => item.value).sort()).toEqual(['about', 'education', 'certifications', 'contact'].sort());
+    expect(groups[1].items.map((item) => item.value).sort()).toEqual(['experience', 'projects', 'skills', 'timeline', 'github'].sort());
+    expect(groups.every((group) => group.items.length > 0)).toBe(true);
+    const values = groups.flatMap((group) => group.items.map((item) => item.value));
+    const menu = getMenuItems().map((item) => item.value);
+    expect(values).toHaveLength(menu.length);
+    expect(new Set(values).size).toBe(values.length);
+    expect([...values].sort()).toEqual([...menu].sort());
+  });
+
+  it('filters matching prompt examples and falls back when exhausted', () => {
+    const filtered = promptExamplesFor([' PROJECTS ', 'what rag work has he done?', 'TOUR']);
+    expect(filtered).not.toContain('try: projects');
+    expect(filtered).not.toContain('ask: What RAG work has he done?');
+    expect(filtered).not.toContain('try: tour');
+    expect(filtered).toContain('try: neofetch');
+    expect(promptExamplesFor(PROMPT_EXAMPLES.map((example) => example.replace(/^(try|ask): /, '')))).toEqual(['try: neofetch']);
+  });
   it('offers first-visit next steps including a question and tour', () => {
     const items = suggestionsFor({ firstVisit: true, surface: 'web' });
     expect(items).toHaveLength(5);

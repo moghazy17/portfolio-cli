@@ -2,12 +2,13 @@
 
 import { useState, useRef, useEffect, KeyboardEvent } from 'react';
 import type { Completion } from '@ahmed-moghazy/shared';
-import { PROMPT_EXAMPLES } from '@ahmed-moghazy/shared';
+import { promptExamplesFor } from '@ahmed-moghazy/shared';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { recordClientEvent } from '../lib/client-events';
 import ShortcutSheet from './ShortcutSheet';
 
 interface Props {
+  visibleChipLines: string[];
   prefill?: { text: string; nonce: number } | null;
   onPrefillApplied: () => void;
   onSubmit: (input: string) => void;
@@ -26,6 +27,7 @@ interface Props {
 }
 
 export default function CommandLine({
+  visibleChipLines,
   prefill,
   onPrefillApplied,
   onSubmit,
@@ -45,6 +47,8 @@ export default function CommandLine({
   const [input, setInput] = useState('');
   const [exampleIndex, setExampleIndex] = useState(0);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const examples = promptExamplesFor(visibleChipLines);
+  const example = examples[exampleIndex % examples.length];
   const reducedMotion = useReducedMotion();
   const inputRef = useRef<HTMLInputElement>(null);
   const previousTab = useRef(false);
@@ -56,9 +60,16 @@ export default function CommandLine({
 
   useEffect(() => {
     if (reducedMotion) return;
-    const timer = window.setInterval(() => setExampleIndex((index) => (index + 1) % PROMPT_EXAMPLES.length), 4_000);
+    const timer = window.setInterval(() => setExampleIndex((index) => (index + 1) % examples.length), 4_000);
     return () => window.clearInterval(timer);
-  }, [reducedMotion]);
+  }, [reducedMotion, examples.length]);
+
+  useEffect(() => setExampleIndex((index) => index % examples.length), [examples.length]);
+  useEffect(() => {
+    const close = () => setSheetOpen(false);
+    window.addEventListener('command-sheet-open', close);
+    return () => window.removeEventListener('command-sheet-open', close);
+  }, []);
 
   const tourWasActive = useRef(false);
   useEffect(() => {
@@ -84,7 +95,7 @@ export default function CommandLine({
   }, [input]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === '?' && !input && window.matchMedia('(pointer: fine)').matches) {
+    if (e.key === '?' && !input && !document.getElementById('command-sheet-heading') && window.matchMedia('(pointer: fine)').matches) {
       e.preventDefault();
       setSheetOpen(true);
       recordClientEvent('shortcut_sheet_opens');
@@ -130,6 +141,10 @@ export default function CommandLine({
         break;
 
       case 'Tab':
+        if (!input && !e.shiftKey) {
+          const firstChip = document.querySelector<HTMLButtonElement>('.command-bar button[tabindex="0"]');
+          if (firstChip) { e.preventDefault(); firstChip.focus(); return; }
+        }
         e.preventDefault();
         const completion = complete(input, e.currentTarget.selectionStart ?? input.length);
         if (secondTab && completion.candidates.length > 1) {
@@ -148,7 +163,7 @@ export default function CommandLine({
         {prompt}
       </span>
       <div className="command-input-wrap">
-        {!input && tourText === null && <span className="prompt-example" aria-hidden="true">{PROMPT_EXAMPLES[exampleIndex]}</span>}
+        {!input && tourText === null && <span className="prompt-example" aria-hidden="true">{example}</span>}
         <input
           ref={inputRef}
           type="text"

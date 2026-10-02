@@ -1,5 +1,5 @@
 export type SurfaceEventKind = 'curl_requests' | 'curl_rate_limited' | 'deep_links' | 'gui_visits' | 'guestbook_signed' | 'guestbook_rejected'
-  | 'suggestion_taps' | 'tours_started' | 'tours_completed' | 'shortcut_sheet_opens';
+  | 'suggestion_taps' | 'tours_started' | 'tours_completed' | 'shortcut_sheet_opens' | 'command_sheet_opens';
 
 export interface SurfaceDay {
   date: string;
@@ -13,6 +13,7 @@ export interface SurfaceDay {
   tours_started: number;
   tours_completed: number;
   shortcut_sheet_opens: number;
+  command_sheet_opens: number;
   presence_peak: number;
 }
 
@@ -72,6 +73,7 @@ export async function readSurfaceStats(
           tours_started: Number(counts.tours_started ?? 0),
           tours_completed: Number(counts.tours_completed ?? 0),
           shortcut_sheet_opens: Number(counts.shortcut_sheet_opens ?? 0),
+          command_sheet_opens: Number(counts.command_sheet_opens ?? 0),
           presence_peak: Number(counts.presence_peak ?? 0),
         };
       }),

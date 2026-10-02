@@ -1,25 +1,18 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import {
   ASCII_BANNER,
   WELCOME_SUBTITLE,
   WELCOME_HINT,
+  WELCOME_SHORTCUT_HINT,
 } from '@ahmed-moghazy/shared';
 
-interface Props {
-  showMenu: boolean;
-  menuItems: Array<{ label: string; value: string }>;
-  onMenuSelect: (command: string) => void;
-}
-
-export default function WelcomeScreen({
-  showMenu,
-  menuItems,
-  onMenuSelect,
-}: Props) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+export default function WelcomeScreen() {
+  const [finePointer, setFinePointer] = useState(false);
   const [glitch, setGlitch] = useState(true);
+
+  useEffect(() => setFinePointer(window.matchMedia('(pointer: fine)').matches), []);
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { setGlitch(false); return; }
@@ -35,29 +28,6 @@ export default function WelcomeScreen({
       window.removeEventListener('touchstart', settle);
     };
   }, []);
-
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (!showMenu) return;
-      if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setSelectedIndex((i) => (i > 0 ? i - 1 : menuItems.length - 1));
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setSelectedIndex((i) => (i < menuItems.length - 1 ? i + 1 : 0));
-      } else if (e.key === 'Enter') {
-        e.preventDefault();
-        onMenuSelect(menuItems[selectedIndex].value);
-      }
-    },
-    [showMenu, selectedIndex, menuItems, onMenuSelect],
-  );
-
-  useEffect(() => {
-    if (!showMenu) return;
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showMenu, handleKeyDown]);
 
   return (
     <div style={{ marginBottom: '24px' }}>
@@ -84,33 +54,8 @@ export default function WelcomeScreen({
         }}
       />
       <div style={{ color: 'var(--dimmed)', marginBottom: '16px' }}>
-        {WELCOME_HINT}
+        {WELCOME_HINT}{finePointer && ` ${WELCOME_SHORTCUT_HINT}`}
       </div>
-
-      {showMenu && (
-        <div>
-          {menuItems.map((item, i) => (
-            <div
-              key={item.value}
-              onClick={() => onMenuSelect(item.value)}
-              onMouseEnter={() => setSelectedIndex(i)}
-              style={{
-                padding: '4px 8px',
-                cursor: 'pointer',
-                backgroundColor:
-                  i === selectedIndex ? 'var(--primary)' : 'transparent',
-                color: i === selectedIndex ? 'var(--bg)' : 'var(--fg)',
-                borderRadius: '2px',
-                fontFamily: 'inherit',
-                transition: 'background-color 0.1s',
-              }}
-            >
-              {i === selectedIndex ? '> ' : '  '}
-              {item.label}
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

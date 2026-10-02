@@ -21,6 +21,12 @@ export const PROMPT_EXAMPLES = [
   'try: neofetch', 'try: guestbook', 'try: tour',
 ];
 
+export function promptExamplesFor(visibleLines: string[]): string[] {
+  const visible = new Set(visibleLines.map((line) => line.trim().toLowerCase()));
+  const examples = PROMPT_EXAMPLES.filter((example) => !visible.has(example.replace(/^(?:try|ask):\s*/i, '').trim().toLowerCase()));
+  return examples.length ? examples : ['try: neofetch'];
+}
+
 export function suggestionsFor(context: { firstVisit: boolean; lastCommand?: string; surface: Surface }): Suggestion[] {
   const last = commandRegistry.find((item) => item.name === context.lastCommand || item.aliases.includes(context.lastCommand ?? ''))?.name;
   const candidates = context.firstVisit ? FIRST : [...(NEXT[last ?? ''] ?? []), ...DEFAULT];

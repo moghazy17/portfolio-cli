@@ -11,5 +11,6 @@ export type { AssistantFinish, AssistantSources } from './stream';
 export { InventorySnapshotSchema, checkInvariants } from '../../inventory/schema';
 export type { InventorySnapshot } from '../../inventory/types';
 export { skillEvidence, skillEvidenceWithRepos } from '../../inventory/skills';
+export { filterSnapshotToCurrentRepos } from '../../inventory/current';
 export { STALE_AFTER_MS } from '../../inventory/constants';
 export type { LiveRepo, LiveRepoDetail, RecentActivity, CodeHit } from './live-types';

@@ -43,7 +43,7 @@ test.describe('terminal motion', () => {
   test('glitch skips, CRT persists, and skill bars show evidence', async ({ page }) => {
     test.skip(test.info().project.name.includes('reduced'));
     await page.addInitScript(() => localStorage.setItem('boot:v1', '1'));
-    await page.route('**/api/skills?v=2', async (route) => route.fulfill({ json: {
+    await page.route('**/api/skills?v=3', async (route) => route.fulfill({ json: {
       evidence: { 'Python (Advanced)': 4 },
       repos: { 'Python (Advanced)': ['alpha', 'beta', 'gamma', 'delta'] },
       generatedAt: new Date().toISOString(),

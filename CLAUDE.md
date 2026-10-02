@@ -54,7 +54,8 @@ npm run eval:assistant -w @ahmed-moghazy/shared  # Golden-question assistant eva
 - `registry.ts` — `commandRegistry` array of `CommandDefinition` objects and command metadata
 - `engine.ts` — backward-compatible `executeCommand()`, `getCompletions()`, and `getMenuItems()` wrappers
 - `cv.ts` — CV data commands (about, education, experience, projects, skills, certifications, contact)
-- `utility.ts` — Utility commands (open, timeline, theme, welcome, whoami)
+- `utility.ts` — Utility commands (open, timeline, theme, welcome, whoami, gui/startx)
+- `live.ts` — Live commands over injected `ctx.live`: `who` (presence; `bareOnly`, so `who …` with words goes to the assistant), `guestbook`, `sign` (web only, returns a `sign` effect)
 - `github.ts` — Live GitHub stats command (uses `fetchGitHubData` from `../github`)
 - `chat.ts` — AI chat mode entry command
 - `easter-eggs.ts` — Hidden fun commands (sudo, rm, neofetch, hello, exit)
@@ -99,7 +100,12 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 - `components/AssistantAnswer.tsx` — Renders an in-shell assistant answer (command output, text, sources, notices; `aria-busy` while streaming)
 - `hooks/useTerminal.ts` — Owns the shell instance, cancellation, command effects (including `ask` → streamed assistant answer), and terminal state
 - `hooks/useHistory.ts` — LocalStorage-backed wrapper around the shared history state
-- `hooks/useThemeApplier.ts` — Applies theme CSS custom properties
+- `hooks/useThemeApplier.ts` — Applies theme CSS custom properties and remembers the chosen theme
+- `app/gui/` — The regular page (`/gui`): static with hourly revalidation, Tailwind (no Preflight) and `motion` scoped to this route; components in `components/gui/`
+- `components/Screensaver.tsx`, `components/CrtFilter.tsx`, `hooks/useTypewriter.ts`, `hooks/useIdle.ts`, `hooks/useReducedMotion.ts` — Terminal motion (boot, typewriter for outputs ≤ 40 lines, glitch, CRT, idle matrix rain); all off under reduced motion
+- `lib/view-cookie.ts`, `lib/terminal-snapshot.ts` — Last-used view cookie (middleware sends plain `/` to `/gui`) and the in-tab terminal log kept across a GUI round trip
+- `hooks/usePresence.ts`, `lib/presence.ts` — 30 s heartbeats into the `presence:web` sorted set (60 s window)
+- `lib/guestbook.ts`, `lib/turnstile.ts`, `lib/turnstile-client.ts` — Guestbook list/sign/delete (`guestbook:v1`, newest 200), Turnstile verification, 1/visitor/day and 200/day limits that fail closed
 - `lib/inventory-store.ts` — Reads the tech inventory from Redis (5 min memo), or `.inventory/inventory.json` locally
 - `lib/github-live.ts` — Live GitHub reads for the assistant (repos, recent activity, READMEs, code search) with Redis caches
 - `lib/assistant-limits.ts` — 15 questions/visitor/hour and a site-wide daily cap; fails closed when Redis errors
@@ -110,6 +116,9 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 - `app/api/term/route.ts` — Terminal text for text clients (`?nocolor`), rate-limited at 60/min per IP (fails open), counted in the usage report
 - `lib/surface-stats.ts` — Binds the shared surface counters to Redis; `/api/chat-stats` includes them as `surfaces.daily`
 - `lib/github-stats.ts` — Cached (10 min, Redis + memory), token-authenticated GitHub stats for the `github` command over curl
+- `app/api/presence/route.ts` — Presence heartbeat (POST) and count (GET), 60/min per IP
+- `app/api/guestbook/route.ts`, `app/api/guestbook/[id]/route.ts` — Guestbook read/sign and owner deletion (`ADMIN_TOKEN` bearer, 404 when unset)
+- `app/api/skills/route.ts` — Per-skill public repo counts from the inventory for the `skills` bars
 
 ### Key Patterns
 - Portfolio content lives in `content/resume.yaml`, `content/site.yaml`, and optional write-ups at `content/projects/<slug>/README.md`; it is generated into `packages/shared/src/content/generated.ts`
@@ -138,6 +147,10 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 | `ASSISTANT_RELAY_TOKEN` | No | Shared secret letting the SSH server relay visitor IPs |
 | `INVENTORY_FILE` | No | Local inventory JSON path when Redis is not configured |
 | `CHAT_STATS_TOKEN` | No | Bearer token for the private `/api/chat-stats` usage report (endpoint returns 404 when unset) |
+| `ADMIN_TOKEN` | No | Bearer token for deleting guestbook entries (endpoint returns 404 when unset) |
+| `GUESTBOOK_SALT` | Yes (guestbook, production) | Salt for hashing visitor addresses in the guestbook rate-limit key |
+| `TURNSTILE_SECRET_KEY` | Yes (guestbook, production) | Cloudflare Turnstile secret; signing is refused in production without it |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Yes (guestbook) | Cloudflare Turnstile site key (public) |
 
 ### GitHub Actions
 | Setting | Required | Description |

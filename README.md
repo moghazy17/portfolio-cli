@@ -21,6 +21,13 @@ A browser-based terminal emulator with AI chat, built on a shared command engine
 
 > **Web:** [moghazy.me](https://moghazy.me)
 
+## Prefer a regular page?
+
+Click **Regular view** in the terminal, type `gui` (or `startx`), or open
+[moghazy.me/gui](https://moghazy.me/gui) for the same content as a conventional page: about,
+experience timeline, project cards, skills, guestbook, contact and CV download. It follows your
+light or dark setting, and the site remembers which view you used last.
+
 ## Share a view
 
 Every command has a link. Opening it loads the terminal with that command already run, and the address bar follows whatever you run next, so you can copy it to share the current view.
@@ -95,6 +102,22 @@ skills llm
 
 ---
 
+## A live place
+
+- First visit plays a short boot sequence (any key skips it; it never shows again). Short command
+  output types out, the name banner glitches once, and after a minute idle a matrix-rain
+  screensaver starts until you press a key. All of it is off when your device asks for reduced motion.
+- `skills` draws bars from how many public GitHub repos use each skill.
+- `who` shows how many people are exploring right now.
+- `guestbook` lists the latest entries; sign it with `sign "your message" --name "your name"` or
+  on the regular page. One signature per visitor per day, 140 characters, no links or contact details.
+
+Deleting an entry (owner only):
+
+```bash
+curl -X DELETE -H "Authorization: Bearer $ADMIN_TOKEN" https://moghazy.me/api/guestbook/<id>
+```
+
 ## AI Chat
 
 Type `chat` (or `ask` / `ai`) to enter AI chat mode. The AI knows about Ahmed's experience, projects, skills, and live GitHub activity. Ask anything — it responds as Ahmed in a terminal-friendly format.
@@ -110,10 +133,12 @@ Powered by OpenAI (gpt-6-luna) via the Vercel AI SDK.
 | `matrix` | Dark blue (default) |
 | `dracula` | Purple & pink |
 | `nord` | Arctic blue-grey |
+| `crt` | Green phosphor with scanlines, curvature and glow |
 
 ```
 theme dracula
 theme nord
+theme crt
 theme matrix
 ```
 
@@ -138,6 +163,10 @@ theme matrix
 UPSTASH_REDIS_REST_URL=   # Upstash Redis REST URL (optional, for GitHub data caching)
 UPSTASH_REDIS_REST_TOKEN= # Upstash Redis REST token
 OPENAI_API_KEY=            # OpenAI API key (required for chat)
+ADMIN_TOKEN=               # Bearer token for deleting guestbook entries
+GUESTBOOK_SALT=            # Salt for anonymous per-visitor guestbook limits
+TURNSTILE_SECRET_KEY=      # Cloudflare Turnstile secret (guestbook human check)
+NEXT_PUBLIC_TURNSTILE_SITE_KEY= # Cloudflare Turnstile site key
 ```
 
 ---

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { createPortal } from 'react-dom';
 import { recordClientEvent } from '../lib/client-events';
 import CommandSheet from './CommandSheet';
 
@@ -61,6 +62,13 @@ export default function CommandBar({ ready, onSelect, variant = 'terminal' }: {
   };
 
   const desk = variant === 'desk';
+  const sheetTheme = (): React.CSSProperties => {
+    const source = navRef.current;
+    if (!source) return {};
+    const computed = getComputedStyle(source);
+    return Object.fromEntries(['--bg', '--fg', '--primary', '--accent', '--dimmed'].map((name) => [name, computed.getPropertyValue(name)])) as React.CSSProperties;
+  };
+  const sheet = sheetOpen && <CommandSheet onClose={closeSheet} onSelect={choose} desk={desk} style={desk ? sheetTheme() : undefined} />;
   const chipClass = (question?: boolean) => desk
     ? `be-chip${question ? ' be-chip-ask' : ''}`
     : `command-chip${question ? ' command-chip-question' : ''}`;
@@ -80,6 +88,6 @@ export default function CommandBar({ ready, onSelect, variant = 'terminal' }: {
         onFocus={() => setActiveIndex(chips.length)} onClick={openSheet}
         aria-haspopup="dialog" aria-expanded={sheetOpen}><span aria-hidden="true">⋯</span> all commands</button>
     </div>
-    {sheetOpen && <CommandSheet onClose={closeSheet} onSelect={choose} />}
+    {desk && sheet && typeof document !== 'undefined' ? createPortal(sheet, document.body) : sheet}
   </nav>;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type CSSProperties } from 'react';
 import { getMenuGroups } from '@ahmed-moghazy/shared';
 
 const groups = getMenuGroups();
@@ -10,15 +10,15 @@ const shortcuts = [
   ['? or Esc', 'Open or close this sheet'],
 ];
 
-export default function CommandSheet({ onClose, onSelect }: { onClose: () => void; onSelect: (line: string) => void }) {
+export default function CommandSheet({ onClose, onSelect, desk = false, style }: { onClose: () => void; onSelect: (line: string) => void; desk?: boolean; style?: CSSProperties }) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => { closeRef.current?.focus(); }, []);
 
   return <>
-    <div className="command-sheet-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }} />
-    <div ref={dialogRef} className="command-sheet" role="dialog" aria-modal="true" aria-labelledby="command-sheet-heading"
+    <div className={`command-sheet-backdrop${desk ? ' command-sheet-backdrop-desk' : ''}`} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }} />
+    <div ref={dialogRef} className={`command-sheet${desk ? ' command-sheet-desk' : ''}`} style={style} role="dialog" aria-modal="true" aria-labelledby="command-sheet-heading"
       onKeyDown={(event) => {
         if (event.key === 'Escape' || event.key === '?') { event.preventDefault(); event.stopPropagation(); onClose(); return; }
         if (event.key !== 'Tab') return;

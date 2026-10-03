@@ -241,6 +241,7 @@ html:has(.gui-root) {
 .be-body {
   position: relative;
   min-width: 0;
+  container: be-window-body / inline-size;
   background: var(--list);
   border: 1px solid var(--chrome-lo);
   box-shadow: inset 1px 1px 0 rgba(0, 0, 0, .12);
@@ -375,9 +376,33 @@ html:has(.gui-root) {
 .be-disclosure[open] > .be-row { background: var(--select); }
 
 .be-row-name { display: flex; align-items: flex-start; gap: 10px; min-width: 0; font-weight: 500; }
+.be-row-name > span { min-width: 0; }
 .be-row-name img { flex: none; margin-top: 1px; }
 .be-row-name h3 { font-size: 16px; font-weight: 600; line-height: 1.35; }
 .be-row-sub { display: block; margin-top: 2px; color: var(--ink-muted); font-size: 14px; line-height: 1.4; }
+
+@container be-window-body (max-width: 40rem) {
+  .be-tracker-head { display: none; }
+  .be-row,
+  .be-row.be-film {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 3px 8px;
+  }
+  .be-row-name { grid-column: 1 / -1; }
+  .be-row > span:nth-child(2) {
+    grid-column: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .be-row > span:nth-child(3) { grid-column: 2; }
+  .be-row > span + span {
+    border-left: 0;
+    padding-left: 32px;
+    color: var(--ink-muted);
+    font-size: 14px;
+  }
+  .be-row > span:nth-child(3) { padding-left: 0; text-align: right; }
+}
 
 .be-detail { padding: 14px 18px 18px 46px; background: #f6f6f8; border-bottom: 1px solid var(--rule); font-size: 15px; }
 .be-detail h3 { margin-bottom: 8px; font-size: 16px; font-weight: 700; }
@@ -714,7 +739,7 @@ html:has(.gui-root) {
   .be-desk { padding: 0; }
   .be-scenes {
     position: absolute;
-    inset: 34px 12px 12px 242px;
+    inset: 34px 242px 12px 242px;
     display: block;
     width: auto;
     max-width: none;
@@ -736,7 +761,7 @@ html:has(.gui-root) {
   .be-win.is-maximized {
     left: 8px;
     top: 22px;
-    width: calc(100% - 232px);
+    width: calc(100% - 16px);
     height: calc(100% - 34px);
     max-height: none;
   }
@@ -744,8 +769,8 @@ html:has(.gui-root) {
   /* The terminal's log is its only scroller; the window body never scrolls under it. */
   .be-terminal .be-body { overflow: hidden; }
   .be-terminal {
-    --window-width: min(820px, calc(100% - 244px));
-    --x0: max(12px, calc((100% - 232px - var(--window-width)) / 2));
+    --window-width: min(820px, calc(100% - 24px));
+    --x0: max(12px, calc((100% - var(--window-width)) / 2));
     --y0: 78px;
     height: min(590px, calc(100% - var(--y, var(--y0)) - 12px));
   }

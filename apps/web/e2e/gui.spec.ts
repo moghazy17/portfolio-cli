@@ -204,6 +204,40 @@ test.describe('Regular page', () => {
     await expect(page.getByRole('navigation', { name: 'Dock' }).getByRole('button', { name: 'Résumé' })).toBeVisible();
   });
 
+  test('Tracker names and metadata occupy separate lines on a phone', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/gui');
+    for (const id of ['projects', 'experience']) {
+      const rows = page.locator(`#${id} .be-tracker-rows .be-row`);
+      expect(await rows.count()).toBeGreaterThan(0);
+      for (const row of await rows.all()) {
+        const name = await row.locator('.be-row-name').boundingBox();
+        const metadata = await row.locator(':scope > span:nth-child(2)').boundingBox();
+        expect(name, `${id} name`).not.toBeNull();
+        expect(metadata, `${id} metadata`).not.toBeNull();
+        expect(name!.y + name!.height, `${id}: ${await row.innerText()}`).toBeLessThanOrEqual(metadata!.y);
+      }
+    }
+  });
+
+  test('all commands sheet stays fully visible outside the terminal window', async ({ page }) => {
+    for (const viewport of [{ width: 320, height: 640 }, { width: 1100, height: 800 }]) {
+      await page.setViewportSize(viewport);
+      await page.goto('/gui');
+      await page.locator('#terminal').getByRole('button', { name: /all commands/i }).click();
+      const sheet = page.getByRole('dialog', { name: 'All commands' });
+      await expect(sheet).toBeVisible();
+      await expect(sheet.getByRole('button', { name: 'Close all commands' })).toBeInViewport({ ratio: 1 });
+      const box = await sheet.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box!.x).toBeGreaterThanOrEqual(0);
+      expect(box!.y).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(viewport.width);
+      expect(box!.y + box!.height).toBeLessThanOrEqual(viewport.height);
+      await sheet.getByRole('button', { name: 'Close all commands' }).click();
+    }
+  });
+
   test('coarse-pointer secret grips have clear 44px targets', async ({ browser }: { browser: Browser }) => {
     const context = await browser.newContext({
       viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true,

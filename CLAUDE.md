@@ -75,7 +75,7 @@ suggestions, unknown-command handling, and output-to-lines conversion. `src/vfs/
 Each `CommandDefinition` includes its name, aliases, description, usage, `execute()` function,
 and metadata such as `kind`, `menu`, `surfaces`, `args`, `man`, and `hidden`. `CommandResult`
 contains `output: CommandOutput[]` plus optional effects: `clear`, `openUrl`, `status`,
-`theme`, `welcome`, `download`, `sequence`, `tour`, `screensaver`, and `ask` (hand unknown input to the AI assistant).
+`theme`, `welcome`, `download`, `sequence`, `tour`, `screensaver`, `fx` (one-shot web effect: `web` strand or `confetti`), and `ask` (hand unknown input to the AI assistant).
 `CommandDefinition.assistant: true` marks the read-only commands the assistant may run. `createShell()` also accepts an
 `onUnknownCommand` hook for host-specific handling of unrecognised input.
 
@@ -99,14 +99,14 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 - `components/CommandLine.tsx` — Shell input with completion, history, cancellation, and clear-screen keys
 - `components/SequencePlayer.tsx` — Skippable command-sequence playback with reduced-motion support
 - `components/AssistantAnswer.tsx` — Renders an in-shell assistant answer (command output, text, sources, notices; `aria-busy` while streaming)
-- `hooks/useTerminal.ts` — Owns the shell instance, cancellation, command effects (including `ask` → streamed assistant answer and `tour`), suggestions, and terminal state
+- `hooks/useTerminal.ts` — Owns the shell instance, cancellation, command effects (including `ask` → streamed assistant answer and `tour`), and terminal state; `windowed` mode (no boot, address sync or deep-link run; theme applied to the window) serves the /gui terminal window
 - `hooks/useTour.ts`, `hooks/useKeyboardInset.ts` — Skippable tour playback and mobile keyboard positioning
-- `components/CommandBar.tsx`, `components/CommandSheet.tsx` — Bottom suggestions and the grouped full command list (also lists keyboard shortcuts; `?` on an empty prompt opens it). Groups come from `commands/groups.ts`, shared with `help`
+- `components/CommandBar.tsx`, `components/CommandSheet.tsx` — The fixed chip bar under both terminals (projects, skills, experience, resume, ✦ ask AI, ⋯ all commands) and the grouped full command list (also lists keyboard shortcuts; `?` on an empty prompt opens it). Groups come from `commands/groups.ts`, shared with `help`
 - `hooks/useHistory.ts` — LocalStorage-backed wrapper around the shared history state
 - `hooks/useThemeApplier.ts` — Applies theme CSS custom properties and remembers the chosen theme
-- `app/gui/` — The regular page (`/gui`), a BeOS-style desktop (see `apps/web/DESIGN.md`): static with hourly revalidation, plain CSS in `gui.css`; windows, Deskbar, icons and the embedded terminal window in `components/desk/` (`hooks/useDeskShell.ts` is the window's self-contained shell); icons in `public/desk/`
+- `app/gui/` — The regular page (`/gui`), a BeOS-style desktop (see `apps/web/DESIGN.md`): static with hourly revalidation, plain CSS in `gui.css` (+ `cursors.css`); a non-scrolling desk ≥1100px where only the terminal is open at load. Window manager state (minimize, max, cascade, `#hash` links) in `components/desk/DesktopContext.tsx`; windows, Deskbar window list, icons and the terminal window (the real `Terminal`, windowed) in `components/desk/`; mouse click sounds in `hooks/useClickSound.ts`; icons and cursors in `public/desk/`
 - `components/Screensaver.tsx`, `components/CrtFilter.tsx`, `hooks/useTypewriter.ts`, `hooks/useIdle.ts`, `hooks/useReducedMotion.ts` — Terminal motion (boot, typewriter for outputs ≤ 40 lines, glitch, CRT, opt-in idle matrix rain via the `screensaver` command); all off under reduced motion
-- `lib/view-cookie.ts`, `lib/terminal-snapshot.ts` — Last-used view cookie (middleware sends plain `/` to `/gui`) and the in-tab terminal log kept across a GUI round trip
+- `lib/view-cookie.ts`, `lib/terminal-snapshot.ts` — Last-used view cookie (middleware sends plain `/` to `/gui`) and the in-tab terminal session shared by `/` and the /gui window in both directions
 - `hooks/usePresence.ts`, `lib/presence.ts` — 30 s heartbeats into the `presence:web` sorted set (60 s window)
 - `lib/guestbook.ts`, `lib/turnstile.ts`, `lib/turnstile-client.ts` — Guestbook list/sign/delete (`guestbook:v1`, newest 200), Turnstile verification, 1/visitor/day and 200/day limits that fail closed
 - `lib/inventory-store.ts` — Reads the tech inventory from Redis (5 min memo), or `.inventory/inventory.json` locally
@@ -124,6 +124,7 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 - `app/api/guestbook/route.ts`, `app/api/guestbook/[id]/route.ts` — Guestbook read/sign and owner deletion (`ADMIN_TOKEN` bearer, 404 when unset)
 - `app/api/skills/route.ts` — Per-skill public repo counts from the inventory for the `skills` bars
 - `app/api/letterboxd/route.ts`, `lib/letterboxd.ts` — Recent Letterboxd diary entries (public RSS, cached 1 h) for the `letterboxd` command and the /gui Films window
+- `app/api/barca/route.ts`, `lib/barca.ts` — Next FC Barcelona fixture from football-data.org (cached 6 h) for the `visca` command; null without `FOOTBALL_DATA_TOKEN`
 
 ### Key Patterns
 - Portfolio content lives in `content/resume.yaml`, `content/site.yaml`, and optional write-ups at `content/projects/<slug>/README.md`; it is generated into `packages/shared/src/content/generated.ts`
@@ -156,6 +157,7 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 | `GUESTBOOK_SALT` | Yes (guestbook, production) | Salt for hashing visitor addresses in the guestbook rate-limit key |
 | `TURNSTILE_SECRET_KEY` | Yes (guestbook, production) | Cloudflare Turnstile secret; signing is refused in production without it |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Yes (guestbook) | Cloudflare Turnstile site key (public) |
+| `FOOTBALL_DATA_TOKEN` | No | football-data.org API key for the `visca` next-fixture line (falls back to a schedule link) |
 
 ### GitHub Actions
 | Setting | Required | Description |

@@ -36,8 +36,8 @@ and command system.
 
 ## Capabilities and Constraints
 
-- Next.js on Vercel; `/gui` is static with hourly revalidation; Tailwind (no Preflight) and `motion`
-  scoped to `/gui`.
+- Next.js on Vercel; `/gui` is static with hourly revalidation; plain CSS and Web Animations (no
+  animation library) on `/gui`.
 - Must keep: all CV content, CV download, contact links, guestbook, presence badge, a clear way back
   to the terminal, light/dark support, reduced-motion support, SEO metadata.
 - Personal interests (owner-confirmed): Spider-Man, FC Barcelona, films (Letterboxd `moghazy17`, public

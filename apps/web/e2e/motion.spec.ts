@@ -5,7 +5,7 @@ const input = (page: import('@playwright/test').Page) => page.getByRole('textbox
 test.describe('terminal motion', () => {
   test('boot accepts typing, stays dismissed, and never runs on a deep link', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium' || test.info().project.name.includes('reduced'));
-    await page.goto('/');
+    await page.goto('/terminal');
     await expect(page.getByTestId('boot')).toBeVisible();
     await page.keyboard.type('about');
     await expect(page.getByTestId('boot')).toBeHidden();
@@ -22,7 +22,7 @@ test.describe('terminal motion', () => {
   test('types short output once and completes on keypress; long output is instant', async ({ page }) => {
     test.skip(test.info().project.name.includes('reduced'));
     await page.addInitScript(() => localStorage.setItem('boot:v1', '1'));
-    await page.goto('/');
+    await page.goto('/terminal');
     await input(page).fill('about');
     await input(page).press('Enter');
     await expect(page.locator('[data-reveal="typing"]')).toBeVisible();
@@ -48,7 +48,7 @@ test.describe('terminal motion', () => {
       repos: { 'Python (Advanced)': ['alpha', 'beta', 'gamma', 'delta'] },
       generatedAt: new Date().toISOString(),
     } }));
-    await page.goto('/');
+    await page.goto('/terminal');
     await expect(page.locator('.ascii-banner.glitch-reveal')).toBeVisible();
     await page.keyboard.press('x');
     await expect(page.locator('.ascii-banner.glitch-reveal')).toHaveCount(0);
@@ -70,7 +70,7 @@ test.describe('terminal motion', () => {
     test.skip(test.info().project.name.includes('reduced'));
     await page.addInitScript(() => localStorage.setItem('boot:v1', '1'));
     await page.clock.install();
-    await page.goto('/');
+    await page.goto('/terminal');
     await expect(input(page)).toBeFocused();
     await page.waitForTimeout(100);
     await page.clock.fastForward(60_100);
@@ -92,7 +92,7 @@ test.describe('terminal motion', () => {
 
   test('reduced motion leaves all output static', async ({ page }) => {
     test.skip(!test.info().project.name.includes('reduced'));
-    await page.goto('/');
+    await page.goto('/terminal');
     await expect(page.getByTestId('boot')).toHaveCount(0);
     await expect(page.locator('.ascii-banner.glitch-reveal')).toHaveCount(0);
     await input(page).fill('about');
@@ -108,7 +108,7 @@ test.describe('Be Desktop motion', () => {
   test('boot appears once per session and a key skips without reaching the terminal', async ({ page }) => {
     test.skip(test.info().project.name.includes('reduced'));
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/gui');
+    await page.goto('/');
     await expect(page.getByTestId('gui-boot')).toBeVisible();
     await page.keyboard.press('x');
     await expect(page.getByTestId('gui-boot')).toHaveCount(0);
@@ -121,13 +121,13 @@ test.describe('Be Desktop motion', () => {
     await expect(page.getByTestId('gui-boot')).toHaveCount(0, { timeout: 3000 });
     await page.getByRole('navigation', { name: 'Desktop' }).getByRole('button', { name: 'Projects' }).click();
     await expect(page.locator('#projects')).toBeVisible();
-    await page.goto('/gui#projects');
+    await page.goto('/#projects');
     await expect(page.getByTestId('gui-boot')).toHaveCount(0);
   });
 
   test('boot never mounts under reduced motion', async ({ page }) => {
     test.skip(!test.info().project.name.includes('reduced'));
-    await page.goto('/gui');
+    await page.goto('/');
     await expect(page.getByTestId('gui-boot')).toHaveCount(0);
   });
 });

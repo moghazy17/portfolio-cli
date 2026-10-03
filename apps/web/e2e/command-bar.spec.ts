@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('shows one bottom bar with an always-last all commands button', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/terminal');
   await expect(bar(page)).toHaveCount(1);
   await expect(bar(page).getByRole('button', { name: 'All commands' })).toBeVisible();
   await expect(page.locator('.menu-bar, .suggestion-bar, .shortcut-hint')).toHaveCount(0);
@@ -31,7 +31,7 @@ test('shows one bottom bar with an always-last all commands button', async ({ pa
 
 
 test('welcome uses the shared hint and adds the shortcut hint on fine pointers', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/terminal');
   await expect(page.locator('[role="log"]')).toContainText('Tap a suggestion, or just type a command or question. Press ? for shortcuts.');
   await expect(page.locator('[role="log"]')).not.toContainText('arrow keys');
 });
@@ -40,17 +40,17 @@ test('every former menu command is reachable and runs from the sheet with a mous
   for (const item of getMenuItems()) {
     // Opening `gui` remembers that view, which would send `/` back to the regular page.
     await page.context().clearCookies();
-    await page.goto('/');
+    await page.goto('/terminal');
     await bar(page).getByRole('button', { name: 'All commands' }).click();
     await dialog(page).getByRole('button', { name: new RegExp(`^${item.value}\\b`) }).click();
     await expect(dialog(page)).toHaveCount(0);
-    if (item.value === 'gui') await expect(page).toHaveURL(/\/gui$/);
+    if (item.value === 'gui') await expect(page).toHaveURL(/:\d+\/$/);
     else await expect(page.locator('[role="log"]'), `command ${item.value}`).toContainText(item.value);
   }
 });
 
 test('keyboard enters the bar, roves, opens the sheet, and activates a command', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/terminal');
   await input(page).focus();
   await input(page).press('Tab');
   const buttons = bar(page).locator('.command-bar-items > button');
@@ -74,7 +74,7 @@ test('keyboard enters the bar, roves, opens the sheet, and activates a command',
 });
 
 test('dialog traps focus and returns it to the prompt after Escape and backdrop clicks', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/terminal');
   await bar(page).getByRole('button', { name: 'All commands' }).click();
   await expect(dialog(page)).toBeVisible();
   await expect(dialog(page).getByRole('button', { name: 'Close all commands' })).toBeFocused();
@@ -98,14 +98,14 @@ test('dialog traps focus and returns it to the prompt after Escape and backdrop 
 });
 
 test('assistant chip has its full accessible name and the empty prompt shows no ghost text', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/terminal');
   await expect(bar(page).getByRole('button', { name: /^Ask the assistant: / })).toBeVisible();
   await expect(page.locator('.prompt-example')).toHaveCount(0);
 });
 
 test('320px viewport contains both bar and sheet without horizontal page scroll', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 640 });
-  await page.goto('/');
+  await page.goto('/terminal');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await bar(page).getByRole('button', { name: 'All commands' }).click();
   await expect(dialog(page)).toBeVisible();
@@ -116,7 +116,7 @@ test('touch bar stays above the keyboard inset and sheet items work by tap', asy
   const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 320, height: 640 }, reducedMotion: reduced() ? 'reduce' : 'no-preference' });
   const page = await context.newPage();
   await page.addInitScript(() => localStorage.setItem('boot:v1', '1'));
-  await page.goto('/');
+  await page.goto('/terminal');
   await expect(page.locator('[role="log"]')).toContainText('Tap a suggestion, or just type a command or question.');
   await expect(page.locator('[role="log"]')).not.toContainText('Press ? for shortcuts.');
   await page.evaluate(() => document.documentElement.style.setProperty('--keyboard-inset', '220px'));
@@ -131,7 +131,7 @@ test('touch bar stays above the keyboard inset and sheet items work by tap', asy
 });
 
 test('bar and sheet have no serious or critical axe violations in every theme', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/terminal');
   for (const name of Object.keys(themes)) {
     await input(page).fill(`theme ${name}`);
     await input(page).press('Enter');

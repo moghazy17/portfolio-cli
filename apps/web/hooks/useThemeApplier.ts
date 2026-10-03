@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { themes, DEFAULT_THEME } from '@ahmed-moghazy/shared';
 import type { Theme } from '@ahmed-moghazy/shared';
 
-/** The visitor's terminal theme; `applyToPage` writes it to the page's custom properties (off for the /gui window). */
+/** The visitor's terminal theme; `applyToPage` writes it to the page's custom properties (off for the desktop window). */
 export function useThemeApplier(applyToPage = true) {
   const [theme, setTheme] = useState<Theme>(themes[DEFAULT_THEME]);
 

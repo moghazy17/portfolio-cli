@@ -33,7 +33,9 @@ export async function GET(request: Request): Promise<Response> {
 
   const url = new URL(request.url);
   const search = url.search;
-  const path = url.searchParams.get('__path') ?? (url.pathname === '/api/term' ? '/' : url.pathname);
+  const requested = url.searchParams.get('__path') ?? (url.pathname === '/api/term' ? '/' : url.pathname);
+  // `/terminal` is the browser terminal's home page; to a text client it is the same as `/`.
+  const path = requested === '/terminal' || requested === '/terminal/' ? '/' : requested;
   after(() => recordSurfaceEvent('curl_requests'));
   const parsedAddress = parseAddress(path, search);
   const address = parsedAddress.kind === 'command' && parsedAddress.line.includes('\uFFFD')

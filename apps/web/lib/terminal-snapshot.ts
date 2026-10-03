@@ -7,7 +7,7 @@ export interface TerminalSnapshot {
 }
 
 // Client-side navigation keeps this module alive, so the terminal can pick up where it left off
-// after a trip to /gui. A full page load starts empty.
+// after a trip to the desktop. A full page load starts empty.
 let snapshot: TerminalSnapshot | null = null;
 
 export function saveSnapshot(next: TerminalSnapshot): void {

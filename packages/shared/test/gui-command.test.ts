@@ -19,7 +19,7 @@ describe('gui command', () => {
     const result = await createShell({ surface: 'curl', origin }).run(command);
     expect(result.status).toBe('ok');
     expect(result.view).toBeUndefined();
-    expect(text(result.output)).toBe(`Prefer a regular web page? Open ${origin}/gui`);
+    expect(text(result.output)).toBe(`Prefer a regular web page? Open ${origin}/`);
   });
 
   it('is listed in help, the menu and the manual page', async () => {

@@ -27,7 +27,7 @@ export interface AssistantEntryState {
 }
 
 export interface TerminalEntry extends HistoryEntry {
-  /** A /gui-only first-log identity card, supplied by the static page. */
+  /** A desktop-only first-log identity card, supplied by the static page. */
   identity?: { name: string; label: string; location: string };
   tourStepIndex?: number;
   tourSessionId?: string;
@@ -87,13 +87,22 @@ function settleEntry(entry: TerminalEntry): TerminalEntry {
 
 export interface TerminalOptions {
   /**
-   * The terminal is one window on the /gui desktop: no boot, no address-bar sync, no deep-link run,
+   * The terminal is one window on the desktop at `/`: no boot, no address-bar sync, no deep-link run,
    * and the theme is applied to the window rather than the page.
    */
   windowed?: boolean;
   /** Log shown when there is no session to restore (the window starts with `about` already run). */
   initialHistory?: TerminalEntry[];
   onFx?: (fx: 'web' | 'confetti') => void;
+}
+
+/** The terminal page's own address; `/` is the desktop. */
+export const TERMINAL_HOME = '/terminal';
+
+/** The command address of the current URL, reading the terminal's home as the root. */
+function currentAddress() {
+  const { pathname, search } = window.location;
+  return parseAddress(pathname === TERMINAL_HOME || pathname === `${TERMINAL_HOME}/` ? '/' : pathname, search);
 }
 
 export function useTerminal({ windowed = false, initialHistory, onFx }: TerminalOptions = {}) {
@@ -155,7 +164,7 @@ export function useTerminal({ windowed = false, initialHistory, onFx }: Terminal
   }, []);
 
   useEffect(() => {
-    if (windowed || restoredRef.current || bootStartedInPage || !initialWelcomeRef.current || window.location.pathname !== '/' || window.location.search || window.location.hash ||
+    if (windowed || restoredRef.current || bootStartedInPage || !initialWelcomeRef.current || currentAddress().kind !== 'root' || window.location.search || window.location.hash ||
       window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     try {
       if (window.localStorage.getItem('boot:v1')) return;
@@ -203,7 +212,7 @@ export function useTerminal({ windowed = false, initialHistory, onFx }: Terminal
   useEffect(() => {
     const log = scrollRef.current;
     if (!log) return;
-    // Keep the static /gui identity at the top of the first frame; normal commands still follow the prompt.
+    // Keep the static desktop identity at the top of the first frame; normal commands still follow the prompt.
     if (windowed && !usedRef.current && !restoredRef.current) return;
     const entry = tourPlaying && tourSessionId && tourIndex < tourLastRunIndex
       ? log.querySelector<HTMLElement>(`[data-tour="${tourSessionId}:${tourIndex}"]`) : null;
@@ -246,11 +255,12 @@ export function useTerminal({ windowed = false, initialHistory, onFx }: Terminal
   }, []);
 
   const syncAddress = useCallback((line: string, cwdBefore: string) => {
-    // The window lives on /gui; its URL never follows the commands.
+    // The window lives on the desktop at `/`; its URL never follows the commands.
     if (windowed) return;
     if (addressTimerRef.current !== null) clearTimeout(addressTimerRef.current);
     const commandLine = cwdBefore === '/' ? line : `cd ${cwdBefore} && ${line}`;
-    const address = !line || commandLine.length > MAX_LINK_LENGTH ? '/' : toAddress(commandLine);
+    const link = !line || commandLine.length > MAX_LINK_LENGTH ? '/' : toAddress(commandLine);
+    const address = link === '/' ? TERMINAL_HOME : link;
     addressTimerRef.current = setTimeout(() => {
       try {
         window.history.replaceState(window.history.state, '', address);
@@ -454,7 +464,7 @@ export function useTerminal({ windowed = false, initialHistory, onFx }: Terminal
     if (result.view === 'gui' && !isTour && !windowed) {
       setViewCookie('gui');
       markGuiSeen();
-      router.push('/gui');
+      router.push('/');
     }
     if (result.tour && !isLink && !isTour) {
       const startingTheme = theme;
@@ -477,7 +487,7 @@ export function useTerminal({ windowed = false, initialHistory, onFx }: Terminal
       setViewCookie('terminal');
       return;
     }
-    const address = parseAddress(window.location.pathname, window.location.search);
+    const address = currentAddress();
     if (address.kind === 'root') setViewCookie('terminal');
     if (address.kind === 'command' || address.kind === 'not-command') {
       void handleCommand(address.line, { origin: 'link' });

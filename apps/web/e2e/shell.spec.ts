@@ -3,7 +3,7 @@ import { content, cvData, executeCommand, itemIds, profile, themes, WELCOME_SUBT
 
 test.describe('US1', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/terminal');
   });
 
   test('completes a command and lists ambiguous candidates', async ({ page }) => {
@@ -170,7 +170,7 @@ test.describe('US1', () => {
 
 test.describe('US2', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/terminal');
   });
 
   test('browses the filesystem and resets cwd on reload', async ({ page }) => {
@@ -235,7 +235,7 @@ test.describe('US2', () => {
 
 test.describe('US3', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/terminal');
   });
 
   test('shows manual pages, aliases, and missing-page hints', async ({ page }) => {

@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { content, cvData, site } from '@ahmed-moghazy/shared';
 
 test('home page renders content and command output', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/terminal');
   await expect(page).toHaveTitle(site.title);
   await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', site.description);
   await expect(page.locator('meta[property="og:description"]')).toHaveAttribute('content', site.ogDescription);

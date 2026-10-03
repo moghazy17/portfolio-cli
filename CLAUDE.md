@@ -92,21 +92,21 @@ contains `output: CommandOutput[]` plus optional effects: `clear`, `openUrl`, `s
 Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BASE`, and shared types (`GitHubUser`, `GitHubRepo`, `GitHubStats`). Used by the shared `github` command (which formats data into `CommandOutput[]`). Repos tagged `portfolio-exclude` are dropped.
 
 ### Web App Flow (apps/web/)
-- `middleware.ts` — Edge middleware: text clients (curl, Wget, HTTPie…) are rewritten to `/api/term`; browsers on command or non-command paths get the terminal page (non-command paths are `noindex`); real page loads of deep links are counted
-- `app/page.tsx` — Next.js page with hidden semantic HTML for SEO
+- `middleware.ts` — Edge middleware: text clients (curl, Wget, HTTPie…) are rewritten to `/api/term`; browsers on `/` get the desktop (or a 307 to `/terminal` when the view cookie says terminal), `/gui` 308-redirects to `/`, and command paths (`/projects`, `/?cmd=`) or non-command paths are rewritten to the `/terminal` page (non-command paths are `noindex`); real page loads of deep links are counted
+- `app/terminal/page.tsx` — The full-screen terminal at `/terminal`, with hidden semantic HTML for SEO
 - `components/Terminal.tsx` — Client component that composes the terminal chrome, output log, input, and menu
 - `components/OutputRenderer.tsx` — DOM-based renderer for the same `CommandOutput` types
 - `components/CommandLine.tsx` — Shell input with completion, history, cancellation, and clear-screen keys
 - `components/SequencePlayer.tsx` — Skippable command-sequence playback with reduced-motion support
 - `components/AssistantAnswer.tsx` — Renders an in-shell assistant answer (command output, text, sources, notices; `aria-busy` while streaming)
-- `hooks/useTerminal.ts` — Owns the shell instance, cancellation, command effects (including `ask` → streamed assistant answer and `tour`), and terminal state; `windowed` mode (no boot, address sync or deep-link run; theme applied to the window) serves the /gui terminal window
+- `hooks/useTerminal.ts` — Owns the shell instance, cancellation, command effects (including `ask` → streamed assistant answer and `tour`), and terminal state; `windowed` mode (no boot, address sync or deep-link run; theme applied to the window) serves the desktop's terminal window
 - `hooks/useTour.ts`, `hooks/useKeyboardInset.ts` — Skippable tour playback and mobile keyboard positioning
 - `components/CommandBar.tsx`, `components/CommandSheet.tsx` — The fixed chip bar under both terminals (projects, skills, experience, resume, ✦ ask AI, ⋯ all commands) and the grouped full command list (also lists keyboard shortcuts; `?` on an empty prompt opens it). Groups come from `commands/groups.ts`, shared with `help`
 - `hooks/useHistory.ts` — LocalStorage-backed wrapper around the shared history state
 - `hooks/useThemeApplier.ts` — Applies theme CSS custom properties and remembers the chosen theme
-- `app/gui/` — The regular page (`/gui`), a BeOS-style desktop (see `apps/web/DESIGN.md`): static with hourly revalidation, plain CSS in `gui.css` (+ `cursors.css`); a non-scrolling desk ≥1100px where only the terminal is open at load. Window manager state (minimize, max, cascade, `#hash` links) in `components/desk/DesktopContext.tsx`; windows, Deskbar window list, icons and the terminal window (the real `Terminal`, windowed) in `components/desk/`; mouse click sounds in `hooks/useClickSound.ts`; icons and cursors in `public/desk/`
+- `app/(desk)/` — The default page at `/`, a BeOS-style desktop (see `apps/web/DESIGN.md`): static with hourly revalidation, plain CSS in `gui.css` (+ `cursors.css`); a non-scrolling desk ≥1100px where only the terminal is open at load. Window manager state (minimize, max, cascade, `#hash` links) in `components/desk/DesktopContext.tsx`; windows, Deskbar window list, icons and the terminal window (the real `Terminal`, windowed) in `components/desk/`; mouse click sounds in `hooks/useClickSound.ts`; icons and cursors in `public/desk/`
 - `components/Screensaver.tsx`, `components/CrtFilter.tsx`, `hooks/useTypewriter.ts`, `hooks/useIdle.ts`, `hooks/useReducedMotion.ts` — Terminal motion (boot, typewriter for outputs ≤ 40 lines, glitch, CRT, opt-in idle matrix rain via the `screensaver` command); all off under reduced motion
-- `lib/view-cookie.ts`, `lib/terminal-snapshot.ts` — Last-used view cookie (middleware sends plain `/` to `/gui`) and the in-tab terminal session shared by `/` and the /gui window in both directions
+- `lib/view-cookie.ts`, `lib/terminal-snapshot.ts` — Last-used view cookie (middleware sends plain `/` to `/terminal` for visitors who last used the terminal) and the in-tab terminal session shared by `/terminal` and the desktop window in both directions
 - `hooks/usePresence.ts`, `lib/presence.ts` — 30 s heartbeats into the `presence:web` sorted set (60 s window)
 - `lib/guestbook.ts`, `lib/turnstile.ts`, `lib/turnstile-client.ts` — Guestbook list/sign/delete (`guestbook:v1`, newest 200), Turnstile verification, 1/visitor/day and 200/day limits that fail closed
 - `lib/inventory-store.ts` — Reads the tech inventory from Redis (5 min memo), or `.inventory/inventory.json` locally
@@ -123,7 +123,7 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 - `app/api/presence/route.ts` — Presence heartbeat (POST) and count (GET), 60/min per IP
 - `app/api/guestbook/route.ts`, `app/api/guestbook/[id]/route.ts` — Guestbook read/sign and owner deletion (`ADMIN_TOKEN` bearer, 404 when unset)
 - `app/api/skills/route.ts` — Per-skill public repo counts from the inventory for the `skills` bars
-- `app/api/letterboxd/route.ts`, `lib/letterboxd.ts` — Recent Letterboxd diary entries (public RSS, cached 1 h) for the `letterboxd` command and the /gui Films window
+- `app/api/letterboxd/route.ts`, `lib/letterboxd.ts` — Recent Letterboxd diary entries (public RSS, cached 1 h) for the `letterboxd` command and the desktop's Films window
 - `app/api/barca/route.ts`, `lib/barca.ts` — Next FC Barcelona fixture from football-data.org (cached 6 h) for the `visca` command; null without `FOOTBALL_DATA_TOKEN`
 
 ### Key Patterns

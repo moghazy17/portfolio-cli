@@ -34,7 +34,7 @@ async function run(page: Page, command: string) {
 
 test('who, guestbook, signing, and heartbeat work in the terminal', async ({ page }) => {
   const { posts, heartbeats } = await mockLive(page);
-  await page.goto('/');
+  await page.goto('/terminal');
   await expect.poll(() => heartbeats.length).toBeGreaterThan(0);
   expect(heartbeats[0]).toMatchObject({ sid: expect.stringMatching(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab]/), surface: 'web' });
   await run(page, 'who');
@@ -48,7 +48,7 @@ test('who, guestbook, signing, and heartbeat work in the terminal', async ({ pag
 
 test('refusal keeps the command in history and invalid input never posts', async ({ page }) => {
   const { posts } = await mockLive(page, 429);
-  await page.goto('/');
+  await page.goto('/terminal');
   await run(page, 'sign "Hello" --name Tester');
   await expect(page.getByRole('log')).toContainText("You've already signed today");
   await page.getByLabel('Terminal command input').press('ArrowUp');
@@ -60,7 +60,7 @@ test('refusal keeps the command in history and invalid input never posts', async
 
 test('GUI lists entries and signs with a live counter', async ({ page }) => {
   const { posts } = await mockLive(page);
-  await page.goto('/gui#guestbook');
+  await page.goto('/#guestbook');
   await expect(page.locator('#guestbook')).toContainText('Lovely site');
   await page.getByLabel('Your name').fill('Tester');
   await page.getByLabel('Message').fill('Hello');

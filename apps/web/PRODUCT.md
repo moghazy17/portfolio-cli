@@ -29,8 +29,8 @@ and command system.
 
 ## Operating Context
 
-- Two surfaces from one content source (`content/resume.yaml`, `content/site.yaml`): the terminal at
-  `/` and the regular page at `/gui`. A view cookie remembers which one a visitor last used.
+- Two surfaces from one content source (`content/resume.yaml`, `content/site.yaml`): the desktop at `/`
+  (the default) and the terminal at `/terminal`. A view cookie remembers which one a visitor last used.
 - Visitors arrive on desktop and phone; deep links like `/skills` run commands on load.
 - Live data: GitHub inventory (skill evidence bars), presence count, guestbook (Turnstile-protected).
 

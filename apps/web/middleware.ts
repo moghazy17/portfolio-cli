@@ -11,26 +11,34 @@ function handleTextClient(request: NextRequest): NextResponse | null {
   return NextResponse.rewrite(new URL(`/api/term?__path=${encodeURIComponent(pathname)}&${search.slice(1)}${plain}`, request.url));
 }
 
-function rewriteHome(request: NextRequest, noindex = false): NextResponse {
-  const response = NextResponse.rewrite(new URL(`/${request.nextUrl.search}`, request.url));
+const isTerminalHome = (pathname: string) => pathname === '/terminal' || pathname === '/terminal/';
+
+/** Command links (`/projects`, `/?cmd=…`) and unknown paths run in the terminal page; the address bar keeps the link. */
+function rewriteTerminal(request: NextRequest, noindex = false): NextResponse {
+  const response = NextResponse.rewrite(new URL(`/terminal${request.nextUrl.search}`, request.url));
   if (noindex) response.headers.set('X-Robots-Tag', 'noindex');
   return response;
 }
 
 function handleBrowserRequest(request: NextRequest, event: NextFetchEvent): NextResponse {
   const { pathname, search } = request.nextUrl;
-  // The regular page is a real route, not a deep link to the `gui` command.
+  // The regular page moved from /gui to /; old links (and their #window hash) land on it.
   if (pathname === '/gui' || pathname === '/gui/') {
+    return NextResponse.redirect(new URL(`/${search}`, request.url), 308);
+  }
+  if (isTerminalHome(pathname)) return NextResponse.next();
+  if (pathname === '/' && search === '') {
+    // The desktop is the default; a visitor who last used the terminal goes back to it.
+    if (readViewCookie(request) === 'terminal') {
+      const response = NextResponse.redirect(new URL('/terminal', request.url), 307);
+      response.headers.set('Cache-Control', 'private, no-store');
+      response.headers.set('Vary', 'Cookie');
+      return response;
+    }
     if (request.headers.get('sec-fetch-dest') === 'document' || request.headers.get('rsc') === '1') {
       event.waitUntil(recordSurfaceEvent('gui_visits'));
     }
     return NextResponse.next();
-  }
-  if (pathname === '/' && search === '' && readViewCookie(request) === 'gui') {
-    const response = NextResponse.redirect(new URL('/gui', request.url), 307);
-    response.headers.set('Cache-Control', 'private, no-store');
-    response.headers.set('Vary', 'Cookie');
-    return response;
   }
   const address = parseAddress(request.nextUrl.pathname, request.nextUrl.search);
   if (
@@ -40,9 +48,10 @@ function handleBrowserRequest(request: NextRequest, event: NextFetchEvent): Next
   ) {
     event.waitUntil(recordSurfaceEvent('deep_links'));
   }
-  if (address.kind === 'command' && address.form === 'path') return rewriteHome(request);
-  if (address.kind === 'not-command') return rewriteHome(request, true);
-  if (address.kind === 'invalid') return rewriteHome(request, request.nextUrl.pathname !== '/');
+  if (address.kind === 'command') return rewriteTerminal(request);
+  if (address.kind === 'not-command') return rewriteTerminal(request, true);
+  if (address.kind === 'invalid') return rewriteTerminal(request, pathname !== '/');
+  // `/` with unrelated query parameters (?utm_source=…) is still the desktop.
   return NextResponse.next();
 }
 

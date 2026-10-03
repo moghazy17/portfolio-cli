@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ASSISTANT_ERROR_MESSAGE, askAssistant, createAssistantUnknownHandler, createShell, formatSourcesLine, MAX_LINK_LENGTH,
-  bootSequence, commandRegistry, guestbookEntryOutput, parseAddress, shouldType, SIGN_MESSAGES, suggestionsFor, themes, toAddress, welcomeCommand,
+  bootSequence, guestbookEntryOutput, parseAddress, shouldType, SIGN_MESSAGES, themes, toAddress, welcomeCommand,
 } from '@ahmed-moghazy/shared';
 import type {
   AssistantEvent, AssistantTurn, CommandOutput, Completion, HistoryEntry, NoticeKind, SequenceStep, SignResult,
@@ -15,7 +15,6 @@ import { useReducedMotion } from './useReducedMotion';
 import { fetchSkillEvidence, liveServices } from '../lib/live-services';
 import { getTurnstileToken } from '../lib/turnstile-client';
 import { useTour } from './useTour';
-import { recordClientEvent } from '../lib/client-events';
 
 export interface AssistantEntryState {
   question: string;
@@ -84,11 +83,21 @@ function settleEntry(entry: TerminalEntry): TerminalEntry {
     : settled;
 }
 
-export function useTerminal() {
+export interface TerminalOptions {
+  /**
+   * The terminal is one window on the /gui desktop: no boot, no address-bar sync, no deep-link run,
+   * and the theme is applied to the window rather than the page.
+   */
+  windowed?: boolean;
+  /** Log shown when there is no session to restore (the window starts with `about` already run). */
+  initialHistory?: TerminalEntry[];
+}
+
+export function useTerminal({ windowed = false, initialHistory }: TerminalOptions = {}) {
   const router = useRouter();
   const restoredRef = useRef(peekSnapshot());
-  const [history, setHistory] = useState<TerminalEntry[]>(() => restoredRef.current?.history ?? []);
-  const [showWelcome, setShowWelcome] = useState(!restoredRef.current);
+  const [history, setHistory] = useState<TerminalEntry[]>(() => restoredRef.current?.history ?? initialHistory ?? []);
+  const [showWelcome, setShowWelcome] = useState(!restoredRef.current && !initialHistory);
   const initialWelcomeRef = useRef(showWelcome);
   const [booting, setBooting] = useState(false);
   const [prompt, setPrompt] = useState(restoredRef.current?.prompt ?? 'visitor@portfolio:~$');
@@ -97,14 +106,11 @@ export function useTerminal() {
   const [running, setRunning] = useState(false);
   const [skip, setSkip] = useState(0);
   const [sequencePlaying, setSequencePlaying] = useState(false);
-  const [firstVisit, setFirstVisit] = useState(true);
   // The idle screensaver is opt-in: the `screensaver` command turns it on and the choice is remembered.
   const [screensaver, setScreensaver] = useState(false);
   useEffect(() => {
     try { setScreensaver(window.localStorage.getItem('screensaver:v1') === 'on'); } catch { /* Storage is optional. */ }
   }, []);
-  const [lastCommand, setLastCommand] = useState<string>();
-  const [linkTour, setLinkTour] = useState(false);
   const [prefill, setPrefill] = useState<{ text: string; nonce: number } | null>(null);
   const activeSequenceRef = useRef<number | null>(null);
   const sequenceIdRef = useRef(0);
@@ -117,7 +123,7 @@ export function useTerminal() {
   const ranLinkRef = useRef(false);
   const addressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { push, up, down, reset } = useHistory();
-  const { theme, setTheme } = useThemeApplier();
+  const { theme, setTheme } = useThemeApplier(!windowed);
   const reducedMotion = useReducedMotion();
   const {
     playing: tourPlaying, steps: tourSteps, index: tourIndex, lastRunIndex: tourLastRunIndex, sessionId: tourSessionId,
@@ -125,14 +131,10 @@ export function useTerminal() {
     start: startTour, next: nextTour, back: backTour, stop: stopTour, dismissFinished,
   } = useTour();
 
-  useEffect(() => {
-    try { setFirstVisit(window.localStorage.getItem('discover:visited') !== '1'); } catch { /* Storage is optional. */ }
-  }, []);
-
   const skipBoot = useCallback(() => setBooting(false), []);
 
   useEffect(() => {
-    if (bootStartedInPage || !initialWelcomeRef.current || window.location.pathname !== '/' || window.location.search || window.location.hash ||
+    if (windowed || bootStartedInPage || !initialWelcomeRef.current || window.location.pathname !== '/' || window.location.search || window.location.hash ||
       window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     try {
       if (window.localStorage.getItem('boot:v1')) return;
@@ -208,6 +210,8 @@ export function useTerminal() {
   }, []);
 
   const syncAddress = useCallback((line: string, cwdBefore: string) => {
+    // The window lives on /gui; its URL never follows the commands.
+    if (windowed) return;
     if (addressTimerRef.current !== null) clearTimeout(addressTimerRef.current);
     const commandLine = cwdBefore === '/' ? line : `cd ${cwdBefore} && ${line}`;
     const address = !line || commandLine.length > MAX_LINK_LENGTH ? '/' : toAddress(commandLine);
@@ -218,7 +222,7 @@ export function useTerminal() {
         // Some browsers limit rapid history updates.
       }
     }, 250);
-  }, []);
+  }, [windowed]);
 
   const skipSequence = useCallback(() => {
     if (activeSequenceRef.current === null) return false;
@@ -296,10 +300,6 @@ export function useTerminal() {
     if (!isLink) setShowWelcome(false);
     const shell = getShell();
     const cwdBefore = shell.session.cwd;
-    if (!isLink && !isTour) {
-      setFirstVisit(false);
-      try { window.localStorage.setItem('discover:visited', '1'); } catch { /* Storage is optional. */ }
-    }
     // Tour steps are a demonstration: they never enter the visitor's history or the address bar.
     if (!isLink && !isTour) push(input);
     const result = await shell.run(input, { signal: controller.signal });
@@ -310,10 +310,6 @@ export function useTerminal() {
     // A cancelled chain may already have changed directory.
     setPrompt(currentPrompt());
     if (controller.signal.aborted || result.cancelled) return;
-
-    const commandName = commandRegistry.find((entry) => entry.name === input.trim().split(/\s+/)[0] || entry.aliases.includes(input.trim().split(/\s+/)[0]))?.name;
-    setLastCommand(commandName);
-    setLinkTour(isLink && commandName === 'tour');
 
     if (isLink && result.ask) {
       setPrefill({ text: input, nonce: Date.now() });
@@ -336,7 +332,9 @@ export function useTerminal() {
     }
     // The shell drops output printed before a clear or welcome, so whatever remains ran
     // after the reset. On the web the welcome banner is the WelcomeScreen, not log output.
-    let output = result.output;
+    let output = result.view === 'gui' && windowed
+      ? [{ type: 'text' as const, content: "You're already in the regular view. The Deskbar's Full terminal button opens the full-screen terminal.", style: { dim: true } }]
+      : result.output;
     if (result.welcome) {
       setShowWelcome(true);
       setHistory([]);
@@ -415,7 +413,7 @@ export function useTerminal() {
       setScreensaver(result.screensaver);
       try { window.localStorage.setItem('screensaver:v1', result.screensaver ? 'on' : 'off'); } catch { /* Storage is optional. */ }
     }
-    if (result.view === 'gui' && !isTour) {
+    if (result.view === 'gui' && !isTour && !windowed) {
       setViewCookie('gui');
       markGuiSeen();
       router.push('/gui');
@@ -429,16 +427,12 @@ export function useTerminal() {
         restoreTheme: () => setTheme(startingTheme, false),
       });
     }
-  }, [currentPrompt, getShell, push, router, runAssistant, setTheme, skipSequence, skipBoot, syncAddress, reducedMotion, theme, startTour, stopTour, tourPlaying, dismissFinished]);
+  }, [currentPrompt, getShell, push, router, runAssistant, setTheme, skipSequence, skipBoot, syncAddress, reducedMotion, theme, startTour, stopTour, tourPlaying, dismissFinished, windowed]);
 
-  const suggestions = suggestionsFor({ firstVisit: firstVisit || linkTour, lastCommand: linkTour ? undefined : lastCommand, surface: 'web' });
-  const submitSuggestion = useCallback((line: string) => {
-    recordClientEvent('suggestion_taps');
-    void handleCommand(line);
-  }, [handleCommand]);
+  const submitSuggestion = useCallback((line: string) => { void handleCommand(line); }, [handleCommand]);
 
   useEffect(() => {
-    if (ranLinkRef.current) return;
+    if (ranLinkRef.current || windowed) return;
     ranLinkRef.current = true;
     // A restored log already holds what the address ran, so only note that the terminal is the view.
     if (restoredRef.current) {
@@ -465,7 +459,7 @@ export function useTerminal() {
         }],
       }]);
     }
-  }, [handleCommand]);
+  }, [handleCommand, windowed]);
 
   const complete = useCallback((input: string, caret: number): Completion => {
     return getShell().complete(input, caret);
@@ -514,7 +508,7 @@ export function useTerminal() {
   }, []);
 
   return {
-    history, showWelcome, theme, scrollRef, handleCommand, submitSuggestion, suggestions, prefill, onPrefillApplied,
+    history, showWelcome, theme, scrollRef, handleCommand, submitSuggestion, prefill, onPrefillApplied,
     booting, bootSteps: BOOT_STEPS, skipBoot, reducedMotion, screensaver,
     prompt, running, skip, sequencePlaying, finishSequence, tourPlaying, tourSteps, tourIndex, tourBusy,
     tourText, tourFinished, tourFocusRequest, nextTour, backTour, stopTour,

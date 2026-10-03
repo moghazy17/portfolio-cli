@@ -49,7 +49,7 @@ export default async function GuiPage() {
   const shell = createShell({ surface: 'web', origin: 'https://moghazy.me' });
   const about = await shell.run('about');
   const { user, host, cwd } = shell.prompt();
-  const initial = [{ id: 0, prompt: `${user}@${host}:${cwd}$`, input: 'about', output: about.output }];
+  const initial = [{ prompt: `${user}@${host}:${cwd}$`, input: 'about', output: about.output }];
   const { contact, education } = cvData;
   const current = cvData.experience[0];
   // The IANA zone is named after the city in content; keep the two in step if the location changes.
@@ -68,7 +68,10 @@ export default async function GuiPage() {
           variant="desktop"
           icons={[
             ...(download ? [{ label: 'Résumé.pdf', icon: '/desk/resume.webp', href: download.url, download: download.filename }] : []),
+            { label: 'About', icon: '/desk/about.webp', open: 'about' },
             { label: 'Projects', icon: '/desk/projects.webp', open: 'projects' },
+            { label: 'Experience', icon: '/desk/experience.webp', open: 'experience' },
+            { label: 'Skills', icon: '/desk/skills.webp', open: 'skills' },
             { label: 'Guestbook', icon: '/desk/guestbook.webp', open: 'guestbook' },
             { label: 'Mail', icon: '/desk/mail.webp', open: 'contact' },
             { label: 'Films', icon: '/desk/films.webp', open: 'films' },
@@ -101,8 +104,7 @@ export default async function GuiPage() {
 
             <DeskTerminal initial={initial} />
 
-            <BeWindow id="projects" title="Projects" className="be-projects"
-              mark={{ command: 'spidey', label: 'Secret: thwip', glyph: 'spider' }}>
+            <BeWindow id="projects" title="Projects" className="be-projects">
               <div className="be-tracker">
                 <div className="be-tracker-head" aria-hidden="true"><span>Name</span><span>Tech</span><span>Year</span></div>
                 <ul className="be-tracker-rows">
@@ -133,8 +135,7 @@ export default async function GuiPage() {
           </div>
 
           <div className="be-scene be-scene-2">
-            <BeWindow id="experience" title="Experience" className="be-experience"
-              mark={{ command: 'visca', label: 'Secret: visca', glyph: 'ball' }}>
+            <BeWindow id="experience" title="Experience" className="be-experience">
               <ExperienceList experience={cvData.experience} />
             </BeWindow>
 
@@ -143,7 +144,7 @@ export default async function GuiPage() {
             </BeWindow>
 
             <BeWindow id="guestbook" title="Guestbook" className="be-guestbook-win"
-              mark={{ command: 'letterboxd', label: 'Secret: now showing', glyph: 'reel' }}>
+              mark={{ command: 'spidey', label: 'Secret: thwip', glyph: 'spider' }}>
               <GuestbookBody />
             </BeWindow>
           </div>
@@ -201,7 +202,7 @@ export default async function GuiPage() {
           </div>
 
           <footer className="be-footer">
-            <p>Psst: a few windows hide something in their bottom-right corner.</p>
+            <p>Psst: two windows hide something in their bottom-right corner.</p>
           </footer>
         </main>
 

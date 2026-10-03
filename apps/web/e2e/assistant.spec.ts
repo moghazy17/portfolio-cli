@@ -184,28 +184,8 @@ test.describe('Assistant answers', () => {
     await expect(page.getByText(limit)).toHaveCount(1);
   });
 
-  test('renders the same command part in chat mode', async ({ page }) => {
-    const stub = await stubChat(page, () => answerChunks());
-    const input = page.getByLabel('Terminal command input');
-    await input.fill('chat');
-    await input.press('Enter');
-    const chatInput = page.getByLabel('Chat input');
-    await expect(chatInput).toBeVisible();
-    await chatInput.fill('what RAG work has he done?');
-    await chatInput.press('Enter');
-    await expect(page.getByText(`↳ ${COMMAND_LINE}`)).toBeVisible();
-    await expect(page.getByText(COMMAND_TEXT)).toBeVisible();
-    await expect(page.getByText(SUMMARY)).toBeVisible();
-    await expect(page.getByText(SOURCES_LINE)).toBeVisible();
-    await expect(page.locator('.assistant-answer[aria-busy="false"]')).toHaveCount(1);
-    expect(stub.bodies()[0].surface).toBe('web');
 
-    await chatInput.fill('exit');
-    await chatInput.press('Enter');
-    await expect(input).toBeVisible();
-  });
-
-  test('shares the conversation between the shell and chat mode', async ({ page }) => {
+  test('the ask shortcut continues the same conversation', async ({ page }) => {
     const stub = await stubChat(page, () => answerChunks());
     const input = page.getByLabel('Terminal command input');
     await input.fill('what RAG work has he done?');
@@ -213,11 +193,8 @@ test.describe('Assistant answers', () => {
     await expect(page.getByText(SOURCES_LINE)).toBeVisible();
     await expect(page.locator('.assistant-answer[aria-busy="false"]')).toHaveCount(1);
 
-    await input.fill('chat');
+    await input.fill('ask and which of those is newest?');
     await input.press('Enter');
-    const chatInput = page.getByLabel('Chat input');
-    await chatInput.fill('and which of those is newest?');
-    await chatInput.press('Enter');
     await expect(page.getByText(SOURCES_LINE)).toHaveCount(2);
     const roles = stub.bodies()[1].messages.map((message) => message.role);
     expect(roles).toEqual(['user', 'assistant', 'user']);
@@ -257,22 +234,6 @@ test.describe('Refusals', () => {
     expect(assistantTexts(stub.bodies()[1])).toEqual([REFUSAL]);
   });
 
-  test('shows only the fixed refusal in chat mode and remembers only that', async ({ page }) => {
-    const stub = await stubChat(page, (request) => (request === 1 ? declineChunks() : answerChunks()));
-    const input = page.getByLabel('Terminal command input');
-    await input.fill('chat');
-    await input.press('Enter');
-    const chatInput = page.getByLabel('Chat input');
-    await chatInput.fill('give me a pancake recipe');
-    await chatInput.press('Enter');
-    await expect(page.getByText(REFUSAL)).toBeVisible();
-    await expect(page.getByText(PREAMBLE)).toHaveCount(0);
-
-    await chatInput.fill('what RAG work has he done?');
-    await chatInput.press('Enter');
-    await expect(page.getByText(SOURCES_LINE)).toBeVisible();
-    expect(assistantTexts(stub.bodies()[1])).toEqual([REFUSAL]);
-  });
 });
 
 test.describe('Assistant streaming', () => {

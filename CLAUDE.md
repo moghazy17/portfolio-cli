@@ -57,8 +57,8 @@ npm run eval:assistant -w @ahmed-moghazy/shared  # Golden-question assistant eva
 - `utility.ts` — Utility commands (open, timeline, theme, welcome, whoami, gui/startx, tour)
 - `live.ts` — Live commands over injected `ctx.live`: `who` (presence; `bareOnly`, so `who …` with words goes to the assistant), `guestbook`, `sign` (web only, returns a `sign` effect)
 - `github.ts` — Live GitHub stats command (uses `fetchGitHubData` from `../github`)
-- `chat.ts` — AI chat mode entry command
-- `easter-eggs.ts` — Hidden fun commands (sudo, rm, neofetch, hello, exit)
+- `chat.ts` — `chat`/`ask`/`ai` shortcuts: with a question they hand it to the assistant (`ask` effect); bare, they explain that plain questions work at the prompt
+- `easter-eggs.ts` — Hidden fun commands (sudo, rm, neofetch, hello, exit, spidey, visca, screensaver); `letterboxd` lives in `live.ts`
 - `fs.ts` — Virtual filesystem commands (`ls`, `cd`, `pwd`, `cat`, `tree`) and read-only stubs
 - `man.ts` — Manual-page rendering from registry metadata
 - `resume.ts` — Resume download/link command
@@ -74,8 +74,8 @@ suggestions, unknown-command handling, and output-to-lines conversion. `src/vfs/
 
 Each `CommandDefinition` includes its name, aliases, description, usage, `execute()` function,
 and metadata such as `kind`, `menu`, `surfaces`, `args`, `man`, and `hidden`. `CommandResult`
-contains `output: CommandOutput[]` plus optional effects: `clear`, `mode`, `openUrl`, `status`,
-`theme`, `welcome`, `download`, `sequence`, `tour`, and `ask` (hand unknown input to the AI assistant).
+contains `output: CommandOutput[]` plus optional effects: `clear`, `openUrl`, `status`,
+`theme`, `welcome`, `download`, `sequence`, `tour`, `screensaver`, and `ask` (hand unknown input to the AI assistant).
 `CommandDefinition.assistant: true` marks the read-only commands the assistant may run. `createShell()` also accepts an
 `onUnknownCommand` hook for host-specific handling of unrecognised input.
 
@@ -98,15 +98,14 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 - `components/OutputRenderer.tsx` — DOM-based renderer for the same `CommandOutput` types
 - `components/CommandLine.tsx` — Shell input with completion, history, cancellation, and clear-screen keys
 - `components/SequencePlayer.tsx` — Skippable command-sequence playback with reduced-motion support
-- `components/ChatRenderer.tsx` — AI chat mode; renders the same assistant parts as in-shell answers and shares the session conversation
 - `components/AssistantAnswer.tsx` — Renders an in-shell assistant answer (command output, text, sources, notices; `aria-busy` while streaming)
 - `hooks/useTerminal.ts` — Owns the shell instance, cancellation, command effects (including `ask` → streamed assistant answer and `tour`), suggestions, and terminal state
 - `hooks/useTour.ts`, `hooks/useKeyboardInset.ts` — Skippable tour playback and mobile keyboard positioning
-- `components/CommandBar.tsx`, `components/CommandSheet.tsx`, `components/ShortcutSheet.tsx` — Bottom suggestions, grouped full command list, and desktop keyboard help
+- `components/CommandBar.tsx`, `components/CommandSheet.tsx` — Bottom suggestions and the grouped full command list (also lists keyboard shortcuts; `?` on an empty prompt opens it). Groups come from `commands/groups.ts`, shared with `help`
 - `hooks/useHistory.ts` — LocalStorage-backed wrapper around the shared history state
 - `hooks/useThemeApplier.ts` — Applies theme CSS custom properties and remembers the chosen theme
-- `app/gui/` — The regular page (`/gui`): static with hourly revalidation, Tailwind (no Preflight) and `motion` scoped to this route; components in `components/gui/`
-- `components/Screensaver.tsx`, `components/CrtFilter.tsx`, `hooks/useTypewriter.ts`, `hooks/useIdle.ts`, `hooks/useReducedMotion.ts` — Terminal motion (boot, typewriter for outputs ≤ 40 lines, glitch, CRT, idle matrix rain); all off under reduced motion
+- `app/gui/` — The regular page (`/gui`), a BeOS-style desktop (see `apps/web/DESIGN.md`): static with hourly revalidation, plain CSS in `gui.css`; windows, Deskbar, icons and the embedded terminal window in `components/desk/` (`hooks/useDeskShell.ts` is the window's self-contained shell); icons in `public/desk/`
+- `components/Screensaver.tsx`, `components/CrtFilter.tsx`, `hooks/useTypewriter.ts`, `hooks/useIdle.ts`, `hooks/useReducedMotion.ts` — Terminal motion (boot, typewriter for outputs ≤ 40 lines, glitch, CRT, opt-in idle matrix rain via the `screensaver` command); all off under reduced motion
 - `lib/view-cookie.ts`, `lib/terminal-snapshot.ts` — Last-used view cookie (middleware sends plain `/` to `/gui`) and the in-tab terminal log kept across a GUI round trip
 - `hooks/usePresence.ts`, `lib/presence.ts` — 30 s heartbeats into the `presence:web` sorted set (60 s window)
 - `lib/guestbook.ts`, `lib/turnstile.ts`, `lib/turnstile-client.ts` — Guestbook list/sign/delete (`guestbook:v1`, newest 200), Turnstile verification, 1/visitor/day and 200/day limits that fail closed
@@ -124,6 +123,7 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 - `app/api/presence/route.ts` — Presence heartbeat (POST) and count (GET), 60/min per IP
 - `app/api/guestbook/route.ts`, `app/api/guestbook/[id]/route.ts` — Guestbook read/sign and owner deletion (`ADMIN_TOKEN` bearer, 404 when unset)
 - `app/api/skills/route.ts` — Per-skill public repo counts from the inventory for the `skills` bars
+- `app/api/letterboxd/route.ts`, `lib/letterboxd.ts` — Recent Letterboxd diary entries (public RSS, cached 1 h) for the `letterboxd` command and the /gui Films window
 
 ### Key Patterns
 - Portfolio content lives in `content/resume.yaml`, `content/site.yaml`, and optional write-ups at `content/projects/<slug>/README.md`; it is generated into `packages/shared/src/content/generated.ts`
@@ -131,7 +131,7 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 - Theme switching uses CSS custom properties applied to `document.documentElement`
 - `DEFAULT_THEME` and `themes` from `packages/shared/src/theme.ts` initialize and update the web terminal theme
 - Links run commands on load but never perform `openUrl`/`download`; an `ask` result from a link only prefills the prompt. The address bar follows the last command via `history.replaceState` (questions are never written)
-- `useTerminal` applies `CommandResult` effects: `openUrl`, `theme`, `welcome`, `download`, `sequence`, `tour`, `clear`, `mode`, and `ask` (streams the assistant answer in place)
+- `useTerminal` applies `CommandResult` effects: `openUrl`, `theme`, `welcome`, `download`, `sequence`, `tour`, `clear`, `screensaver`, and `ask` (streams the assistant answer in place)
 - The web app uses `transpilePackages: ['@ahmed-moghazy/shared']` in `next.config.js`
 - Redis caching in web app is conditional — works without env vars (graceful degradation)
 - For local end-to-end checks, run `npm run build:web`, then `cd apps/web && CI=1 npx playwright test` (set `E2E_PORT` to use a port other than 3100)

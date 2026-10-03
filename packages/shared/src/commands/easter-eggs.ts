@@ -90,6 +90,7 @@ export function neofetchCommand(): CommandResult {
     `Uptime:    ${yearsActive} years in tech`,
     `Repos:     github.com/${cvData.contact.github.replace('https://github.com/', '')}`,
     `Stack:     ${skills}`,
+    `Off-hours: 🕷️  ⚽  🎬`,
     ``,
     `  ███  ███  ███  ███  ███  ███  ███  ███`,
   ];
@@ -126,5 +127,60 @@ export function exitCommand(): CommandResult {
       { type: 'link', text: 'Email', url: `mailto:${cvData.contact.email}` },
       { type: 'link', text: 'LinkedIn', url: cvData.contact.linkedin },
     ],
+  };
+}
+
+const pick = <T,>(items: T[]): T => items[Math.floor(Math.random() * items.length)];
+
+const SPIDEY_QUIPS = [
+  'With great power comes great responsibility to validate your training split.',
+  'Spidey-sense tingling: a data leak between train and test.',
+  'Your friendly neighborhood ML engineer. No radioactive spiders were used in training.',
+  'Hanging upside down until the model converges.',
+  'Not every hero wears a mask. Some just wear headphones and fix flaky pipelines.',
+];
+
+export function spideyCommand(): CommandResult {
+  const web = (length: number) => `  🕷️${'─'.repeat(length)}${length >= 24 ? ' THWIP!' : ''}`;
+  return {
+    sequence: [6, 12, 18, 24].map((length) => ({ delayMs: 90, output: [{ type: 'text' as const, content: web(length), style: { color: 'error', bold: true } }] })),
+    output: [
+      { type: 'text', content: web(24), style: { color: 'error', bold: true } },
+      { type: 'text', content: pick(SPIDEY_QUIPS), style: { bold: true } },
+      { type: 'text', content: `Swing by any time:`, style: { dim: true } },
+      { type: 'link', text: 'Send a web-mail', url: `mailto:${cvData.contact.email}` },
+    ],
+  };
+}
+
+const GARNET = '#e0457b';
+const BLAU = '#5b9be8';
+
+const BARCA_LINES = [
+  'Més que un dev.',
+  'Tiki-taka for data: short passes from raw rows to features to model to insight.',
+  'Possession-based modelling: keep the data, wait for the opening.',
+  'La Masia taught passing. University taught gradient descent.',
+];
+
+export function viscaCommand(): CommandResult {
+  return {
+    output: [
+      { type: 'text', content: '━━━  VISCA EL BARÇA  ━━━', style: { color: GARNET, bold: true } },
+      { type: 'text', content: `  ${profile.firstName.toUpperCase()}  1 — 0  MESSY DATA`, style: { color: BLAU, bold: true } },
+      { type: 'text', content: "  ⚽ 17'  goal (assist: pandas)", style: { dim: true } },
+      { type: 'text', content: pick(BARCA_LINES) },
+      { type: 'text', content: 'Matchday? Ask about work at half-time.', style: { dim: true } },
+    ],
+  };
+}
+
+export function screensaverCommand(args: string[]): CommandResult {
+  const off = /^(off|stop|no|false|0)$/i.test(args[0] ?? '');
+  return {
+    screensaver: !off,
+    output: [{ type: 'text', content: off
+      ? 'Screensaver off.'
+      : 'Screensaver on: the rain starts after a minute without input. Run "screensaver off" to stop it.', style: { dim: off } }],
   };
 }

@@ -17,8 +17,6 @@ import { getTurnstileToken } from '../lib/turnstile-client';
 import { useTour } from './useTour';
 import { recordClientEvent } from '../lib/client-events';
 
-export type TerminalMode = 'command' | 'chat';
-
 export interface AssistantEntryState {
   question: string;
   status: 'thinking' | 'streaming' | 'done' | 'cancelled';
@@ -93,7 +91,6 @@ export function useTerminal() {
   const [showWelcome, setShowWelcome] = useState(!restoredRef.current);
   const initialWelcomeRef = useRef(showWelcome);
   const [booting, setBooting] = useState(false);
-  const [mode, setMode] = useState<TerminalMode>('command');
   const [prompt, setPrompt] = useState(restoredRef.current?.prompt ?? 'visitor@portfolio:~$');
   const latestRef = useRef({ history, showWelcome, prompt });
   latestRef.current = { history, showWelcome, prompt };
@@ -101,6 +98,11 @@ export function useTerminal() {
   const [skip, setSkip] = useState(0);
   const [sequencePlaying, setSequencePlaying] = useState(false);
   const [firstVisit, setFirstVisit] = useState(true);
+  // The idle screensaver is opt-in: the `screensaver` command turns it on and the choice is remembered.
+  const [screensaver, setScreensaver] = useState(false);
+  useEffect(() => {
+    try { setScreensaver(window.localStorage.getItem('screensaver:v1') === 'on'); } catch { /* Storage is optional. */ }
+  }, []);
   const [lastCommand, setLastCommand] = useState<string>();
   const [linkTour, setLinkTour] = useState(false);
   const [prefill, setPrefill] = useState<{ text: string; nonce: number } | null>(null);
@@ -370,13 +372,10 @@ export function useTerminal() {
       output = [{ type: 'text', content: 'To sign, type this command in the web terminal.', style: { dim: true } }];
     }
     const resetWithoutOutput = (result.welcome || result.clear) && !output.length && !result.sequence;
-    if (mode === 'command' && !result.view && !isTour) {
+    if (!result.view && !isTour) {
       syncAddress(resetWithoutOutput ? '' : input, cwdBefore);
     }
-    if (resetWithoutOutput) {
-      if (result.mode === 'chat' && !isTour) setMode('chat');
-      return;
-    }
+    if (resetWithoutOutput) return;
     const sequenceId = result.sequence ? ++sequenceIdRef.current : undefined;
     if (sequenceId !== undefined) {
       activeSequenceRef.current = sequenceId;
@@ -411,8 +410,11 @@ export function useTerminal() {
         }
       }
     }
-    if (result.mode === 'chat' && !isTour) setMode('chat');
     // Unlike openUrl and download, switching views only changes what is displayed, so links may do it.
+    if (result.screensaver !== undefined && !isLink && !isTour) {
+      setScreensaver(result.screensaver);
+      try { window.localStorage.setItem('screensaver:v1', result.screensaver ? 'on' : 'off'); } catch { /* Storage is optional. */ }
+    }
     if (result.view === 'gui' && !isTour) {
       setViewCookie('gui');
       markGuiSeen();
@@ -427,7 +429,7 @@ export function useTerminal() {
         restoreTheme: () => setTheme(startingTheme, false),
       });
     }
-  }, [currentPrompt, getShell, mode, push, router, runAssistant, setTheme, skipSequence, skipBoot, syncAddress, reducedMotion, theme, startTour, stopTour, tourPlaying, dismissFinished]);
+  }, [currentPrompt, getShell, push, router, runAssistant, setTheme, skipSequence, skipBoot, syncAddress, reducedMotion, theme, startTour, stopTour, tourPlaying, dismissFinished]);
 
   const suggestions = suggestionsFor({ firstVisit: firstVisit || linkTour, lastCommand: linkTour ? undefined : lastCommand, surface: 'web' });
   const submitSuggestion = useCallback((line: string) => {
@@ -507,17 +509,13 @@ export function useTerminal() {
     setHistory((previous) => [...previous, { input: `${input}^C`, prompt: currentPrompt(), output: [] }]);
   }, [currentPrompt]);
 
-  const exitChat = useCallback(() => {
-    setMode('command');
-  }, []);
-
   const onPrefillApplied = useCallback(() => {
     setPrefill(null);
   }, []);
 
   return {
-    history, showWelcome, theme, scrollRef, handleCommand, submitSuggestion, suggestions, mode, exitChat, conversationRef, prefill, onPrefillApplied,
-    booting, bootSteps: BOOT_STEPS, skipBoot, reducedMotion,
+    history, showWelcome, theme, scrollRef, handleCommand, submitSuggestion, suggestions, prefill, onPrefillApplied,
+    booting, bootSteps: BOOT_STEPS, skipBoot, reducedMotion, screensaver,
     prompt, running, skip, sequencePlaying, finishSequence, tourPlaying, tourSteps, tourIndex, tourBusy,
     tourText, tourFinished, tourFocusRequest, nextTour, backTour, stopTour,
     complete, cancel, clearScreen, onListCandidates, onAbandon,

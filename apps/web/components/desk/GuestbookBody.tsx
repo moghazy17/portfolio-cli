@@ -4,9 +4,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { formatRelative, GUESTBOOK_LIMITS, SIGN_MESSAGES, validateGuestbookEntry } from '@ahmed-moghazy/shared';
 import type { GuestbookEntry, SignResult } from '@ahmed-moghazy/shared';
 import Turnstile from '../Turnstile';
-import Section from './Section';
 
-export default function GuiGuestbook() {
+const MIN_SHOWN = 3;
+
+export default function GuestbookBody() {
   const [entries, setEntries] = useState<GuestbookEntry[]>([]);
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');
@@ -62,33 +63,41 @@ export default function GuiGuestbook() {
     }
   };
 
-  return <Section id="guestbook" title="Guestbook" width="narrow">
-    <div className="space-y-4">
-      {available ? entries.length ? <ul className="space-y-3">
-        {entries.map((entry) => <li key={entry.id} className="rounded-xl border border-border bg-card p-4">
-          <p className="font-semibold">{entry.name} <span className="font-normal text-muted">· {formatRelative(entry.at)}</span></p>
-          <p className="mt-1 whitespace-pre-wrap break-words">{entry.message}</p>
-        </li>)}
-      </ul> : <p className="text-muted">No entries yet — be the first to sign.</p>
-        : <p className="text-muted">Guestbook unavailable right now.</p>}
-      <form onSubmit={submit} className="space-y-4 rounded-xl border border-border bg-card p-5">
-        <div>
-          <label htmlFor="guestbook-name" className="mb-1 block font-medium">Your name</label>
-          <input id="guestbook-name" value={name} maxLength={GUESTBOOK_LIMITS.name} onFocus={() => setActive(true)}
-            onChange={(event) => setName(event.target.value)} className="min-h-11 w-full rounded-lg border border-border bg-bg px-3 text-fg" />
+  // A near-empty guestbook reads as an empty room; entries show once a few people have signed.
+  const shown = entries.length >= MIN_SHOWN ? entries : [];
+  return (
+    <div className="be-guestbook">
+      {available ? shown.length ? (
+        <ul className="be-notes" aria-label="Entries">
+          {shown.map((entry) => (
+            <li key={entry.id}>
+              <p className="be-note-who">{entry.name} <span>{formatRelative(entry.at)}</span></p>
+              <p className="be-note-text">{entry.message}</p>
+            </li>
+          ))}
+        </ul>
+      ) : <p className="be-muted">Be one of the first to sign.</p>
+        : <p className="be-muted">Guestbook unavailable right now.</p>}
+      <form onSubmit={submit} className="be-form">
+        <div className="be-field">
+          <label htmlFor="guestbook-name">Your name</label>
+          <input id="guestbook-name" className="be-input" value={name} maxLength={GUESTBOOK_LIMITS.name} autoComplete="nickname"
+            onFocus={() => setActive(true)} onChange={(event) => setName(event.target.value)} />
         </div>
-        <div>
-          <label htmlFor="guestbook-message" className="mb-1 block font-medium">Message</label>
-          <textarea id="guestbook-message" value={message} maxLength={GUESTBOOK_LIMITS.message} onFocus={() => setActive(true)}
-            onChange={(event) => setMessage(event.target.value)} className="min-h-28 w-full rounded-lg border border-border bg-bg p-3 text-fg" />
-          <p className="text-right text-sm text-muted">{[...message].length} / {GUESTBOOK_LIMITS.message}</p>
+        <div className="be-field">
+          <label htmlFor="guestbook-message">Message</label>
+          <textarea id="guestbook-message" className="be-input" rows={3} value={message} maxLength={GUESTBOOK_LIMITS.message}
+            onFocus={() => setActive(true)} onChange={(event) => setMessage(event.target.value)} />
+          <p className="be-count be-num">{[...message].length} / {GUESTBOOK_LIMITS.message}</p>
         </div>
         <Turnstile active={active} attempt={attempt} onToken={onToken} />
-        {active && !token && !checkFailed && <p className="text-sm text-muted">Checking you're human…</p>}
-        {checkFailed && <p className="text-sm text-muted">{SIGN_MESSAGES.human_check}</p>}
-        <button type="submit" disabled={!token || busy} className="min-h-11 rounded-lg bg-accent px-5 font-semibold text-on-accent disabled:cursor-not-allowed disabled:opacity-50">Sign guestbook</button>
-        <p aria-live="polite" role="status" className="text-sm">{status}</p>
+        {active && !token && !checkFailed && <p className="be-muted">Checking you're human…</p>}
+        {checkFailed && <p className="be-muted">{SIGN_MESSAGES.human_check}</p>}
+        <div className="be-form-actions">
+          <p aria-live="polite" role="status">{status}</p>
+          <button type="submit" className="be-button be-button-default" disabled={!token || busy}>Sign guestbook</button>
+        </div>
       </form>
     </div>
-  </Section>;
+  );
 }

@@ -9,7 +9,6 @@ import OutputRenderer from './OutputRenderer';
 import SequencePlayer from './SequencePlayer';
 import WelcomeScreen from './WelcomeScreen';
 
-import ChatRenderer from './ChatRenderer';
 import { useTerminal } from '../hooks/useTerminal';
 import { useIdle } from '../hooks/useIdle';
 import CrtFilter from './CrtFilter';
@@ -24,13 +23,13 @@ export default function Terminal() {
   const presence = usePresence();
   useKeyboardInset();
   const {
-    history, showWelcome, theme, scrollRef, handleCommand, submitSuggestion, suggestions, mode, exitChat, conversationRef,
+    history, showWelcome, theme, scrollRef, handleCommand, submitSuggestion, suggestions,
     prompt, running, skip, sequencePlaying, finishSequence, tourPlaying, tourSteps, tourIndex, tourBusy,
     tourText, tourFinished, tourFocusRequest, nextTour, backTour, stopTour,
     prefill, onPrefillApplied,
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp, historyDown, resetHistoryCursor,
-    booting, bootSteps, skipBoot, reducedMotion,
+    booting, bootSteps, skipBoot, reducedMotion, screensaver,
   } = useTerminal();
   const [visible, setVisible] = useState(true);
   useEffect(() => {
@@ -39,7 +38,7 @@ export default function Terminal() {
     document.addEventListener('visibilitychange', update);
     return () => document.removeEventListener('visibilitychange', update);
   }, []);
-  const { idle, reset } = useIdle(60_000, visible && !reducedMotion && !running && !sequencePlaying && !tourPlaying && !booting);
+  const { idle, reset } = useIdle(60_000, screensaver && visible && !reducedMotion && !running && !sequencePlaying && !tourPlaying && !booting);
   useEffect(() => { if (idle && window.matchMedia('(pointer: fine)').matches) document.querySelector<HTMLInputElement>('.terminal-container input')?.focus(); }, [idle]);
   useEffect(() => {
     if (!idle) return;
@@ -61,7 +60,7 @@ export default function Terminal() {
   // Prominent until either view has been used once; read after mount so the server markup matches.
   const [guiSeen, setGuiSeen] = useState(false);
   useEffect(() => setGuiSeen(hasSeenGui()), []);
-  const barReady = !running && !sequencePlaying && !tourPlaying && !booting && mode !== 'chat';
+  const barReady = !running && !sequencePlaying && !tourPlaying && !booting;
 
   return (
     <div
@@ -217,32 +216,27 @@ export default function Terminal() {
           onExit={() => stopTour(false, true)}
         />}
         {tourFinished && !tourPlaying && <div className="tour-finish" role="status">Your turn</div>}
-        {mode === 'chat' ? (
-          <ChatRenderer onExit={exitChat} conversationRef={conversationRef} theme={theme} />
-        ) : (
-          <div>
-            <CommandLine
-              visibleChipLines={barReady ? suggestions.map((item) => item.line) : []}
-              prefill={prefill}
-              onPrefillApplied={onPrefillApplied}
-              onSubmit={handleCommand}
-              complete={complete}
-              historyUp={historyUp}
-              historyDown={historyDown}
-              resetHistoryCursor={resetHistoryCursor}
-              onListCandidates={onListCandidates}
-              onAbandon={onAbandon}
-              cancel={cancel}
-              clearScreen={clearScreen}
-              prompt={prompt}
-              running={running}
-              sequencePlaying={sequencePlaying}
-              tourText={tourText}
-              tourActive={tourPlaying}
-              onTourInput={() => stopTour()}
-            />
-          </div>
-        )}
+        <div>
+          <CommandLine
+            prefill={prefill}
+            onPrefillApplied={onPrefillApplied}
+            onSubmit={handleCommand}
+            complete={complete}
+            historyUp={historyUp}
+            historyDown={historyDown}
+            resetHistoryCursor={resetHistoryCursor}
+            onListCandidates={onListCandidates}
+            onAbandon={onAbandon}
+            cancel={cancel}
+            clearScreen={clearScreen}
+            prompt={prompt}
+            running={running}
+            sequencePlaying={sequencePlaying}
+            tourText={tourText}
+            tourActive={tourPlaying}
+            onTourInput={() => stopTour()}
+          />
+        </div>
       </div>
 
       <CommandBar items={suggestions} ready={barReady} onSelect={submitSuggestion} />

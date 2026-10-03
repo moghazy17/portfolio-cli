@@ -46,3 +46,7 @@ playwright-report/
 skills-lock.json
 .mcp.json
 plan.md
+
+# Impeccable working files (mockups, review captures, local servers)
+apps/web/.impeccable/
+.impeccable/critique/

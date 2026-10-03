@@ -1,4 +1,5 @@
 import type { CommandContext, CommandOutput, CommandResult, GuestbookEntry } from '../types';
+import { LETTERBOXD_URL, LETTERBOXD_USERNAME, stars } from '../letterboxd';
 import { validateGuestbookEntry } from '../guestbook/validate';
 import { formatRelative } from '../guestbook/time';
 
@@ -44,4 +45,28 @@ export function signCommand(ctx: CommandContext): CommandResult {
   const checked = validateGuestbookEntry({ name, message: ctx.args.join(' ') });
   if (!checked.ok) return { status: 'error', output: [{ type: 'error', content: checked.message }] };
   return { output: [{ type: 'text', content: "Checking you're human…", style: { dim: true } }], sign: { name: checked.name, message: checked.message } };
+}
+
+export async function letterboxdCommand(ctx: CommandContext): Promise<CommandResult> {
+  const profileLink: CommandOutput = { type: 'link', text: `letterboxd.com/${LETTERBOXD_USERNAME}`, url: LETTERBOXD_URL };
+  try {
+    if (!ctx.live?.films) throw Error('No film service');
+    const films = (await ctx.live.films(ctx.signal)).slice(0, 5);
+    if (!films.length) throw Error('Empty diary');
+    return { output: [
+      { type: 'text', content: '🎬 Off the clock — recently on the projector:', style: { bold: true } },
+      { type: 'table', headers: ['Rating', 'Film', ''], rows: films.map((film) => [
+        stars(film.rating) || '—',
+        `${film.title}${film.year ? ` (${film.year})` : ''}`,
+        [film.liked ? '♥' : '', film.rewatch ? '↻' : ''].filter(Boolean).join(' '),
+      ]) },
+      { type: 'text', content: 'Ratings are personal. Model evaluations are not.', style: { dim: true } },
+      profileLink,
+    ] };
+  } catch {
+    return { output: [
+      { type: 'text', content: '🎬 The projector is warming up. Full diary here:', style: { dim: true } },
+      profileLink,
+    ] };
+  }
 }

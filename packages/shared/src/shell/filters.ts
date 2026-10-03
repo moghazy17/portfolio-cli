@@ -2,12 +2,26 @@ import type { Line } from '../types';
 
 export type FilterFlags = Record<string, string | boolean>;
 
-export function grepLines(lines: Line[], pattern: string, flags: FilterFlags): { lines: Line[]; status: 'ok' | 'error'; showItems: boolean } {
+export const MAX_GREP_PATTERN_LENGTH = 100;
+
+export function grepLines(lines: Line[], pattern: string, flags: FilterFlags): { lines: Line[]; status: 'ok' | 'error'; showItems: boolean; error?: string } {
   const ignoreCase = Boolean(flags['ignore-case']);
-  const needle = ignoreCase ? pattern.toLowerCase() : pattern;
+  let test: (text: string) => boolean;
+  if (flags['extended-regexp']) {
+    if (pattern.length > MAX_GREP_PATTERN_LENGTH) {
+      return { lines: [], status: 'error', showItems: false, error: `grep: pattern too long (max ${MAX_GREP_PATTERN_LENGTH} characters)` };
+    }
+    let regex: RegExp;
+    try { regex = new RegExp(pattern, ignoreCase ? 'i' : ''); } catch {
+      return { lines: [], status: 'error', showItems: false, error: `grep: invalid regular expression '${pattern}'` };
+    }
+    test = (text) => regex.test(text);
+  } else {
+    const needle = ignoreCase ? pattern.toLowerCase() : pattern;
+    test = (text) => (ignoreCase ? text.toLowerCase() : text).includes(needle);
+  }
   const matches = lines.filter((line) => {
-    const haystack = ignoreCase ? line.text.toLowerCase() : line.text;
-    const found = haystack.includes(needle);
+    const found = test(line.text);
     return flags['invert-match'] ? !found : found;
   });
   return {

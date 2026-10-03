@@ -28,14 +28,6 @@ test('shows one bottom bar with an always-last all commands button', async ({ pa
   expect(widths.scroll).toBeLessThanOrEqual(widths.client);
 });
 
-test('keeps the bar height while chat mode removes its actions', async ({ page }) => {
-  await page.goto('/');
-  const initialHeight = await bar(page).evaluate((node) => node.getBoundingClientRect().height);
-  await input(page).fill('chat');
-  await input(page).press('Enter');
-  await expect(bar(page).getByRole('button')).toHaveCount(0);
-  expect(await bar(page).evaluate((node) => node.getBoundingClientRect().height)).toBe(initialHeight);
-});
 
 test('welcome uses the shared hint and adds the shortcut hint on fine pointers', async ({ page }) => {
   await page.goto('/');
@@ -45,6 +37,8 @@ test('welcome uses the shared hint and adds the shortcut hint on fine pointers',
 
 test('every former menu command is reachable and runs from the sheet with a mouse', async ({ page }) => {
   for (const item of getMenuItems()) {
+    // Opening `gui` remembers that view, which would send `/` back to the regular page.
+    await page.context().clearCookies();
     await page.goto('/');
     await bar(page).getByRole('button', { name: 'All commands' }).click();
     await dialog(page).getByRole('button', { name: new RegExp(`^${item.value}\\b`) }).click();
@@ -102,17 +96,10 @@ test('dialog traps focus and returns it to the prompt after Escape and backdrop 
   await expect(input(page)).toBeFocused();
 });
 
-test('assistant chip has its full accessible name and examples avoid visible chip lines', async ({ page }) => {
-  await page.clock.install();
+test('assistant chip has its full accessible name and the empty prompt shows no ghost text', async ({ page }) => {
   await page.goto('/');
   await expect(bar(page).getByRole('button', { name: /^Ask the assistant: / })).toBeVisible();
-  const check = async () => {
-    const lines = await bar(page).locator('[data-line]').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-line')!.trim().toLowerCase()));
-    const example = (await page.locator('.prompt-example').textContent())!.replace(/^(try|ask):\s*/i, '').trim().toLowerCase();
-    expect(lines).not.toContain(example);
-  };
-  await check();
-  if (!reduced()) for (let i = 0; i < 7; i++) { await page.clock.fastForward(4_100); await check(); }
+  await expect(page.locator('.prompt-example')).toHaveCount(0);
 });
 
 test('320px viewport contains both bar and sheet without horizontal page scroll', async ({ page }) => {

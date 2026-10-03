@@ -13,12 +13,16 @@ export default function CommandBar({ items, ready, onSelect }: { items: Suggesti
 
   useEffect(() => { if (!ready) setSheetOpen(false); }, [ready]);
   useEffect(() => { setActiveIndex((index) => Math.min(index, count - 1)); }, [count]);
+  useEffect(() => {
+    const request = () => { if (ready) { setSheetOpen(true); recordClientEvent('command_sheet_opens'); } };
+    window.addEventListener('command-sheet-request', request);
+    return () => window.removeEventListener('command-sheet-request', request);
+  }, [ready]);
 
   const focusPrompt = () => requestAnimationFrame(() => document.querySelector<HTMLInputElement>('.terminal-container input')?.focus());
   const closeSheet = () => { setSheetOpen(false); focusPrompt(); };
   const choose = (line: string) => { setSheetOpen(false); onSelect(line); focusPrompt(); };
   const openSheet = () => {
-    window.dispatchEvent(new Event('command-sheet-open'));
     setSheetOpen(true);
     recordClientEvent('command_sheet_opens');
   };

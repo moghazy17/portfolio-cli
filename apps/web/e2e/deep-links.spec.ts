@@ -75,14 +75,6 @@ test.describe('Deep links', () => {
     await input.press('Enter');
     await expect(page.getByText('RAG work is available in the project list.')).toBeVisible();
     expect(requests()).toHaveLength(1);
-
-    await input.fill('chat');
-    await input.press('Enter');
-    const chatInput = page.getByLabel('Chat input');
-    await expect(chatInput).toBeFocused();
-    await chatInput.fill('exit');
-    await chatInput.press('Enter');
-    await expect(page.getByLabel('Terminal command input')).toHaveValue('');
   });
 
   test('shows a notice for an oversized link', async ({ page }) => {

@@ -4,7 +4,75 @@ exports[`legacy command output > snapshots ? 1`] = `
 {
   "output": [
     {
-      "content": "Available Commands:",
+      "content": "About me",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "headers": [
+        "Command",
+        "Description",
+      ],
+      "rows": [
+        [
+          "about",
+          "Professional summary",
+        ],
+        [
+          "education",
+          "Education details and coursework",
+        ],
+        [
+          "certifications",
+          "Certifications and achievements",
+        ],
+        [
+          "contact",
+          "Contact information and links",
+        ],
+      ],
+      "type": "table",
+    },
+    {
+      "content": "Work",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "headers": [
+        "Command",
+        "Description",
+      ],
+      "rows": [
+        [
+          "experience [company]",
+          "Work experience (filter by company)",
+        ],
+        [
+          "projects [name]",
+          "Technical projects (filter by name)",
+        ],
+        [
+          "skills [category]",
+          "Technical skills by category",
+        ],
+        [
+          "timeline",
+          "Reverse-chronological career overview",
+        ],
+        [
+          "github",
+          "Live GitHub profile stats",
+        ],
+      ],
+      "type": "table",
+    },
+    {
+      "content": "Explore",
       "style": {
         "bold": true,
       },
@@ -21,40 +89,36 @@ exports[`legacy command output > snapshots ? 1`] = `
           "List all available commands",
         ],
         [
-          "about",
-          "Professional summary",
+          "gui",
+          "Switch to the regular page",
         ],
         [
-          "education",
-          "Education details and coursework",
+          "tour",
+          "Take a guided tour of the terminal",
         ],
         [
-          "experience [company]",
-          "Work experience (filter by company)",
+          "guestbook",
+          "Read recent guestbook entries",
         ],
-        [
-          "projects [name]",
-          "Technical projects (filter by name)",
-        ],
-        [
-          "skills [category]",
-          "Technical skills by category",
-        ],
-        [
-          "certifications",
-          "Certifications and achievements",
-        ],
-        [
-          "contact",
-          "Contact information and links",
-        ],
+      ],
+      "type": "table",
+    },
+    {
+      "content": "More",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "headers": [
+        "Command",
+        "Description",
+      ],
+      "rows": [
         [
           "open [target]",
           "Open a profile link in your browser",
-        ],
-        [
-          "timeline",
-          "Reverse-chronological career overview",
         ],
         [
           "theme [name]",
@@ -69,28 +133,12 @@ exports[`legacy command output > snapshots ? 1`] = `
           "???",
         ],
         [
-          "github",
-          "Live GitHub profile stats",
-        ],
-        [
-          "chat",
-          "Chat with AI about Ahmed",
-        ],
-        [
-          "gui",
-          "Switch to the regular page",
-        ],
-        [
-          "tour",
-          "Take a guided tour of the terminal",
+          "ask [question]",
+          "Ask the AI about Ahmed",
         ],
         [
           "who",
           "Show people exploring now",
-        ],
-        [
-          "guestbook",
-          "Read recent guestbook entries",
         ],
         [
           "sign "<message>" --name <name>",
@@ -100,12 +148,15 @@ exports[`legacy command output > snapshots ? 1`] = `
           "clear",
           "Clear the terminal",
         ],
-        [
-          "<cmd> | grep, head, tail, wc, sort",
-          "Pipes: filter any command output",
-        ],
       ],
       "type": "table",
+    },
+    {
+      "content": "Pipes: <cmd> | grep, head, tail, wc, sort filter any output. Questions in plain words go to the AI.",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
     },
     {
       "type": "divider",
@@ -140,18 +191,16 @@ exports[`legacy command output > snapshots about 1`] = `
 
 exports[`legacy command output > snapshots ai 1`] = `
 {
-  "mode": "chat",
   "output": [
     {
-      "content": "Entering AI chat mode — ask me anything about Ahmed!",
+      "content": "No chat mode needed: type your question right at the prompt.",
       "style": {
         "bold": true,
-        "color": "primary",
       },
       "type": "text",
     },
     {
-      "content": "Type "exit" to return to command mode.",
+      "content": "For example: What RAG work has he done?",
       "style": {
         "dim": true,
       },
@@ -163,18 +212,16 @@ exports[`legacy command output > snapshots ai 1`] = `
 
 exports[`legacy command output > snapshots ask 1`] = `
 {
-  "mode": "chat",
   "output": [
     {
-      "content": "Entering AI chat mode — ask me anything about Ahmed!",
+      "content": "No chat mode needed: type your question right at the prompt.",
       "style": {
         "bold": true,
-        "color": "primary",
       },
       "type": "text",
     },
     {
-      "content": "Type "exit" to return to command mode.",
+      "content": "For example: What RAG work has he done?",
       "style": {
         "dim": true,
       },
@@ -391,18 +438,16 @@ exports[`legacy command output > snapshots certs 1`] = `
 
 exports[`legacy command output > snapshots chat 1`] = `
 {
-  "mode": "chat",
   "output": [
     {
-      "content": "Entering AI chat mode — ask me anything about Ahmed!",
+      "content": "No chat mode needed: type your question right at the prompt.",
       "style": {
         "bold": true,
-        "color": "primary",
       },
       "type": "text",
     },
     {
-      "content": "Type "exit" to return to command mode.",
+      "content": "For example: What RAG work has he done?",
       "style": {
         "dim": true,
       },
@@ -953,7 +998,75 @@ exports[`legacy command output > snapshots h 1`] = `
 {
   "output": [
     {
-      "content": "Available Commands:",
+      "content": "About me",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "headers": [
+        "Command",
+        "Description",
+      ],
+      "rows": [
+        [
+          "about",
+          "Professional summary",
+        ],
+        [
+          "education",
+          "Education details and coursework",
+        ],
+        [
+          "certifications",
+          "Certifications and achievements",
+        ],
+        [
+          "contact",
+          "Contact information and links",
+        ],
+      ],
+      "type": "table",
+    },
+    {
+      "content": "Work",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "headers": [
+        "Command",
+        "Description",
+      ],
+      "rows": [
+        [
+          "experience [company]",
+          "Work experience (filter by company)",
+        ],
+        [
+          "projects [name]",
+          "Technical projects (filter by name)",
+        ],
+        [
+          "skills [category]",
+          "Technical skills by category",
+        ],
+        [
+          "timeline",
+          "Reverse-chronological career overview",
+        ],
+        [
+          "github",
+          "Live GitHub profile stats",
+        ],
+      ],
+      "type": "table",
+    },
+    {
+      "content": "Explore",
       "style": {
         "bold": true,
       },
@@ -970,40 +1083,36 @@ exports[`legacy command output > snapshots h 1`] = `
           "List all available commands",
         ],
         [
-          "about",
-          "Professional summary",
+          "gui",
+          "Switch to the regular page",
         ],
         [
-          "education",
-          "Education details and coursework",
+          "tour",
+          "Take a guided tour of the terminal",
         ],
         [
-          "experience [company]",
-          "Work experience (filter by company)",
+          "guestbook",
+          "Read recent guestbook entries",
         ],
-        [
-          "projects [name]",
-          "Technical projects (filter by name)",
-        ],
-        [
-          "skills [category]",
-          "Technical skills by category",
-        ],
-        [
-          "certifications",
-          "Certifications and achievements",
-        ],
-        [
-          "contact",
-          "Contact information and links",
-        ],
+      ],
+      "type": "table",
+    },
+    {
+      "content": "More",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "headers": [
+        "Command",
+        "Description",
+      ],
+      "rows": [
         [
           "open [target]",
           "Open a profile link in your browser",
-        ],
-        [
-          "timeline",
-          "Reverse-chronological career overview",
         ],
         [
           "theme [name]",
@@ -1018,28 +1127,12 @@ exports[`legacy command output > snapshots h 1`] = `
           "???",
         ],
         [
-          "github",
-          "Live GitHub profile stats",
-        ],
-        [
-          "chat",
-          "Chat with AI about Ahmed",
-        ],
-        [
-          "gui",
-          "Switch to the regular page",
-        ],
-        [
-          "tour",
-          "Take a guided tour of the terminal",
+          "ask [question]",
+          "Ask the AI about Ahmed",
         ],
         [
           "who",
           "Show people exploring now",
-        ],
-        [
-          "guestbook",
-          "Read recent guestbook entries",
         ],
         [
           "sign "<message>" --name <name>",
@@ -1049,12 +1142,15 @@ exports[`legacy command output > snapshots h 1`] = `
           "clear",
           "Clear the terminal",
         ],
-        [
-          "<cmd> | grep, head, tail, wc, sort",
-          "Pipes: filter any command output",
-        ],
       ],
       "type": "table",
+    },
+    {
+      "content": "Pipes: <cmd> | grep, head, tail, wc, sort filter any output. Questions in plain words go to the AI.",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
     },
     {
       "type": "divider",
@@ -1081,7 +1177,75 @@ exports[`legacy command output > snapshots help 1`] = `
 {
   "output": [
     {
-      "content": "Available Commands:",
+      "content": "About me",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "headers": [
+        "Command",
+        "Description",
+      ],
+      "rows": [
+        [
+          "about",
+          "Professional summary",
+        ],
+        [
+          "education",
+          "Education details and coursework",
+        ],
+        [
+          "certifications",
+          "Certifications and achievements",
+        ],
+        [
+          "contact",
+          "Contact information and links",
+        ],
+      ],
+      "type": "table",
+    },
+    {
+      "content": "Work",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "headers": [
+        "Command",
+        "Description",
+      ],
+      "rows": [
+        [
+          "experience [company]",
+          "Work experience (filter by company)",
+        ],
+        [
+          "projects [name]",
+          "Technical projects (filter by name)",
+        ],
+        [
+          "skills [category]",
+          "Technical skills by category",
+        ],
+        [
+          "timeline",
+          "Reverse-chronological career overview",
+        ],
+        [
+          "github",
+          "Live GitHub profile stats",
+        ],
+      ],
+      "type": "table",
+    },
+    {
+      "content": "Explore",
       "style": {
         "bold": true,
       },
@@ -1098,40 +1262,36 @@ exports[`legacy command output > snapshots help 1`] = `
           "List all available commands",
         ],
         [
-          "about",
-          "Professional summary",
+          "gui",
+          "Switch to the regular page",
         ],
         [
-          "education",
-          "Education details and coursework",
+          "tour",
+          "Take a guided tour of the terminal",
         ],
         [
-          "experience [company]",
-          "Work experience (filter by company)",
+          "guestbook",
+          "Read recent guestbook entries",
         ],
-        [
-          "projects [name]",
-          "Technical projects (filter by name)",
-        ],
-        [
-          "skills [category]",
-          "Technical skills by category",
-        ],
-        [
-          "certifications",
-          "Certifications and achievements",
-        ],
-        [
-          "contact",
-          "Contact information and links",
-        ],
+      ],
+      "type": "table",
+    },
+    {
+      "content": "More",
+      "style": {
+        "bold": true,
+      },
+      "type": "text",
+    },
+    {
+      "headers": [
+        "Command",
+        "Description",
+      ],
+      "rows": [
         [
           "open [target]",
           "Open a profile link in your browser",
-        ],
-        [
-          "timeline",
-          "Reverse-chronological career overview",
         ],
         [
           "theme [name]",
@@ -1146,28 +1306,12 @@ exports[`legacy command output > snapshots help 1`] = `
           "???",
         ],
         [
-          "github",
-          "Live GitHub profile stats",
-        ],
-        [
-          "chat",
-          "Chat with AI about Ahmed",
-        ],
-        [
-          "gui",
-          "Switch to the regular page",
-        ],
-        [
-          "tour",
-          "Take a guided tour of the terminal",
+          "ask [question]",
+          "Ask the AI about Ahmed",
         ],
         [
           "who",
           "Show people exploring now",
-        ],
-        [
-          "guestbook",
-          "Read recent guestbook entries",
         ],
         [
           "sign "<message>" --name <name>",
@@ -1177,12 +1321,15 @@ exports[`legacy command output > snapshots help 1`] = `
           "clear",
           "Clear the terminal",
         ],
-        [
-          "<cmd> | grep, head, tail, wc, sort",
-          "Pipes: filter any command output",
-        ],
       ],
       "type": "table",
+    },
+    {
+      "content": "Pipes: <cmd> | grep, head, tail, wc, sort filter any output. Questions in plain words go to the AI.",
+      "style": {
+        "dim": true,
+      },
+      "type": "text",
     },
     {
       "type": "divider",
@@ -1335,12 +1482,20 @@ exports[`legacy command output > snapshots menu items 1`] = `
     "value": "github",
   },
   {
-    "label": "chat             Chat with AI about Ahmed",
-    "value": "chat",
-  },
-  {
     "label": "gui              Switch to the regular page",
     "value": "gui",
+  },
+  {
+    "label": "tour             Take a guided tour of the terminal",
+    "value": "tour",
+  },
+  {
+    "label": "guestbook        Read recent guestbook entries",
+    "value": "guestbook",
+  },
+  {
+    "label": "resume           Download or link to the PDF resume",
+    "value": "resume",
   },
 ]
 `;
@@ -1359,6 +1514,7 @@ Shell:     portfolio-cli v1.0.0
 Uptime:    5 years in tech
 Repos:     github.com/moghazy17
 Stack:     Python (Advanced), SQL, C++, JavaScript, HTML/CSS, Scikit-learn, TensorFlow/Keras, Classical Machine Learning
+Off-hours: 🕷️  ⚽  🎬
 
   ███  ███  ███  ███  ███  ███  ███  ███",
       "style": {
@@ -2347,6 +2503,7 @@ Shell:     portfolio-cli v1.0.0
 Uptime:    5 years in tech
 Repos:     github.com/moghazy17
 Stack:     Python (Advanced), SQL, C++, JavaScript, HTML/CSS, Scikit-learn, TensorFlow/Keras, Classical Machine Learning
+Off-hours: 🕷️  ⚽  🎬
 
   ███  ███  ███  ███  ███  ███  ███  ███",
       "style": {

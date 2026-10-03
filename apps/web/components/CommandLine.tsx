@@ -2,13 +2,9 @@
 
 import { useState, useRef, useEffect, KeyboardEvent } from 'react';
 import type { Completion } from '@ahmed-moghazy/shared';
-import { promptExamplesFor } from '@ahmed-moghazy/shared';
-import { useReducedMotion } from '../hooks/useReducedMotion';
 import { recordClientEvent } from '../lib/client-events';
-import ShortcutSheet from './ShortcutSheet';
 
 interface Props {
-  visibleChipLines: string[];
   prefill?: { text: string; nonce: number } | null;
   onPrefillApplied: () => void;
   onSubmit: (input: string) => void;
@@ -26,10 +22,11 @@ interface Props {
   tourText: string | null;
   tourActive: boolean;
   onTourInput: () => void;
+  /** Focus the input on mount (off when the terminal is one window among many). */
+  autoFocus?: boolean;
 }
 
 export default function CommandLine({
-  visibleChipLines,
   prefill,
   onPrefillApplied,
   onSubmit,
@@ -47,33 +44,18 @@ export default function CommandLine({
   tourText,
   tourActive,
   onTourInput,
+  autoFocus = true,
 }: Props) {
   const [input, setInput] = useState('');
-  const [exampleIndex, setExampleIndex] = useState(0);
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const examples = promptExamplesFor(visibleChipLines);
-  const example = examples[exampleIndex % examples.length];
-  const reducedMotion = useReducedMotion();
   const inputRef = useRef<HTMLInputElement>(null);
   const previousTab = useRef(false);
   const pendingCaret = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!window.matchMedia('(pointer: coarse)').matches) inputRef.current?.focus();
+    if (autoFocus && !window.matchMedia('(pointer: coarse)').matches) inputRef.current?.focus();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (reducedMotion) return;
-    const timer = window.setInterval(() => setExampleIndex((index) => (index + 1) % examples.length), 4_000);
-    return () => window.clearInterval(timer);
-  }, [reducedMotion, examples.length]);
-
-  useEffect(() => setExampleIndex((index) => index % examples.length), [examples.length]);
-  useEffect(() => {
-    const close = () => setSheetOpen(false);
-    window.addEventListener('command-sheet-open', close);
-    return () => window.removeEventListener('command-sheet-open', close);
-  }, []);
 
   const tourWasActive = useRef(false);
   const tourTakenOver = useRef(false);
@@ -88,7 +70,6 @@ export default function CommandLine({
   }, [tourText]);
   useEffect(() => { if (!tourActive) tourTakenOver.current = false; }, [tourActive]);
 
-  const closeSheet = () => { setSheetOpen(false); requestAnimationFrame(() => inputRef.current?.focus()); };
 
   useEffect(() => {
     if (!prefill) return;
@@ -108,7 +89,8 @@ export default function CommandLine({
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === '?' && !input && !document.getElementById('command-sheet-heading') && window.matchMedia('(pointer: fine)').matches) {
       e.preventDefault();
-      setSheetOpen(true);
+      // The command bar owns the sheet, which lists every command and the keyboard shortcuts.
+      window.dispatchEvent(new Event('command-sheet-request'));
       recordClientEvent('shortcut_sheet_opens');
       return;
     }
@@ -179,7 +161,6 @@ export default function CommandLine({
         {prompt}
       </span>
       <div className="command-input-wrap">
-        {!input && tourText === null && !tourActive && <span className="prompt-example" aria-hidden="true">{example}</span>}
         <input
           ref={inputRef}
           type="text"
@@ -211,7 +192,6 @@ export default function CommandLine({
           }}
         />
       </div>
-      {sheetOpen && <ShortcutSheet onClose={closeSheet} />}
     </div>
   );
 }

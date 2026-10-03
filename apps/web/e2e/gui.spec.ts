@@ -155,7 +155,7 @@ test.describe('Regular page', () => {
     await expect(page).toHaveURL(/\/gui$/);
     await page.emulateMedia({ colorScheme: 'light' });
     const background = await page.locator('.gui-root').evaluate((element) => getComputedStyle(element).backgroundColor);
-    expect(background).toBe('rgb(255, 255, 255)');
+    expect(background).toBe('rgb(42, 105, 167)');
   });
 
   for (const colorScheme of ['light', 'dark'] as const) {

@@ -1,20 +1,13 @@
-import type { CommandResult } from '../types';
-import { profile } from '../content';
+import type { CommandContext, CommandResult } from '../types';
 
-export function chatCommand(): CommandResult {
+/** `chat`, `ask` and `ai` are shortcuts: questions go to the assistant straight from the prompt. */
+export function chatCommand(ctx: CommandContext): CommandResult {
+  const question = ctx.args.join(' ').trim();
+  if (question) return { output: [], ask: { question } };
   return {
     output: [
-      {
-        type: 'text',
-        content: `Entering AI chat mode — ask me anything about ${profile.firstName}!`,
-        style: { color: 'primary', bold: true },
-      },
-      {
-        type: 'text',
-        content: 'Type "exit" to return to command mode.',
-        style: { dim: true },
-      },
+      { type: 'text', content: 'No chat mode needed: type your question right at the prompt.', style: { bold: true } },
+      { type: 'text', content: 'For example: What RAG work has he done?', style: { dim: true } },
     ],
-    mode: 'chat',
   };
 }

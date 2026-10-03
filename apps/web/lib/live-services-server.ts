@@ -7,6 +7,7 @@ import { createLiveGitHub } from './github-live';
 import { listEntries } from './guestbook';
 import { count } from './presence';
 import { recentFilms } from './letterboxd';
+import { nextFixture } from './barca';
 
 export const serverLiveServices: LiveServices = {
   async presence() {
@@ -20,6 +21,7 @@ export const serverLiveServices: LiveServices = {
     return value;
   },
   films: recentFilms,
+  fixture: nextFixture,
 };
 
 const CURRENT_REPOS_TIMEOUT_MS = 1500;

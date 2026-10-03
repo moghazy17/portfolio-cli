@@ -7,6 +7,8 @@ export { bootSequence } from './motion/boot';
 export { shouldType, TYPE_MAX_LINES, TYPE_MAX_MS } from './motion/reveal';
 export * from './ascii';
 export * from './github';
+export { BARCA_TEAM_ID, BARCA_FIXTURES_URL, parseFootballDataMatches, formatFixture } from './barca';
+export type { BarcaFixture } from './barca';
 export { LETTERBOXD_RSS, LETTERBOXD_URL, LETTERBOXD_USERNAME, parseLetterboxdRss, stars } from './letterboxd';
 export { createTimedCache } from './timed-cache';
 export * from './shell';

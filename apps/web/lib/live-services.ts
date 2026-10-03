@@ -1,4 +1,4 @@
-import type { FilmEntry, GuestbookEntry, LiveServices, PresenceCount, SkillEvidenceDetails } from '@ahmed-moghazy/shared';
+import type { BarcaFixture, FilmEntry, GuestbookEntry, LiveServices, PresenceCount, SkillEvidenceDetails } from '@ahmed-moghazy/shared';
 
 export const liveServices: LiveServices = {
   async presence(signal: AbortSignal): Promise<PresenceCount> {
@@ -16,6 +16,11 @@ export const liveServices: LiveServices = {
     const response = await fetch('/api/letterboxd', { signal });
     if (!response.ok) throw new Error(`Films unavailable (${response.status})`);
     return ((await response.json()) as { films: FilmEntry[] }).films;
+  },
+  async fixture(signal: AbortSignal): Promise<BarcaFixture | null> {
+    const response = await fetch('/api/barca', { signal });
+    if (!response.ok) throw new Error(`Fixture unavailable (${response.status})`);
+    return ((await response.json()) as { fixture: BarcaFixture | null }).fixture;
   },
 };
 

@@ -1,5 +1,6 @@
 import type { CommandContext, CommandOutput, CommandResult, ProgressOutput } from '../types';
 import { cvData, profile, site } from '../content';
+import { BARCA_FIXTURES_URL, formatFixture } from '../barca';
 
 function host(origin: string): string {
   try {
@@ -132,23 +133,21 @@ export function exitCommand(): CommandResult {
 
 const pick = <T,>(items: T[]): T => items[Math.floor(Math.random() * items.length)];
 
-const SPIDEY_QUIPS = [
-  'With great power comes great responsibility to validate your training split.',
-  'Spidey-sense tingling: a data leak between train and test.',
-  'Your friendly neighborhood ML engineer. No radioactive spiders were used in training.',
-  'Hanging upside down until the model converges.',
-  'Not every hero wears a mask. Some just wear headphones and fix flaky pipelines.',
+const SPIDEY_QUOTES = [
+  'With great power comes great responsibility.',
+  'Your friendly neighborhood Spider-Man.',
+  'Face it, Tiger... you just hit the jackpot!',
+  'Anyone can wear the mask.',
 ];
 
 export function spideyCommand(): CommandResult {
   const web = (length: number) => `  🕷️${'─'.repeat(length)}${length >= 24 ? ' THWIP!' : ''}`;
   return {
+    fx: 'web',
     sequence: [6, 12, 18, 24].map((length) => ({ delayMs: 90, output: [{ type: 'text' as const, content: web(length), style: { color: 'error', bold: true } }] })),
     output: [
       { type: 'text', content: web(24), style: { color: 'error', bold: true } },
-      { type: 'text', content: pick(SPIDEY_QUIPS), style: { bold: true } },
-      { type: 'text', content: `Swing by any time:`, style: { dim: true } },
-      { type: 'link', text: 'Send a web-mail', url: `mailto:${cvData.contact.email}` },
+      { type: 'text', content: pick(SPIDEY_QUOTES), style: { bold: true } },
     ],
   };
 }
@@ -156,23 +155,38 @@ export function spideyCommand(): CommandResult {
 const GARNET = '#e0457b';
 const BLAU = '#5b9be8';
 
-const BARCA_LINES = [
-  'Més que un dev.',
-  'Tiki-taka for data: short passes from raw rows to features to model to insight.',
-  'Possession-based modelling: keep the data, wait for the opening.',
-  'La Masia taught passing. University taught gradient descent.',
-];
-
-export function viscaCommand(): CommandResult {
-  return {
-    output: [
-      { type: 'text', content: '━━━  VISCA EL BARÇA  ━━━', style: { color: GARNET, bold: true } },
-      { type: 'text', content: `  ${profile.firstName.toUpperCase()}  1 — 0  MESSY DATA`, style: { color: BLAU, bold: true } },
-      { type: 'text', content: "  ⚽ 17'  goal (assist: pandas)", style: { dim: true } },
-      { type: 'text', content: pick(BARCA_LINES) },
-      { type: 'text', content: 'Matchday? Ask about work at half-time.', style: { dim: true } },
-    ],
-  };
+export async function viscaCommand(ctx: CommandContext): Promise<CommandResult> {
+  const banner: CommandOutput = { type: 'text', content: '━━━  VISCA EL BARÇA  ━━━', style: { color: GARNET, bold: true } };
+  const ending: CommandOutput = { type: 'text', content: 'Força Barça!', style: { color: BLAU, bold: true } };
+  try {
+    const fixture = await ctx.live?.fixture?.(ctx.signal);
+    if (ctx.signal.aborted || !fixture) throw new Error('Fixture unavailable');
+    const formatted = formatFixture(fixture, {
+      now: new Date(),
+      ...(ctx.surface !== 'web' && { timeZone: 'UTC' }),
+    });
+    return {
+      fx: 'confetti',
+      output: [
+        banner,
+        { type: 'text', content: formatted.match, style: { color: BLAU, bold: true } },
+        { type: 'text', content: formatted.competition },
+        { type: 'text', content: `${formatted.kickoff} (${ctx.surface === 'web' ? 'your time' : 'UTC'})` },
+        { type: 'text', content: formatted.relative, style: { dim: true } },
+        ending,
+      ],
+    };
+  } catch {
+    return {
+      fx: 'confetti',
+      output: [
+        banner,
+        { type: 'text', content: 'Fixture unavailable', style: { dim: true } },
+        { type: 'link', text: BARCA_FIXTURES_URL, url: BARCA_FIXTURES_URL },
+        ending,
+      ],
+    };
+  }
 }
 
 export function screensaverCommand(args: string[]): CommandResult {

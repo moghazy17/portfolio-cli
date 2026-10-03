@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { themes, DEFAULT_THEME } from '@ahmed-moghazy/shared';
 import type { Theme } from '@ahmed-moghazy/shared';
 
-export function useThemeApplier() {
+/** The visitor's terminal theme; `applyToPage` writes it to the page's custom properties (off for the /gui window). */
+export function useThemeApplier(applyToPage = true) {
   const [theme, setTheme] = useState<Theme>(themes[DEFAULT_THEME]);
 
   useEffect(() => {
@@ -22,6 +23,7 @@ export function useThemeApplier() {
   }, []);
 
   useEffect(() => {
+    if (!applyToPage) return;
     const root = document.documentElement;
     root.style.setProperty('--bg', theme.background);
     root.style.setProperty('--fg', theme.foreground);
@@ -32,7 +34,7 @@ export function useThemeApplier() {
     root.style.setProperty('--error', theme.error);
     root.style.setProperty('--success', theme.success);
     document.body.style.backgroundColor = theme.background;
-  }, [theme]);
+  }, [theme, applyToPage]);
 
   return { theme, setTheme: applyTheme };
 }

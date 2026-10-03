@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { commandRegistry } from '../src/commands/registry';
 import { createShell } from '../src/shell/shell';
-import { suggestionsFor } from '../src/discover/suggestions';
 import { WELCOME_HINT, WELCOME_SHORTCUT_HINT } from '../src/ascii';
 import { getMenuGroups, getMenuItems } from '../src/commands/engine';
 import { tourSteps } from '../src/discover/tour';
@@ -24,28 +22,6 @@ describe('discoverability definitions', () => {
     expect(values).toHaveLength(menu.length);
     expect(new Set(values).size).toBe(values.length);
     expect([...values].sort()).toEqual([...menu].sort());
-  });
-
-  it('offers first-visit next steps including a question and tour', () => {
-    const items = suggestionsFor({ firstVisit: true, surface: 'web' });
-    expect(items).toHaveLength(5);
-    expect(items.some((item) => item.kind === 'question')).toBe(true);
-    expect(items.some((item) => item.line === 'tour')).toBe(true);
-  });
-
-  it('offers registered visible next steps without repeating the command', () => {
-    for (const command of commandRegistry.filter((entry) => !entry.hidden && (!entry.surfaces || entry.surfaces.includes('web')))) {
-      const items = suggestionsFor({ firstVisit: false, lastCommand: command.name, surface: 'web' });
-      expect(items.length).toBeGreaterThanOrEqual(4);
-      expect(items.length).toBeLessThanOrEqual(6);
-      expect(items.some((item) => item.line === command.name)).toBe(false);
-      for (const item of items.filter((entry) => entry.kind === 'command')) {
-        const name = item.line.split(' ')[0];
-        expect(commandRegistry.some((entry) => entry.name === name && !entry.hidden && (!entry.surfaces || entry.surfaces.includes('web')))).toBe(true);
-      }
-    }
-    expect(suggestionsFor({ firstVisit: false, lastCommand: 'removed', surface: 'web' }).every((item) => item.line !== 'removed')).toBe(true);
-    expect(suggestionsFor({ firstVisit: true, surface: 'curl' }).every((item) => item.kind === 'command')).toBe(true);
   });
 
   it('defines a guided tour and exposes it only as a web effect', async () => {

@@ -60,7 +60,6 @@ export async function letterboxdCommand(ctx: CommandContext): Promise<CommandRes
         `${film.title}${film.year ? ` (${film.year})` : ''}`,
         [film.liked ? '♥' : '', film.rewatch ? '↻' : ''].filter(Boolean).join(' '),
       ]) },
-      { type: 'text', content: 'Ratings are personal. Model evaluations are not.', style: { dim: true } },
       profileLink,
     ] };
   } catch {

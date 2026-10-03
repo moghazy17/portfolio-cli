@@ -35,19 +35,19 @@ describe('content validation', () => {
     [
       'a missing required text field',
       (source: string) => source.replace('    position: Software Developer (AI & Backend)\n', ''),
-      'work[0].position',
+      'work[1].position',
       'expected a non-empty string, received undefined',
     ],
     [
       'a wrong text type',
       (source: string) => source.replace('    position: Software Developer (AI & Backend)', '    position: 42'),
-      'work[0].position',
+      'work[1].position',
       'expected a non-empty string, received number',
     ],
     [
       'a bad month',
       (source: string) => source.replace('    startDate: 2025-10', '    startDate: Oct 2025'),
-      'work[0].startDate',
+      'work[1].startDate',
       'expected YYYY-MM (e.g. 2025-10), received "Oct 2025"',
     ],
   ])('reports %s with its expected message', async (_name, transform, path, message) => {
@@ -64,11 +64,11 @@ describe('content validation', () => {
     ));
     expect(await errors(root)).toEqual(expect.arrayContaining([
       expect.objectContaining({
-        path: 'work[0].position',
+        path: 'work[1].position',
         message: 'expected a non-empty string, received undefined',
       }),
       expect.objectContaining({
-        path: 'work[0].positon',
+        path: 'work[1].positon',
         message: 'unknown key (allowed keys: slug, name, position, startDate, endDate, highlights; extension keys must start with "x-")',
       }),
     ]));

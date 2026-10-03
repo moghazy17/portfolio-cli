@@ -1,0 +1,50 @@
+/* Content motion for the Be Desktop. The desk's window gesture lives in gui.css. */
+
+.be-experience-panes { position: relative; overflow: hidden; }
+.be-experience-panes > .be-detail { position: absolute; inset: 0 auto auto 0; width: 100%; }
+.be-experience-panes > .be-detail[hidden] { display: none; }
+
+.be-icons .be-icon { transition: transform 120ms cubic-bezier(.16, 1, .3, 1); }
+.be-icons .be-icon img { transition: filter 120ms cubic-bezier(.16, 1, .3, 1); }
+.be-icons .be-icon:hover { transform: translateY(-2px); }
+.be-icons .be-icon:hover img { filter: drop-shadow(0 4px 4px rgba(0, 0, 0, .55)); }
+.be-icons .be-icon:is(.is-selected, :focus-visible) span {
+  background: #0b1830;
+  color: #fff;
+  text-shadow: none;
+}
+
+.be-clock-digits { display: inline-flex; font-variant-numeric: tabular-nums; }
+.be-clock-colon { animation: be-colon-tick 1s steps(1, end) infinite; }
+@keyframes be-colon-tick { 50% { opacity: 0; } }
+
+.be-count { position: relative; display: inline-grid; min-width: 1ch; height: 1.25em; overflow: hidden; vertical-align: middle; font-variant-numeric: tabular-nums; }
+.be-count > span { grid-area: 1 / 1; text-align: center; }
+.be-count.is-rolling .be-count-old { animation: be-count-out 250ms cubic-bezier(.16, 1, .3, 1) both; }
+.be-count.is-rolling .be-count-new { animation: be-count-in 250ms cubic-bezier(.16, 1, .3, 1) both; }
+@keyframes be-count-out { to { transform: translateY(-100%); opacity: 0; } }
+@keyframes be-count-in { from { transform: translateY(100%); opacity: 0; } }
+
+.be-fx-layer { position: fixed; inset: 0; z-index: 300; pointer-events: none; overflow: hidden; }
+.be-fx-web svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.be-web-strand, .be-web-cross { fill: none; stroke: #f4f7fa; stroke-linecap: round; filter: drop-shadow(0 1px 1px rgba(6, 22, 44, .6)); }
+.be-web-strand { stroke-width: 1.5; stroke-dasharray: 1; animation: be-web-shot 700ms cubic-bezier(.16, 1, .3, 1) both; }
+.be-web-cross { stroke-width: 1; animation: be-web-cross 700ms ease-out both; }
+@keyframes be-web-shot { 0% { stroke-dashoffset: 1; opacity: 0; } 8% { opacity: 1; } 48%, 68% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: -1; opacity: 0; } }
+@keyframes be-web-cross { 0%, 32% { opacity: 0; } 48%, 68% { opacity: .9; } 100% { opacity: 0; } }
+
+.be-confetti-piece { position: absolute; display: block; animation: be-confetti-fall 1050ms cubic-bezier(.34, .1, .65, 1) both; }
+@keyframes be-confetti-fall {
+  0% { transform: translate3d(0, -10px, 0) rotate(0); opacity: 0; }
+  8% { opacity: 1; }
+  52% { transform: translate3d(calc(var(--sway) * -.35), calc(var(--fall) * .4), 0) rotate(calc(var(--turn) * .5)); opacity: 1; }
+  100% { transform: translate3d(var(--sway), var(--fall), 0) rotate(var(--turn)); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .be-icons .be-icon, .be-icons .be-icon img { transition: none; }
+  .be-icons .be-icon:hover { transform: none; }
+  .be-icons .be-icon:hover img { filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .35)); }
+  .be-clock-colon, .be-count.is-rolling .be-count-old, .be-count.is-rolling .be-count-new,
+  .be-web-strand, .be-web-cross, .be-confetti-piece { animation: none; }
+}

@@ -19,7 +19,9 @@ html, body { overflow-x: hidden; }
 .command-bar { position: relative; min-width: 0; height: 65px; padding: 10px 16px; border: 1px solid rgba(255,255,255,.05); border-top-color: var(--dimmed); border-radius: 0 0 8px 8px; background: var(--bg); }
 .command-bar-open { z-index: 11; }
 .command-bar-items { display: flex; gap: 8px; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: thin; }
-.command-chip { flex: 0 0 auto; min-height: 44px; padding: 8px 12px; border: 1px solid var(--primary); border-radius: 999px; background: transparent; color: var(--primary); font: inherit; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.command-chip { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--primary); border-radius: 999px; background: transparent; color: var(--primary); font: inherit; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.command-chip img, .command-chip svg { display: block; flex: none; width: 18px; height: 18px; }
+.command-chip:disabled { opacity: .55; cursor: progress; }
 .command-chip:hover, .command-chip:focus-visible { background: var(--primary); color: var(--bg); }
 .command-chip-question { background: var(--accent); border-color: var(--accent); color: var(--bg); }
 .command-chip-question:hover, .command-chip-question:focus-visible { background: var(--accent); color: var(--bg); outline: 2px solid var(--fg); outline-offset: 2px; }
@@ -28,6 +30,7 @@ html, body { overflow-x: hidden; }
 .command-sheet-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 16px; border-bottom: 1px solid var(--dimmed); }
 .command-sheet-header h2 { font-size: 18px; color: var(--primary); }
 .command-sheet-header button { width: 44px; height: 44px; border: 1px solid var(--primary); background: transparent; color: var(--primary); font: inherit; font-size: 24px; cursor: pointer; }
+.command-sheet-header button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .command-sheet-list { overflow-y: auto; padding: 12px 16px 16px; }
 .command-sheet-list section + section { margin-top: 16px; }
 .command-sheet-list h3 { margin-bottom: 6px; color: var(--primary); font-size: 14px; }
@@ -40,6 +43,12 @@ html, body { overflow-x: hidden; }
 @media (pointer: coarse) { .command-sheet-shortcuts { display: none; } }
 @media (pointer: coarse) { .command-sheet { position: fixed; left: 0; right: 0; bottom: var(--keyboard-inset, 0px); width: 100%; max-height: 70vh; border-radius: 12px 12px 0 0; } }
 @media (max-width: 639px) { .command-bar { padding-inline: 8px; } .command-sheet-name { flex-basis: 105px; } }
+.command-sheet-backdrop-desk { z-index: 240; }
+.command-sheet-desk { position: fixed; z-index: 250; top: 50%; bottom: auto; left: 50%; right: auto; width: min(680px, calc(100vw - 24px)); max-height: min(70dvh, 640px); transform: translate(-50%, -50%); }
+@media (max-width: 767px) {
+  .command-sheet-desk { top: auto; bottom: 0; left: 0; right: 0; width: 100%; max-height: 70dvh; transform: none; border-radius: 12px 12px 0 0; }
+  .command-sheet-desk .command-sheet-list { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+}
 .command-input-wrap { flex: 1; min-width: 0; position: relative; }
 .tour-finish { color: var(--accent); margin: 12px 0; font-weight: bold; }
 .tour-card { position: sticky; bottom: 24px; z-index: 2; min-width: 0; max-width: 100%; padding: 12px; margin: 12px 0; border: 1px solid var(--primary); border-radius: 8px; background: var(--bg); color: var(--fg); overflow-wrap: anywhere; }

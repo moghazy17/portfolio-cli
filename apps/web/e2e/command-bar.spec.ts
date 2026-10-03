@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { getMenuItems, themes } from '@ahmed-moghazy/shared';
 
 const input = (page: Page) => page.getByRole('textbox', { name: /Terminal command input/ });
-const bar = (page: Page) => page.getByRole('navigation', { name: 'Suggestions' });
+const bar = (page: Page) => page.getByRole('navigation', { name: 'Quick commands' });
 const dialog = (page: Page) => page.getByRole('dialog', { name: 'All commands' });
 const reduced = () => test.info().project.name.includes('reduced');
 
@@ -16,7 +16,8 @@ test('shows one bottom bar with an always-last all commands button', async ({ pa
   await expect(bar(page)).toHaveCount(1);
   await expect(bar(page).getByRole('button', { name: 'All commands' })).toBeVisible();
   await expect(page.locator('.menu-bar, .suggestion-bar, .shortcut-hint')).toHaveCount(0);
-  expect(await bar(page).locator(':scope > .command-bar-items > button').last().getAttribute('aria-label')).toBe('All commands');
+  await expect(bar(page).locator(':scope > .command-bar-items > button').last()).toHaveText('⋯ all commands');
+  await expect(bar(page).locator('.command-chip img')).toHaveCount(4);
   const positions = await page.evaluate(() => {
     const prompt = document.querySelector('.command-input-wrap')!.getBoundingClientRect();
     const controls = document.querySelector('.command-bar')!.getBoundingClientRect();
@@ -44,7 +45,7 @@ test('every former menu command is reachable and runs from the sheet with a mous
     await dialog(page).getByRole('button', { name: new RegExp(`^${item.value}\\b`) }).click();
     await expect(dialog(page)).toHaveCount(0);
     if (item.value === 'gui') await expect(page).toHaveURL(/\/gui$/);
-    else await expect(page.locator('[role="log"]')).toContainText(item.value);
+    else await expect(page.locator('[role="log"]'), `command ${item.value}`).toContainText(item.value);
   }
 });
 

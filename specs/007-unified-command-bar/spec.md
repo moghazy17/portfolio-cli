@@ -17,20 +17,26 @@ Decisions taken from the request and the shipped spec 006 (no open questions):
 - The desktop-only "Press ? for shortcuts" text moves from the separate footer line into the welcome hint, so the footer line is removed.
 - The arrow-key menu inside `WelcomeScreen` is never shown today (`showMenu={false}`); it is retired, and arrow-key navigation lives in the bar.
 
+### Amendment 2026-10-03 (Be Desktop v2, PR #21)
+
+- The bar's chips are a fixed set, not context-aware: projects, skills, experience, resume, ✦ ask AI, then "⋯ all commands". They are the same on every visit, after every command, on `/` and in the /gui terminal window. A fixed set reads as a stable toolbar and matches the desk's chip styling; the full list stays one tap away in the sheet.
+- `suggestionsFor()` and its spec 006 rules are retired and removed from shared code.
+- The rotating prompt example (former FR-009) was removed earlier, so there is nothing left to de-duplicate against the chips.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - One bar instead of two (Priority: P1)
 
-A visitor on a phone sees the welcome, a short hint, the prompt, and a single row of chips at the bottom: a few next steps, one highlighted assistant question, and "☰ all" at the end. Tapping a chip runs it exactly as if typed. The row changes after each command.
+A visitor on a phone sees the welcome, a short hint, the prompt, and a single row of chips at the bottom: a fixed set of next steps, one highlighted assistant question, and "⋯ all commands" at the end. Tapping a chip runs it exactly as if typed.
 
 **Why this priority**: the clutter is the reported problem; one bar frees about a third of a phone screen for content.
 
-**Independent Test**: load the site at 320 px and 1280 px; confirm there is exactly one control row, chips run their commands, and the row changes after each command.
+**Independent Test**: load the site at 320 px and 1280 px; confirm there is exactly one control row, chips run their commands, and the same chips are shown after each command.
 
 **Acceptance Scenarios**:
 
 1. **Given** any visitor, **When** the terminal is ready for input, **Then** exactly one command bar is shown, below the prompt, and the old inline suggestion row and old menu bar no longer exist.
-2. **Given** the bar, **When** it is shown, **Then** it holds the current `suggestionsFor()` items followed by "☰ all" as the last item.
+2. **Given** the bar, **When** it is shown, **Then** it holds the fixed chips (projects, skills, experience, resume, ✦ ask AI) followed by "⋯ all commands" as the last item.
 3. **Given** a command runs, an answer streams, a sequence, boot or tour plays, or chat mode is active, **When** the screen updates, **Then** the bar's chips are hidden or inert, without the layout jumping.
 4. **Given** the assistant chip, **When** it is shown, **Then** it is visually distinct (filled accent, ✦ mark) and its accessible name is "Ask the assistant: …"; command chips stay outlined.
 5. **Given** a phone, **When** the bar is shown, **Then** it is one horizontally scrollable line, chips are at least 44 px tall, there is no horizontal page scroll at 320 px, and the bar sits directly above the on-screen keyboard when it is open.
@@ -83,14 +89,14 @@ The welcome hint reads "Tap a suggestion, or just type a command or question." (
 ### Functional Requirements
 
 - **FR-001**: The terminal MUST render exactly one command bar, docked at the bottom of the terminal window below the prompt; the inline suggestion row and the menu bar MUST be removed.
-- **FR-002**: The bar MUST show the items from `suggestionsFor()` (rules unchanged) followed by an "all commands" item as the last item.
+- **FR-002**: The bar MUST show the fixed chips projects, skills, experience, resume and one assistant question, followed by an "all commands" item as the last item, on `/` and in the /gui terminal window. *(Amended 2026-10-03; was: the items from `suggestionsFor()`.)*
 - **FR-003**: Chips and sheet items MUST run through the single existing submit path used for typed input.
 - **FR-004**: The bar MUST be hidden or inert while a command runs, an answer streams, a sequence/boot/tour plays, or in chat mode, without layout shift.
 - **FR-005**: The assistant chip MUST be visually distinct with a ✦ mark and accessible name "Ask the assistant: <question>", with sufficient contrast in every theme.
 - **FR-006**: The all-commands sheet MUST list every item `getMenuItems()` returns, grouped by a shared, render-agnostic grouping; it MUST be an accessible dialog (heading, focus trap, Esc closes, focus returns to the prompt), a bottom sheet on coarse pointers and a popover above the bar on fine pointers.
 - **FR-007**: The bar MUST support Left/Right, Home/End and Enter/Space keyboard navigation (roving focus).
 - **FR-008**: The shared welcome hint MUST be "Tap a suggestion, or just type a command or question."; the web host MAY append the shared desktop text "Press ? for shortcuts." on fine pointers. Shared code MUST NOT check the browser.
-- **FR-009**: The rotating prompt example MUST skip examples whose line matches a visible chip, falling back to `try: neofetch`.
+- **FR-009**: *(Withdrawn 2026-10-03: the rotating prompt example no longer exists.)*
 - **FR-010**: On phones the bar MUST be a single horizontally scrollable line with ≥ 44 px targets, no horizontal page scroll at 320 px, and directly above the on-screen keyboard.
 - **FR-011**: The usage report MUST count `command_sheet_opens`, and `suggestion_taps` MUST include taps on sheet items.
 
@@ -111,4 +117,4 @@ The welcome hint reads "Tap a suggestion, or just type a command or question." (
 ## Assumptions
 
 - Menu grouping is UI metadata in shared code, not portfolio content.
-- The spec 006 suggestion rules, tour, `?` shortcut sheet, presence badge and "Regular view" button are unchanged.
+- The tour, `?` shortcut sheet, presence badge and "Regular view" button are unchanged.

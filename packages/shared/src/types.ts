@@ -1,4 +1,5 @@
 import type { GitHubStats } from './github';
+import type { BarcaFixture } from './barca';
 
 // ============================================================
 // CV DATA TYPES
@@ -206,6 +207,7 @@ export interface LiveServices {
   guestbook(signal: AbortSignal): Promise<GuestbookEntry[]>;
   /** Recent Letterboxd diary entries. */
   films?(signal: AbortSignal): Promise<FilmEntry[]>;
+  fixture?(signal: AbortSignal): Promise<BarcaFixture | null>;
 }
 
 export type CompletionSource =
@@ -280,13 +282,9 @@ export interface CommandResult {
   sign?: { name: string; message: string };
   /** Turns the idle screensaver on or off in the web terminal. */
   screensaver?: boolean;
+  /** A one-shot decorative effect the web host may play; other surfaces ignore it. */
+  fx?: 'web' | 'confetti';
   tour?: TourStep[];
-}
-
-export interface Suggestion {
-  label: string;
-  line: string;
-  kind: 'command' | 'question';
 }
 
 export interface TourStep {

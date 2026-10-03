@@ -15,8 +15,8 @@ typing; `/gui` serves those who want to scroll.
 
 ## Product Purpose
 
-The personal portfolio of Ahmed Moghazy, Data Science & ML Engineer in Cairo (Software Developer, AI &
-Backend at ACT). It shows who he is, what he has built (multi-agent LLM systems, RAG pipelines,
+The personal portfolio of Ahmed Moghazy, AI Engineer in Cairo (AI Engineer at PwC ETIC; previously
+Software Developer, AI & Backend at ACT). It shows who he is, what he has built (multi-agent LLM systems, RAG pipelines,
 AutoML, data engineering), and gets visitors to reach out, download the CV, or sign the guestbook.
 Success: a visitor remembers him an hour later and knows how to contact him.
 
@@ -36,8 +36,8 @@ and command system.
 
 ## Capabilities and Constraints
 
-- Next.js on Vercel; `/gui` is static with hourly revalidation; Tailwind (no Preflight) and `motion`
-  scoped to `/gui`.
+- Next.js on Vercel; `/gui` is static with hourly revalidation; plain CSS and Web Animations (no
+  animation library) on `/gui`.
 - Must keep: all CV content, CV download, contact links, guestbook, presence badge, a clear way back
   to the terminal, light/dark support, reduced-motion support, SEO metadata.
 - Personal interests (owner-confirmed): Spider-Man, FC Barcelona, films (Letterboxd `moghazy17`, public

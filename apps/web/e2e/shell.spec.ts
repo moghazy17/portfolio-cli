@@ -88,7 +88,7 @@ test.describe('US1', () => {
     await expect(input).toHaveValue('abc');
   });
 
-  test('renders filtered project lines and command suggestions', async ({ page }) => {
+  test('renders filtered project lines and keeps quick commands available', async ({ page }) => {
     const input = page.getByLabel('Terminal command input');
     const project = cvData.projects[0];
     const word = project.name.split(/\s+/)[0];

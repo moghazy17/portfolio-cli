@@ -10,6 +10,7 @@ import Deskbar from '../../components/desk/Deskbar';
 import DeskTerminal from '../../components/desk/DeskTerminal';
 import DesktopIcons from '../../components/desk/DesktopIcons';
 import { DesktopProvider } from '../../components/desk/DesktopContext';
+import BootScreen from '../../components/desk/BootScreen';
 import ExperienceList from '../../components/desk/ExperienceList';
 import FilmsList from '../../components/desk/FilmsList';
 import GuestbookBody from '../../components/desk/GuestbookBody';
@@ -49,7 +50,10 @@ export default async function GuiPage() {
   const shell = createShell({ surface: 'web', origin: 'https://moghazy.me' });
   const about = await shell.run('about');
   const { user, host, cwd } = shell.prompt();
-  const initial = [{ id: 0, prompt: `${user}@${host}:${cwd}$`, input: 'about', output: about.output }];
+  const initial = [
+    { input: '', output: [], identity: { name: profile.name, label: profile.label, location: cvData.contact.location } },
+    { prompt: `${user}@${host}:${cwd}$`, input: 'about', output: about.output },
+  ];
   const { contact, education } = cvData;
   const current = cvData.experience[0];
   // The IANA zone is named after the city in content; keep the two in step if the location changes.
@@ -61,6 +65,7 @@ export default async function GuiPage() {
 
   return (
     <DesktopProvider>
+      <BootScreen />
       <ViewMemory />
       <div className="be-desk">
         <Deskbar host="moghazy.me" place={city} timeZone={`Africa/${city}`} />
@@ -68,7 +73,10 @@ export default async function GuiPage() {
           variant="desktop"
           icons={[
             ...(download ? [{ label: 'Résumé.pdf', icon: '/desk/resume.webp', href: download.url, download: download.filename }] : []),
+            { label: 'About', icon: '/desk/about.webp', open: 'about' },
             { label: 'Projects', icon: '/desk/projects.webp', open: 'projects' },
+            { label: 'Experience', icon: '/desk/experience.webp', open: 'experience' },
+            { label: 'Skills', icon: '/desk/skills.webp', open: 'skills' },
             { label: 'Guestbook', icon: '/desk/guestbook.webp', open: 'guestbook' },
             { label: 'Mail', icon: '/desk/mail.webp', open: 'contact' },
             { label: 'Films', icon: '/desk/films.webp', open: 'films' },
@@ -77,11 +85,14 @@ export default async function GuiPage() {
         />
 
         <main id="main" className="be-scenes">
+          <h1 className="sr-only">{profile.name}, {profile.label}</h1>
           <div className="be-scene be-scene-1">
+            <DeskTerminal initial={initial} />
+
             <BeWindow id="hero" as="header" title="Résumé.pdf" heading={false} className="be-hero"
               mark={{ command: 'sudo hire-me', label: 'Secret: sudo hire-me', glyph: 'key' }}>
               <div className="be-paper">
-                <h1>{profile.name}</h1>
+                <p className="be-paper-name">{profile.name}</p>
                 <p className="be-paper-role">{profile.label}</p>
                 <p className="be-paper-meta">{contact.location}</p>
                 <p className="be-paper-rule">Experience</p>
@@ -99,10 +110,7 @@ export default async function GuiPage() {
               <CvLink className="be-button be-button-default be-button-wide" />
             </BeWindow>
 
-            <DeskTerminal initial={initial} />
-
-            <BeWindow id="projects" title="Projects" className="be-projects"
-              mark={{ command: 'spidey', label: 'Secret: thwip', glyph: 'spider' }}>
+            <BeWindow id="projects" title="Projects" className="be-projects">
               <div className="be-tracker">
                 <div className="be-tracker-head" aria-hidden="true"><span>Name</span><span>Tech</span><span>Year</span></div>
                 <ul className="be-tracker-rows">
@@ -133,8 +141,7 @@ export default async function GuiPage() {
           </div>
 
           <div className="be-scene be-scene-2">
-            <BeWindow id="experience" title="Experience" className="be-experience"
-              mark={{ command: 'visca', label: 'Secret: visca', glyph: 'ball' }}>
+            <BeWindow id="experience" title="Experience" className="be-experience">
               <ExperienceList experience={cvData.experience} />
             </BeWindow>
 
@@ -143,7 +150,7 @@ export default async function GuiPage() {
             </BeWindow>
 
             <BeWindow id="guestbook" title="Guestbook" className="be-guestbook-win"
-              mark={{ command: 'letterboxd', label: 'Secret: now showing', glyph: 'reel' }}>
+              mark={{ command: 'spidey', label: 'Secret: thwip', glyph: 'spider' }}>
               <GuestbookBody />
             </BeWindow>
           </div>
@@ -158,7 +165,7 @@ export default async function GuiPage() {
               </div>
             </BeWindow>
 
-            <BeWindow id="skills" title="System Profile" className="be-skills">
+            <BeWindow id="skills" title="Skills" className="be-skills">
               <div className="be-profile">
                 {cvData.skills.map((category) => (
                   <div key={category.name} className="be-profile-group">
@@ -201,16 +208,16 @@ export default async function GuiPage() {
           </div>
 
           <footer className="be-footer">
-            <p>Psst: a few windows hide something in their bottom-right corner.</p>
+            <p>Psst: two windows hide something in their bottom-right corner.</p>
           </footer>
         </main>
 
         <DesktopIcons
           variant="dock"
           icons={[
+            { label: 'Résumé', icon: '/desk/resume.webp', open: 'hero' },
             { label: 'About', icon: '/desk/about.webp', open: 'about' },
             { label: 'Projects', icon: '/desk/projects.webp', open: 'projects' },
-            { label: 'Films', icon: '/desk/films.webp', open: 'films' },
             { label: 'Guestbook', icon: '/desk/guestbook.webp', open: 'guestbook' },
             { label: 'Mail', icon: '/desk/mail.webp', open: 'contact' },
           ]}

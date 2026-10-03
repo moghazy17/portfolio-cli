@@ -9,7 +9,7 @@ import OutputRenderer from './OutputRenderer';
 import SequencePlayer from './SequencePlayer';
 import WelcomeScreen from './WelcomeScreen';
 
-import { useTerminal } from '../hooks/useTerminal';
+import { useTerminal, type TerminalEntry } from '../hooks/useTerminal';
 import { useIdle } from '../hooks/useIdle';
 import CrtFilter from './CrtFilter';
 import { usePresence } from '../hooks/usePresence';
@@ -19,18 +19,29 @@ import TourCard from './TourCard';
 
 const Screensaver = dynamic(() => import('./Screensaver'), { ssr: false });
 
-export default function Terminal() {
-  const presence = usePresence();
-  useKeyboardInset();
+interface Props {
+  /** Render inside a /gui window: no chrome, boot, screensaver, keyboard inset or page theme. */
+  windowed?: boolean;
+  initialHistory?: TerminalEntry[];
+  /** Hands the window manager a way to run commands here (desktop icons, hidden marks). */
+  registerRunner?: (run: (line: string) => void) => void;
+  onFx?: (fx: 'web' | 'confetti') => void;
+}
+
+export default function Terminal({ windowed = false, initialHistory, registerRunner, onFx }: Props) {
+  // The desktop's Deskbar already reports presence, and a window has no keyboard-inset layout.
+  const presence = usePresence(!windowed);
+  useKeyboardInset(!windowed);
   const {
-    history, showWelcome, theme, scrollRef, handleCommand, submitSuggestion, suggestions,
+    history, showWelcome, theme, scrollRef, handleCommand, submitSuggestion,
     prompt, running, skip, sequencePlaying, finishSequence, tourPlaying, tourSteps, tourIndex, tourBusy,
     tourText, tourFinished, tourFocusRequest, nextTour, backTour, stopTour,
     prefill, onPrefillApplied,
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp, historyDown, resetHistoryCursor,
     booting, bootSteps, skipBoot, reducedMotion, screensaver,
-  } = useTerminal();
+  } = useTerminal({ windowed, initialHistory, onFx });
+  useEffect(() => { registerRunner?.((line) => { void handleCommand(line); }); }, [registerRunner, handleCommand]);
   const [visible, setVisible] = useState(true);
   useEffect(() => {
     const update = () => setVisible(!document.hidden);
@@ -38,7 +49,7 @@ export default function Terminal() {
     document.addEventListener('visibilitychange', update);
     return () => document.removeEventListener('visibilitychange', update);
   }, []);
-  const { idle, reset } = useIdle(60_000, screensaver && visible && !reducedMotion && !running && !sequencePlaying && !tourPlaying && !booting);
+  const { idle, reset } = useIdle(60_000, !windowed && screensaver && visible && !reducedMotion && !running && !sequencePlaying && !tourPlaying && !booting);
   useEffect(() => { if (idle && window.matchMedia('(pointer: fine)').matches) document.querySelector<HTMLInputElement>('.terminal-container input')?.focus(); }, [idle]);
   useEffect(() => {
     if (!idle) return;
@@ -62,9 +73,110 @@ export default function Terminal() {
   useEffect(() => setGuiSeen(hasSeenGui()), []);
   const barReady = !running && !sequencePlaying && !tourPlaying && !booting;
 
+  const logContent = (
+    <>
+      {booting && <div data-testid="boot">
+        <SequencePlayer steps={bootSteps} final={[]} theme={theme} skip={skip} onDone={skipBoot} />
+        <div style={{ color: 'var(--dimmed)' }}>press any key to skip</div>
+      </div>}
+      {showWelcome && !booting && <WelcomeScreen />}
+
+      {history.map((entry, i) => (
+        <div key={i} data-tour-step={entry.tourStepIndex}
+          data-tour={entry.tourSessionId !== undefined && entry.tourStepIndex !== undefined ? `${entry.tourSessionId}:${entry.tourStepIndex}` : undefined}
+          style={{ marginBottom: '16px' }}>
+          {entry.identity && (
+            <div className="be-term-identity" data-testid="gui-identity">
+              <strong>{entry.identity.name}</strong>
+              <span>{entry.identity.label}</span>
+              <span>{entry.identity.location}</span>
+            </div>
+          )}
+          {entry.prompt && (
+            <div>
+              <span style={{ color: 'var(--accent)', userSelect: 'none' }}>
+                {entry.prompt}{' '}
+              </span>
+              <span style={{ color: 'var(--fg)' }}>{entry.input}</span>
+            </div>
+          )}
+          {entry.assistant ? (
+            <AssistantAnswer state={entry.assistant} theme={theme} />
+          ) : entry.sequence && !entry.sequenceDone && entry.sequenceId !== undefined ? (
+            <SequencePlayer
+              steps={entry.sequence}
+              final={entry.output}
+              theme={theme}
+              skip={skip}
+              onDone={() => finishSequence(entry.sequenceId!)}
+            />
+          ) : (
+            <OutputRenderer output={entry.output} theme={theme} reveal={entry.reveal} />
+          )}
+        </div>
+      ))}
+
+      {tourPlaying && <TourCard
+        steps={tourSteps}
+        index={tourIndex}
+        busy={tourBusy}
+        focusRequest={tourFocusRequest}
+        onBack={backTour}
+        onNext={nextTour}
+        onExit={() => stopTour(false, true)}
+      />}
+      {tourFinished && !tourPlaying && <div className="tour-finish" role="status">Your turn</div>}
+      <div>
+        <CommandLine
+          prefill={prefill}
+          onPrefillApplied={onPrefillApplied}
+          onSubmit={handleCommand}
+          complete={complete}
+          historyUp={historyUp}
+          historyDown={historyDown}
+          resetHistoryCursor={resetHistoryCursor}
+          onListCandidates={onListCandidates}
+          onAbandon={onAbandon}
+          cancel={cancel}
+          clearScreen={clearScreen}
+          prompt={prompt}
+          running={running}
+          sequencePlaying={sequencePlaying}
+          tourText={tourText}
+          tourActive={tourPlaying}
+          onTourInput={() => stopTour()}
+          autoFocus={!windowed}
+        />
+      </div>
+    </>
+  );
+
+  // Clicking anywhere in the terminal (not a control, not a text selection) puts the caret in the prompt.
+  const focusPrompt = (event: React.MouseEvent<HTMLElement>) => {
+    if (event.button !== 0 || (event.target as Element).closest('button, a, input, summary, [role="dialog"]')) return;
+    if (window.getSelection()?.toString()) return;
+    event.currentTarget.querySelector<HTMLInputElement>('.command-input-wrap input')?.focus({ preventScroll: true });
+  };
+
+  if (windowed) {
+    const vars = {
+      '--bg': theme.background, '--fg': theme.foreground, '--primary': theme.primary, '--secondary': theme.secondary,
+      '--accent': theme.accent, '--dimmed': theme.dimmed, '--error': theme.error, '--success': theme.success,
+    } as React.CSSProperties;
+    return (
+      <div className="terminal-container be-term" style={vars} onMouseUp={focusPrompt}>
+        <div ref={scrollRef} className="be-term-log" role="log" aria-label="Terminal output" aria-live="polite">
+          {logContent}
+        </div>
+        <CommandBar variant="desk" ready={barReady} onSelect={submitSuggestion} />
+      </div>
+    );
+  }
+
   return (
     <div
       className="terminal-container"
+      onMouseUp={focusPrompt}
       data-effect={theme.effects?.crt ? 'crt' : undefined}
       style={{
         flex: 1,
@@ -172,74 +284,10 @@ export default function Terminal() {
           borderRight: '1px solid rgba(255,255,255,0.05)',
         }}
       >
-        {booting && <div data-testid="boot">
-          <SequencePlayer steps={bootSteps} final={[]} theme={theme} skip={skip} onDone={skipBoot} />
-          <div style={{ color: 'var(--dimmed)' }}>press any key to skip</div>
-        </div>}
-        {showWelcome && !booting && <WelcomeScreen />}
-
-        {history.map((entry, i) => (
-          <div key={i} data-tour-step={entry.tourStepIndex}
-            data-tour={entry.tourSessionId !== undefined && entry.tourStepIndex !== undefined ? `${entry.tourSessionId}:${entry.tourStepIndex}` : undefined}
-            style={{ marginBottom: '16px' }}>
-            {entry.prompt && (
-              <div>
-                <span style={{ color: 'var(--accent)', userSelect: 'none' }}>
-                  {entry.prompt}{' '}
-                </span>
-                <span style={{ color: 'var(--fg)' }}>{entry.input}</span>
-              </div>
-            )}
-            {entry.assistant ? (
-              <AssistantAnswer state={entry.assistant} theme={theme} />
-            ) : entry.sequence && !entry.sequenceDone && entry.sequenceId !== undefined ? (
-              <SequencePlayer
-                steps={entry.sequence}
-                final={entry.output}
-                theme={theme}
-                skip={skip}
-                onDone={() => finishSequence(entry.sequenceId!)}
-              />
-            ) : (
-              <OutputRenderer output={entry.output} theme={theme} reveal={entry.reveal} />
-            )}
-          </div>
-        ))}
-
-        {tourPlaying && <TourCard
-          steps={tourSteps}
-          index={tourIndex}
-          busy={tourBusy}
-          focusRequest={tourFocusRequest}
-          onBack={backTour}
-          onNext={nextTour}
-          onExit={() => stopTour(false, true)}
-        />}
-        {tourFinished && !tourPlaying && <div className="tour-finish" role="status">Your turn</div>}
-        <div>
-          <CommandLine
-            prefill={prefill}
-            onPrefillApplied={onPrefillApplied}
-            onSubmit={handleCommand}
-            complete={complete}
-            historyUp={historyUp}
-            historyDown={historyDown}
-            resetHistoryCursor={resetHistoryCursor}
-            onListCandidates={onListCandidates}
-            onAbandon={onAbandon}
-            cancel={cancel}
-            clearScreen={clearScreen}
-            prompt={prompt}
-            running={running}
-            sequencePlaying={sequencePlaying}
-            tourText={tourText}
-            tourActive={tourPlaying}
-            onTourInput={() => stopTour()}
-          />
-        </div>
+        {logContent}
       </div>
 
-      <CommandBar items={suggestions} ready={barReady} onSelect={submitSuggestion} />
+      <CommandBar ready={barReady} onSelect={submitSuggestion} />
 
       {idle && <Screensaver color={theme.primary} />}
 

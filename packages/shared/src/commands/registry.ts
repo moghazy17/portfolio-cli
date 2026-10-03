@@ -377,7 +377,7 @@ export const commandRegistry: CommandDefinition[] = [
     usage: 'visca',
     aliases: ['barca', 'barça', 'fcb', 'forca-barca'],
     hidden: true,
-    execute: () => viscaCommand(),
+    execute: (ctx) => viscaCommand(ctx),
   },
   {
     name: 'letterboxd',

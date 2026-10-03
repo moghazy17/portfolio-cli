@@ -13,9 +13,11 @@ function sessionId(): string {
   return fallbackId;
 }
 
-export function usePresence(): PresenceCount | null {
+/** Live visitor count with 30 s heartbeats; `enabled` lets a page that already beats skip a second loop. */
+export function usePresence(enabled = true): PresenceCount | null {
   const [count, setCount] = useState<PresenceCount | null>(null);
   useEffect(() => {
+    if (!enabled) return;
     const sid = sessionId();
     let mounted = true;
     const beat = async () => {
@@ -35,6 +37,6 @@ export function usePresence(): PresenceCount | null {
     const visible = () => { if (document.visibilityState === 'visible') void beat(); };
     document.addEventListener('visibilitychange', visible);
     return () => { mounted = false; clearInterval(timer); document.removeEventListener('visibilitychange', visible); };
-  }, []);
+  }, [enabled]);
   return count;
 }

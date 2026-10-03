@@ -184,7 +184,6 @@ export default function CommandLine({
             width: '100%',
             background: 'transparent',
             border: 'none',
-            outline: 'none',
             color: 'var(--fg)',
             fontFamily: 'inherit',
             fontSize: '16px',

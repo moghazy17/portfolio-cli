@@ -2,8 +2,9 @@
 
 import { useEffect } from 'react';
 
-export function useKeyboardInset() {
+export function useKeyboardInset(enabled = true) {
   useEffect(() => {
+    if (!enabled) return;
     const viewport = window.visualViewport;
     if (!viewport) return;
     const update = () => {
@@ -18,5 +19,5 @@ export function useKeyboardInset() {
       viewport.removeEventListener('scroll', update);
       document.documentElement.style.removeProperty('--keyboard-inset');
     };
-  }, []);
+  }, [enabled]);
 }

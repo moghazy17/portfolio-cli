@@ -123,6 +123,8 @@ export function useTerminal({ windowed = false, initialHistory, onFx }: Terminal
   const assistantIdRef = useRef(0);
   const askingRef = useRef<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const tourPlayingRef = useRef(false);
+  const pinnedRef = useRef(true);
   const ranLinkRef = useRef(false);
   const addressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { push, up, down, reset } = useHistory();
@@ -133,6 +135,7 @@ export function useTerminal({ windowed = false, initialHistory, onFx }: Terminal
     busy: tourBusy, typed: tourText, finished: tourFinished, focusRequest: tourFocusRequest,
     start: startTour, next: nextTour, back: backTour, stop: stopTour, dismissFinished,
   } = useTour();
+  tourPlayingRef.current = tourPlaying;
 
   const skipBoot = useCallback(() => setBooting(false), []);
   // Set once the visitor runs or clears something, so an untouched window doesn't replace the welcome on `/`.
@@ -207,9 +210,26 @@ export function useTerminal({ windowed = false, initialHistory, onFx }: Terminal
     if (entry) {
       log.scrollTo(0, log.scrollTop + entry.getBoundingClientRect().top - log.getBoundingClientRect().top - 12);
     } else {
+      pinnedRef.current = true;
       log.scrollTo(0, log.scrollHeight);
     }
   }, [history, tourPlaying, tourIndex, tourLastRunIndex, tourSessionId, windowed]);
+
+  // Like a real terminal, stay at the bottom while output keeps growing (typed reveals, sequences,
+  // streamed answers), unless the visitor has scrolled up to read; scrolling back down re-pins it.
+  useEffect(() => {
+    const log = scrollRef.current;
+    if (!log) return;
+    const onScroll = () => { pinnedRef.current = log.scrollHeight - log.scrollTop - log.clientHeight < 48; };
+    const follow = new MutationObserver(() => {
+      if (!pinnedRef.current || tourPlayingRef.current) return;
+      if (windowed && !usedRef.current && !restoredRef.current) return;
+      log.scrollTop = log.scrollHeight;
+    });
+    log.addEventListener('scroll', onScroll, { passive: true });
+    follow.observe(log, { childList: true, subtree: true, characterData: true });
+    return () => { log.removeEventListener('scroll', onScroll); follow.disconnect(); };
+  }, [windowed]);
 
   useEffect(() => () => {
     if (addressTimerRef.current !== null) clearTimeout(addressTimerRef.current);

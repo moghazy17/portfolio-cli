@@ -393,6 +393,8 @@ html:has(.gui-root) {
 .be-terminal .be-body { background: var(--term); border-color: #0c0f12; }
 .be-term { display: flex; flex-direction: column; color: var(--fg); background: var(--bg); font-family: var(--font-mono), ui-monospace, monospace; font-size: 16px; }
 .be-term :focus-visible { outline-color: var(--tab); }
+/* The prompt's caret is its focus: no box around the input line, as in a real terminal. */
+.be-term .command-input-wrap input:focus-visible { outline: none; }
 .be-term ::selection { background: #3b5a80; color: #fff; }
 
 .be-term-log {
@@ -738,6 +740,8 @@ html:has(.gui-root) {
     max-height: none;
   }
   .be-win .be-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+  /* The terminal's log is its only scroller; the window body never scrolls under it. */
+  .be-terminal .be-body { overflow: hidden; }
   .be-terminal {
     --window-width: min(820px, calc(100% - 244px));
     --x0: max(12px, calc((100% - 232px - var(--window-width)) / 2));

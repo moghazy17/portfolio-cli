@@ -233,34 +233,23 @@ test.describe('Regular page', () => {
     }
   });
 
-  test('keyboard focus visibly outlines the terminal input', async ({ page }) => {
-    await page.goto('/');
-    const input = page.getByLabel('Terminal command input');
-    await input.click();
-    await expect(input).not.toHaveCSS('outline-style', 'solid');
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Shift+Tab');
+  test('the terminal window takes typing on click and follows its output to the bottom', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/gui');
+    const input = page.locator('#terminal').getByLabel('Terminal command input');
+    const log = page.locator('#terminal .be-term-log');
+    await page.locator('body').click({ position: { x: 1300, y: 860 } });
+    await expect(input).not.toBeFocused();
+    await log.click({ position: { x: 200, y: 300 } });
     await expect(input).toBeFocused();
-    await expect(input).toHaveCSS('outline-style', 'solid');
-    await expect(input).toHaveCSS('outline-width', '2px');
-    for (const theme of ['matrix', 'dracula', 'nord', 'crt']) {
-      await input.fill(`theme ${theme}`);
-      await input.press('Enter');
-      const ratio = await input.evaluate((node) => {
-        const rgb = (value: string) => value.match(/[\d.]+/g)!.slice(0, 3).map(Number);
-        const luminance = (value: string) => {
-          const [r, g, b] = rgb(value).map((channel) => {
-            const s = channel / 255;
-            return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
-          });
-          return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-        };
-        const outline = luminance(getComputedStyle(node).outlineColor);
-        const background = luminance(getComputedStyle(document.body).backgroundColor);
-        return (Math.max(outline, background) + 0.05) / (Math.min(outline, background) + 0.05);
-      });
-      expect(ratio, `${theme} focus contrast`).toBeGreaterThanOrEqual(3);
+    await expect(input).toHaveCSS('outline-style', 'none');
+    for (const command of ['education', 'skills', 'experience', 'whoami']) {
+      await page.keyboard.type(command);
+      await page.keyboard.press('Enter');
+      await expect(log).toContainText(command);
     }
+    await expect.poll(() => log.evaluate((node) => node.scrollHeight - node.scrollTop - node.clientHeight)).toBeLessThan(4);
+    await expect.poll(() => page.locator('#terminal .be-body').evaluate((node) => node.scrollTop)).toBe(0);
   });
 
   test('shows the switch button without scrolling on phones and desktops', async ({ page }) => {

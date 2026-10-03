@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { TerminalEntry } from '../../hooks/useTerminal';
 import Terminal from '../Terminal';
 import BeWindow from './BeWindow';
-import { useDesktop } from './DesktopContext';
+import { isDeskLayout, useDesktop } from './DesktopContext';
 import { installDisclosureMotion, playConfetti, playWebStrand } from './DeskEffects';
 
 /** The real terminal, one window on the desk: same shell, theme, history and session as `/`. */
@@ -34,6 +34,13 @@ export default function DeskTerminal({ initial }: { initial: TerminalEntry[] }) 
     const timer = window.setTimeout(() => { effects.current.delete(cleanup); effectTimers.current.delete(timer); }, 1250);
     effectTimers.current.add(timer);
   }, []);
+
+  // Bringing the terminal to the front (tab click, icon, Deskbar) makes it ready to type, as on a real desk.
+  useEffect(() => {
+    if (desktop.front !== 'terminal' || !isDeskLayout() || !window.matchMedia('(pointer: fine)').matches) return;
+    if (document.activeElement?.closest('#terminal')) return;
+    document.querySelector<HTMLInputElement>('#terminal .command-input-wrap input')?.focus({ preventScroll: true });
+  }, [desktop.front]);
 
   // On the scrolling phone/tablet stack, keep the terminal one tap away once it scrolls out of view.
   useEffect(() => {

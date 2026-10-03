@@ -151,13 +151,20 @@ export default function Terminal({ windowed = false, initialHistory, registerRun
     </>
   );
 
+  // Clicking anywhere in the terminal (not a control, not a text selection) puts the caret in the prompt.
+  const focusPrompt = (event: React.MouseEvent<HTMLElement>) => {
+    if (event.button !== 0 || (event.target as Element).closest('button, a, input, summary, [role="dialog"]')) return;
+    if (window.getSelection()?.toString()) return;
+    event.currentTarget.querySelector<HTMLInputElement>('.command-input-wrap input')?.focus({ preventScroll: true });
+  };
+
   if (windowed) {
     const vars = {
       '--bg': theme.background, '--fg': theme.foreground, '--primary': theme.primary, '--secondary': theme.secondary,
       '--accent': theme.accent, '--dimmed': theme.dimmed, '--error': theme.error, '--success': theme.success,
     } as React.CSSProperties;
     return (
-      <div className="terminal-container be-term" style={vars}>
+      <div className="terminal-container be-term" style={vars} onMouseUp={focusPrompt}>
         <div ref={scrollRef} className="be-term-log" role="log" aria-label="Terminal output" aria-live="polite">
           {logContent}
         </div>
@@ -169,6 +176,7 @@ export default function Terminal({ windowed = false, initialHistory, registerRun
   return (
     <div
       className="terminal-container"
+      onMouseUp={focusPrompt}
       data-effect={theme.effects?.crt ? 'crt' : undefined}
       style={{
         flex: 1,

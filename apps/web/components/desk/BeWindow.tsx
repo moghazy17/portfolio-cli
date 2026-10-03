@@ -108,7 +108,7 @@ export default function BeWindow({
         onPointerCancel={onPointerUp}
         onDoubleClick={(event) => { if (!(event.target as Element).closest('button')) desktop.minimize(id); }}
       >
-        <button type="button" className="be-box be-box-close" aria-label={`Minimize ${title}`} onClick={() => desktop.minimize(id)} />
+        <button type="button" className="be-box be-box-close" aria-label={`Minimize ${title}`} title="Minimize" onClick={() => desktop.minimize(id)} />
         <Title id={titleId} className="be-tab-title">{title}</Title>
       </div>
       <div className="be-controls">
@@ -117,6 +117,7 @@ export default function BeWindow({
           className="be-box be-box-zoom"
           aria-pressed={maximized}
           aria-label={maximized ? `Restore ${title}` : `Maximize ${title}`}
+          title={maximized ? 'Restore' : 'Maximize'}
           onClick={() => desktop.toggleMaximized(id)}
         />
       </div>

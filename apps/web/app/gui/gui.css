@@ -206,8 +206,21 @@ html:has(.gui-root) {
 .be-box::before {
   content: '';
   position: absolute;
-  inset: 6px;
-  border: 1.5px solid #2b2b30;
+  inset: 0;
+  background: center / 14px 14px no-repeat;
+}
+
+/* Glyphs say what the box does: a bar drops the window into the Deskbar, a window frame fills the
+   desk, two stacked frames put it back. Drawn on a 14px grid in the edge ink (#2b2b30). */
+.be-box-close::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Crect x='2' y='9' width='10' height='3' fill='%232b2b30'/%3E%3C/svg%3E");
+  background-size: 12px 12px;
+}
+.be-box-zoom::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='%232b2b30'%3E%3Crect x='1.5' y='1.5' width='11' height='11'/%3E%3Cpath d='M1.5 3.5h11' stroke-width='3'/%3E%3C/svg%3E");
+}
+.be-box-zoom[aria-pressed='true']::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='%232b2b30'%3E%3Cpath d='M4.5 1.5h8v8h-2' /%3E%3Cpath d='M4.5 2.5h8' stroke-width='2'/%3E%3Crect x='1.5' y='4.5' width='8' height='8' fill='%23f4f4f6'/%3E%3Cpath d='M1.5 5.5h8' stroke-width='2'/%3E%3C/svg%3E");
 }
 
 .be-box-close {
@@ -216,14 +229,12 @@ html:has(.gui-root) {
   height: 20px;
   margin-right: 10px;
 }
-.be-box-close::before { inset: 5px; border-width: 1px; }
 .be-box::after {
   content: '';
   position: absolute;
   inset: -10px;
 }
 .be-box-close::after { inset: -12px; }
-.be-box-zoom[aria-pressed='true']::before { inset: 4px; border-width: 2px; }
 .be-box:hover { background: linear-gradient(#fff, #e1e1e5); }
 .be-box:active { background: linear-gradient(#c8c8cc, #e6e6e9); }
 

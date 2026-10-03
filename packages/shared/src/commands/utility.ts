@@ -133,7 +133,7 @@ export function guiCommand(ctx: CommandContext): CommandResult {
       view: 'gui',
     };
   }
-  return { output: [{ type: 'text', content: `Prefer a regular web page? Open ${ctx.origin}/gui` }] };
+  return { output: [{ type: 'text', content: `Prefer a regular web page? Open ${ctx.origin}/` }] };
 }
 
 export function whoamiCommand(): CommandResult {

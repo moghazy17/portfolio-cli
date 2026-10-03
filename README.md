@@ -21,12 +21,13 @@ A browser-based terminal emulator with AI chat, built on a shared command engine
 
 > **Web:** [moghazy.me](https://moghazy.me)
 
-## Prefer a regular page?
+## Desktop or terminal
 
-Click **Regular view** in the terminal, type `gui` (or `startx`), or open
-[moghazy.me/gui](https://moghazy.me/gui) for the same content as a conventional page: about,
-experience timeline, project cards, skills, guestbook, contact and CV download. It follows your
-light or dark setting, and the site remembers which view you used last.
+[moghazy.me](https://moghazy.me) opens a BeOS-style desktop: about, experience, projects, skills,
+guestbook, contact and CV download in windows, with the terminal as one of them. The full-screen
+terminal lives at [moghazy.me/terminal](https://moghazy.me/terminal) (the Deskbar's **Full terminal**
+button); type `gui` (or `startx`) there to come back. The site remembers which view you used last,
+and old `/gui` links redirect to the desktop.
 
 ## Share a view
 

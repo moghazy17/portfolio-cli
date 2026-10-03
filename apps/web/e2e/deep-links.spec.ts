@@ -84,7 +84,7 @@ test.describe('Deep links', () => {
   });
 
   test('replaces history for commands and resets it for clear', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/terminal');
     const entries = await page.evaluate(() => window.history.length);
     const input = page.getByLabel('Terminal command input');
     for (const command of ['about', 'skills']) {
@@ -97,11 +97,11 @@ test.describe('Deep links', () => {
     const resetInput = page.getByLabel('Terminal command input');
     await resetInput.fill('clear');
     await resetInput.press('Enter');
-    await expect.poll(() => new URL(page.url()).pathname).toBe('/');
+    await expect.poll(() => new URL(page.url()).pathname).toBe('/terminal');
   });
 
   test('keeps a command chain that follows a clear in the address', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/terminal');
     const input = page.getByLabel('Terminal command input');
     await input.fill('clear && projects');
     await input.press('Enter');
@@ -112,7 +112,7 @@ test.describe('Deep links', () => {
   });
 
   test('includes the previous directory in a relative command link', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/terminal');
     const input = page.getByLabel('Terminal command input');
     await input.fill('cd projects');
     await input.press('Enter');
@@ -154,7 +154,7 @@ test.describe('Deep links', () => {
     await page.goto('/?cmd=theme%20dracula');
     await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()))
       .toBe(themes.dracula.background);
-    await page.goto('/');
+    await page.goto('/terminal');
     await expect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()))
       .toBe(themes.matrix.background);
   });

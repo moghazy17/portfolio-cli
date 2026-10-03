@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { recordClientEvent } from '../lib/client-events';
 import CommandSheet from './CommandSheet';
 
-/** The fixed chip bar under every terminal: the same chips on `/` and in the /gui window. */
+/** The fixed chip bar under every terminal: the same chips on /terminal and in the desktop window. */
 const chips: Array<{ label: string; line: string; icon?: string; question?: true }> = [
   { label: 'projects', line: 'projects', icon: '/desk/projects.webp' },
   { label: 'skills', line: 'skills', icon: '/desk/skills.webp' },

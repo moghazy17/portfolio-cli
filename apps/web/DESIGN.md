@@ -1,6 +1,6 @@
 # Design
 
-Scope: the regular page at `/gui` (`app/gui/gui.css`, `components/desk/*`). The terminal at `/` keeps
+Scope: the desktop at `/` (`app/(desk)/gui.css`, `components/desk/*`). The terminal at `/terminal` keeps
 its own themeable palettes in `packages/shared/src/theme.ts` and is not governed by this file.
 
 ## World: Be Desktop
@@ -70,9 +70,9 @@ follows the terminal theme.
    the front one, or raises any other.
 9. **The desk does not scroll (≥1100px).** It fills the screen; windows open at their own spot or the
    next cascade slot, their height is capped to the screen and long content scrolls inside. Nothing
-   is remembered: a reload shows the terminal alone. `/gui#<window>` opens that window.
-10. **Sound and cursors belong to the mouse.** With a fine pointer, /gui uses the pixel BeOS cursor
-    set (`public/desk/cursors/`, built by `scripts/build-cursors.mjs`, `app/gui/cursors.css`) and a
+   is remembered: a reload shows the terminal alone. `/#<window>` opens that window.
+10. **Sound and cursors belong to the mouse.** With a fine pointer, the desktop uses the pixel BeOS cursor
+    set (`public/desk/cursors/`, built by `scripts/build-cursors.mjs`, `app/(desk)/cursors.css`) and a
     quiet synthesized click on mouse-down plus a softer release on buttons (`hooks/useClickSound.ts`).
     Sound is on by default and the Deskbar speaker toggle mutes it (remembered). No keyboard sounds;
     touch gets neither.

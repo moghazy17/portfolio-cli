@@ -101,7 +101,7 @@ const finishChat = (page: Page) => page.evaluate(
 
 test.describe('Assistant answers', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/terminal');
   });
 
   test('answers a question in the shell with the command, summary and sources', async ({ page }) => {
@@ -216,7 +216,7 @@ test.describe('Refusals', () => {
     .map((message) => message.parts.flatMap((part) => (part.type === 'text' ? [part.text] : [])).join(''));
 
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/terminal');
   });
 
   test('shows only the fixed refusal in the shell and remembers only that', async ({ page }) => {
@@ -239,7 +239,7 @@ test.describe('Refusals', () => {
 test.describe('Assistant streaming', () => {
   test('marks the answer busy while streaming and idle when done', async ({ page }) => {
     await stubSlowChat(page);
-    await page.goto('/');
+    await page.goto('/terminal');
     const input = page.getByLabel('Terminal command input');
     await input.fill('what RAG work has he done?');
     await input.press('Enter');
@@ -255,7 +255,7 @@ test.describe('Assistant streaming', () => {
 
   test('Ctrl+C during a slow stream stops output and restores the prompt', async ({ page }) => {
     await stubSlowChat(page);
-    await page.goto('/');
+    await page.goto('/terminal');
     const input = page.getByLabel('Terminal command input');
     await input.fill('what RAG work has he done?');
     await input.press('Enter');
@@ -279,7 +279,7 @@ test.describe('Assistant streaming', () => {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await stubSlowChat(page);
-    await page.goto('/');
+    await page.goto('/terminal');
     const input = page.getByLabel('Terminal command input');
     await input.fill('what RAG work has he done?');
     await input.press('Enter');

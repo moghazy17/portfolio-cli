@@ -27,8 +27,8 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://moghazy.me'),
   title,
   description: site.description,
-  alternates: { canonical: '/gui' },
-  openGraph: { title, description: site.description, type: 'website', url: '/gui', images: ['/og-image.png'] },
+  alternates: { canonical: '/' },
+  openGraph: { title, description: site.description, type: 'website', url: '/', images: ['/og-image.png'] },
 };
 
 const getGuiSkillEvidence = unstable_cache(async () => {

@@ -32,7 +32,7 @@ test.describe('Regular page', () => {
 
   test('desktop starts with one centred terminal and no page scroll', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/gui');
+    await page.goto('/');
     await expect(page.locator('.be-win:visible')).toHaveCount(1);
     await expect(page.locator('#terminal')).toBeVisible();
     await expect(page.getByRole('log', { name: 'Terminal output' })).toBeVisible();
@@ -48,7 +48,7 @@ test.describe('Regular page', () => {
   });
 
   test('first log shows the portfolio identity before about and clear removes it', async ({ page }) => {
-    await page.goto('/gui');
+    await page.goto('/');
     const log = page.locator('#terminal').getByRole('log', { name: 'Terminal output' });
     const identity = log.getByTestId('gui-identity');
     await expect(identity).toContainText(profile.name);
@@ -63,7 +63,7 @@ test.describe('Regular page', () => {
 
   test('desktop icons and Deskbar manage window state', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/gui');
+    await page.goto('/');
     await page.getByRole('navigation', { name: 'Desktop' }).getByRole('button', { name: 'Projects' }).click();
     await expect(page.getByRole('navigation', { name: 'Desktop' }).getByRole('button', { name: 'Projects' })).toHaveClass(/is-selected/);
     const projects = page.locator('#projects');
@@ -91,7 +91,7 @@ test.describe('Regular page', () => {
 
   test('rapid Deskbar clicks leave the window hidden and its entry unpressed', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/gui');
+    await page.goto('/');
     const entry = page.locator('[data-window-entry="projects"]');
     await entry.dblclick();
     await expect(page.locator('#projects')).toBeHidden();
@@ -101,7 +101,7 @@ test.describe('Regular page', () => {
 
   test('desktop icon selection moves and clears on the desk background', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/gui');
+    await page.goto('/');
     const icons = page.getByRole('navigation', { name: 'Desktop' });
     const projects = icons.getByRole('button', { name: 'Projects' });
     const about = icons.getByRole('button', { name: 'About' });
@@ -117,7 +117,7 @@ test.describe('Regular page', () => {
   for (const [command, effect] of [['spidey', '.be-fx-web'], ['visca', '.be-fx-confetti']] as const) {
     test(`${command} plays and cleans up its desk effect`, async ({ page }) => {
       await page.setViewportSize({ width: 1440, height: 900 });
-      await page.goto('/gui');
+      await page.goto('/');
       const input = page.locator('#terminal').getByLabel('Terminal command input');
       await input.fill(command);
       await input.press('Enter');
@@ -135,10 +135,10 @@ test.describe('Regular page', () => {
 
   test('hash links open a window, while a plain reload starts fresh', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/gui#projects');
+    await page.goto('/#projects');
     await expect(page.locator('#projects')).toBeVisible();
     await expect(page.locator('#projects')).toHaveClass(/is-active/);
-    await page.goto('/gui');
+    await page.goto('/');
     await page.reload();
     await expect(page.locator('.be-win:visible')).toHaveCount(1);
     await expect(page.locator('#terminal')).toBeVisible();
@@ -146,21 +146,21 @@ test.describe('Regular page', () => {
 
   test('windowed terminal chips run in place and theme the window', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/gui');
+    await page.goto('/');
     await page.locator('#terminal .be-chip[data-line="projects"]').click();
     await expect(page.getByRole('log', { name: 'Terminal output' })).toContainText('projects');
-    await expect(page).toHaveURL(/\/gui$/);
+    await expect(page).toHaveURL(/:\d+\/$/);
     const before = await page.locator('#terminal .be-term').evaluate((node) => getComputedStyle(node).backgroundColor);
     const input = page.locator('#terminal').getByLabel('Terminal command input');
     await input.fill('theme dracula');
     await input.press('Enter');
     await expect.poll(() => page.locator('#terminal .be-term').evaluate((node) => getComputedStyle(node).backgroundColor)).not.toBe(before);
-    await expect(page).toHaveURL(/\/gui$/);
+    await expect(page).toHaveURL(/:\d+\/$/);
   });
 
   test('every opened window fits a 1366 by 768 desk', async ({ page }) => {
     await page.setViewportSize({ width: 1366, height: 768 });
-    await page.goto('/gui');
+    await page.goto('/');
     for (const id of ['hero', 'about', 'projects', 'experience', 'skills', 'films', 'guestbook', 'contact']) {
       await page.locator(`[data-window-entry="${id}"]`).click();
     }
@@ -186,7 +186,7 @@ test.describe('Regular page', () => {
 
   test('phone keeps the complete scrolling stack without desktop boxes', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/gui');
+    await page.goto('/');
     await expect(page.locator('.be-win:visible')).toHaveCount(9);
     expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeGreaterThan(844);
     await expect(page.locator('.be-box-close:visible, .be-box-zoom:visible, .be-box-collapse, .is-collapsed')).toHaveCount(0);
@@ -206,7 +206,7 @@ test.describe('Regular page', () => {
 
   test('Tracker names and metadata occupy separate lines on a phone', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto('/gui');
+    await page.goto('/');
     for (const id of ['projects', 'experience']) {
       const rows = page.locator(`#${id} .be-tracker-rows .be-row`);
       expect(await rows.count()).toBeGreaterThan(0);
@@ -223,7 +223,7 @@ test.describe('Regular page', () => {
   test('all commands sheet stays fully visible outside the terminal window', async ({ page }) => {
     for (const viewport of [{ width: 320, height: 640 }, { width: 1100, height: 800 }]) {
       await page.setViewportSize(viewport);
-      await page.goto('/gui');
+      await page.goto('/');
       await page.locator('#terminal').getByRole('button', { name: /all commands/i }).click();
       const sheet = page.getByRole('dialog', { name: 'All commands' });
       await expect(sheet).toBeVisible();
@@ -246,7 +246,7 @@ test.describe('Regular page', () => {
     try {
       await context.addInitScript(() => sessionStorage.setItem('gui-boot:v1', '1'));
       const page = await context.newPage();
-      await page.goto('/gui');
+      await page.goto('/');
       const grips = await page.locator('.be-grip').evaluateAll((nodes) => nodes.map((node) => {
         const box = node.getBoundingClientRect();
         const controls = [...node.parentElement!.querySelectorAll('.be-body button, .be-body a, .be-body input, .be-body textarea')];
@@ -269,7 +269,7 @@ test.describe('Regular page', () => {
 
   test('the terminal window takes typing on click and follows its output to the bottom', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/gui');
+    await page.goto('/');
     const input = page.locator('#terminal').getByLabel('Terminal command input');
     const log = page.locator('#terminal .be-term-log');
     await page.locator('body').click({ position: { x: 1300, y: 860 } });
@@ -289,15 +289,15 @@ test.describe('Regular page', () => {
   test('shows the switch button without scrolling on phones and desktops', async ({ page }) => {
     for (const viewport of [{ width: 320, height: 640 }, { width: 1280, height: 800 }]) {
       await page.setViewportSize(viewport);
-      await page.goto('/');
+      await page.goto('/terminal');
       await expect(page.getByTestId('open-gui')).toBeInViewport({ ratio: 1 });
     }
   });
 
   test('opens from the button with the same content as the terminal', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/terminal');
     await page.getByTestId('open-gui').click();
-    await expect(page).toHaveURL(/\/gui$/);
+    await expect(page).toHaveURL(/:\d+\/$/);
 
     for (const id of sections) await expect(page.locator(`#${id}`)).toBeAttached();
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(`${cvData.name}, ${profile.label}`);
@@ -317,7 +317,7 @@ test.describe('Regular page', () => {
   test('downloads the same CV as the resume command', async ({ page }) => {
     const { download } = await createShell({ surface: 'web', origin: '' }).run('resume');
     expect(download).toBeDefined();
-    await page.goto('/gui');
+    await page.goto('/');
     const cv = page.getByTestId('gui-cv');
     await expect(cv).toHaveAttribute('href', download!.url);
     await expect(cv).toHaveAttribute('download', download!.filename);
@@ -328,15 +328,15 @@ test.describe('Regular page', () => {
   });
 
   test('returns to the terminal with the earlier output and no welcome replay', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/terminal');
     await runCommand(page, 'about');
     await expect(page.getByRole('log').getByText(`About ${cvData.name}`)).toBeVisible();
     await runCommand(page, 'cd projects');
     await page.getByTestId('open-gui').click();
-    await expect(page).toHaveURL(/\/gui$/);
+    await expect(page).toHaveURL(/:\d+\/$/);
 
     await page.getByTestId('back-to-terminal').click();
-    await expect(page).toHaveURL(/\/$/);
+    await expect(page).toHaveURL(/\/terminal$/);
     await expect(page.getByRole('log').getByText(`About ${cvData.name}`)).toBeVisible();
     await expect(page.getByText(WELCOME_SUBTITLE)).toHaveCount(0);
     await expect(page.getByLabel('Terminal command input')).toBeFocused();
@@ -347,10 +347,10 @@ test.describe('Regular page', () => {
 
   test('shares one session between the full terminal and the window, both ways', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto('/');
+    await page.goto('/terminal');
     await runCommand(page, 'education');
     await page.getByTestId('open-gui').click();
-    await expect(page).toHaveURL(/\/gui$/);
+    await expect(page).toHaveURL(/:\d+\/$/);
     const windowLog = page.locator('#terminal').getByRole('log', { name: 'Terminal output' });
     await expect(windowLog).toContainText('education');
     await expect(windowLog.getByTestId('gui-identity')).toHaveCount(0);
@@ -359,32 +359,41 @@ test.describe('Regular page', () => {
     await input.fill('whoami');
     await input.press('Enter');
     await page.getByTestId('back-to-terminal').click();
-    await expect(page).toHaveURL(/\/$/);
+    await expect(page).toHaveURL(/\/terminal$/);
     await expect(page.getByRole('log')).toContainText('whoami');
     await expect(page.getByRole('log')).toContainText('education');
   });
 
   for (const command of ['gui', 'startx']) {
     test(`typing ${command} opens the page`, async ({ page }) => {
-      await page.goto('/');
+      await page.goto('/terminal');
       await runCommand(page, command);
-      await expect(page).toHaveURL(/\/gui$/);
+      await expect(page).toHaveURL(/:\d+\/$/);
       await expect(page.getByRole('heading', { level: 1 })).toBeAttached();
     });
   }
 
   test('a /startx link runs the command and switches to the page', async ({ page }) => {
     await page.goto('/startx');
-    await expect(page).toHaveURL(/\/gui$/);
+    await expect(page).toHaveURL(/:\d+\/$/);
     await expect(page.getByRole('heading', { level: 1 })).toBeAttached();
   });
 
+  test('opens the desktop at / by default and redirects old /gui links there', async ({ page }) => {
+    await page.goto('/');
+    await expect(page).toHaveURL(/:\d+\/$/);
+    await expect(page.locator('.be-desk')).toBeVisible();
+    await page.goto('/gui#projects');
+    await expect(page).toHaveURL(/:\d+\/#projects$/);
+    await expect(page.locator('#projects')).toBeVisible();
+  });
+
   test('lands returning visitors on their last view', async ({ page }) => {
-    await page.goto('/gui');
+    await page.goto('/');
     await expect.poll(() => viewCookie(page)).toBe('gui');
 
     await page.goto('/');
-    await expect(page).toHaveURL(/\/gui$/);
+    await expect(page).toHaveURL(/:\d+\/$/);
 
     await page.goto('/projects');
     await expect(page).toHaveURL(/\/projects$/);
@@ -393,18 +402,18 @@ test.describe('Regular page', () => {
     await expect(page.getByRole('log').getByText('Skills', { exact: true })).toBeVisible();
   });
 
-  test('stops redirecting once the visitor goes back to the terminal', async ({ page }) => {
-    await page.goto('/gui');
-    await page.getByTestId('back-to-terminal').click();
-    await expect(page).toHaveURL(/\/$/);
+  test('sends / to the terminal once the visitor goes back to it', async ({ page }) => {
     await page.goto('/');
-    await expect(page).toHaveURL(/\/$/);
+    await page.getByTestId('back-to-terminal').click();
+    await expect(page).toHaveURL(/\/terminal$/);
+    await page.goto('/');
+    await expect(page).toHaveURL(/\/terminal$/);
     await expect(page.getByLabel('Terminal command input')).toBeVisible();
   });
 
   test('fits a 320px screen without horizontal scrolling', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 640 });
-    await page.goto('/gui');
+    await page.goto('/');
     await revealAll(page);
     const { scrollWidth, clientWidth } = await page.evaluate(() => ({
       scrollWidth: document.documentElement.scrollWidth,
@@ -417,7 +426,7 @@ test.describe('Regular page', () => {
   });
 
   test('follows the device colour scheme', async ({ page }) => {
-    await page.goto('/gui');
+    await page.goto('/');
     const token = () => page.locator('.gui-root').evaluate((element) => getComputedStyle(element).getPropertyValue('--gui-bg').trim());
     await page.emulateMedia({ colorScheme: 'light' });
     const light = await token();
@@ -431,7 +440,7 @@ test.describe('Regular page', () => {
   test('does not follow the terminal theme', async ({ page }) => {
     await page.goto('/?cmd=theme%20dracula');
     await page.getByTestId('open-gui').click();
-    await expect(page).toHaveURL(/\/gui$/);
+    await expect(page).toHaveURL(/:\d+\/$/);
     await page.emulateMedia({ colorScheme: 'light' });
     const background = await page.locator('.gui-root').evaluate((element) => getComputedStyle(element).backgroundColor);
     expect(background).toBe('rgb(42, 105, 167)');
@@ -440,7 +449,7 @@ test.describe('Regular page', () => {
   for (const colorScheme of ['light', 'dark'] as const) {
     test(`has no serious accessibility violations in ${colorScheme} mode`, async ({ page }) => {
       await page.emulateMedia({ colorScheme });
-      await page.goto('/gui');
+      await page.goto('/');
       await revealAll(page);
       await page.waitForTimeout(500);
       const { violations } = await new AxeBuilder({ page }).analyze();
@@ -452,16 +461,19 @@ test.describe('Regular page', () => {
   test('points text clients at the page', async ({ request }) => {
     const response = await request.get('/gui', { headers: { 'user-agent': 'curl/8.0' } });
     expect(response.status()).toBe(200);
-    expect(await response.text()).toContain('Prefer a regular web page? Open');
-    expect(await response.text()).toContain('/gui');
+    expect(await response.text()).toMatch(/Prefer a regular web page\? Open \S+\/$/m);
+    const home = await request.get('/terminal', { headers: { 'user-agent': 'curl/8.0' } });
+    expect(await home.text()).not.toContain('command not found');
   });
 
   test('is indexable, self-canonical and listed in the sitemap', async ({ page, request }) => {
-    const response = await request.get('/gui');
+    const response = await request.get('/');
     expect(response.headers()['x-robots-tag']).toBeUndefined();
-    await page.goto('/gui');
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/gui$/);
+    await page.goto('/');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /moghazy\.me\/?$/);
     await expect(page).toHaveTitle(`${cvData.name} — Portfolio`);
-    expect(await (await request.get('/sitemap.xml')).text()).toContain('/gui');
+    const sitemap = await (await request.get('/sitemap.xml')).text();
+    expect(sitemap).toContain('/terminal');
+    expect(sitemap).not.toContain('/gui');
   });
 });

@@ -47,7 +47,7 @@ export default function Deskbar({ host, place, timeZone }: { host: string; place
   const backToTerminal = () => {
     setViewCookie('terminal');
     markGuiSeen();
-    router.push('/');
+    router.push('/terminal');
   };
 
   return (

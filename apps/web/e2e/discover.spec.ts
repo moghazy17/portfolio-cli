@@ -27,7 +27,7 @@ for (const width of [320, 1280]) {
   test(`fixed chips submit commands at ${width}px`, async ({ page }) => {
     test.skip(reduced());
     await page.setViewportSize({ width, height: 720 });
-    await page.goto('/');
+    await page.goto('/terminal');
     const bar = page.getByRole('navigation', { name: 'Quick commands' });
     await expect(bar.getByRole('button', { name: 'projects' })).toBeVisible();
     await bar.getByRole('button', { name: 'projects' }).click();
@@ -48,18 +48,18 @@ for (const width of [320, 1280]) {
 test('question suggestion uses the assistant submission path', async ({ page }) => {
   test.skip(reduced());
   const requests = await stubChat(page);
-  await page.goto('/');
+  await page.goto('/terminal');
   await page.getByRole('navigation', { name: 'Quick commands' }).getByRole('button', { name: /^Ask the assistant:/ }).click();
   await expect(page.locator('[role="log"]')).toContainText('RAG project answer.');
   expect(requests).toHaveLength(1);
-  await expect(page).toHaveURL('/');
+  await expect(page).toHaveURL('/terminal');
 });
 
 test('guided tour navigates without rerunning steps or reacting to page clicks and scrolls', async ({ page }) => {
   test.skip(reduced());
   await stubChat(page);
   await page.setViewportSize({ width: 360, height: 720 });
-  await page.goto('/');
+  await page.goto('/terminal');
   await input(page).fill('theme dracula');
   await input(page).press('Enter');
   await input(page).fill('tour');
@@ -112,7 +112,7 @@ test('guided tour navigates without rerunning steps or reacting to page clicks a
 });
 
 test('typing a visitor command exits the guided tour quietly', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/terminal');
   await input(page).fill('tour');
   await input(page).press('Enter');
   const card = page.getByRole('region', { name: 'Tour' });
@@ -128,7 +128,7 @@ test('typing a visitor command exits the guided tour quietly', async ({ page }) 
 });
 
 test('Enter activates focused tour buttons and Exit returns focus to the prompt', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/terminal');
   await input(page).fill('tour');
   await input(page).press('Enter');
   const card = page.getByRole('region', { name: 'Tour' });
@@ -157,7 +157,7 @@ test('Enter activates focused tour buttons and Exit returns focus to the prompt'
 
 test('Back scrolls to the current tour session after a previous tour', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 420 });
-  await page.goto('/');
+  await page.goto('/terminal');
   await input(page).fill('tour');
   await input(page).press('Enter');
   const card = page.getByRole('region', { name: 'Tour' });
@@ -222,7 +222,7 @@ test('guided tour disables Next until the assistant stream finishes', async ({ p
     await route.fulfill({ status: 200, headers: { 'content-type': 'text/event-stream', 'x-vercel-ai-ui-message-stream': 'v1' },
       body: 'data: {"type":"start"}\n\ndata: {"type":"text-start","id":"a"}\n\ndata: {"type":"text-delta","id":"a","delta":"Done."}\n\ndata: {"type":"text-end","id":"a"}\n\ndata: {"type":"finish"}\n\ndata: [DONE]\n\n' });
   });
-  await page.goto('/');
+  await page.goto('/terminal');
   await input(page).fill('tour');
   await input(page).press('Enter');
   const card = page.getByRole('region', { name: 'Tour' });
@@ -255,7 +255,7 @@ test('guided tour disables Next until the assistant stream finishes', async ({ p
 test('reduced-motion tour skips the CRT step', async ({ page }) => {
   test.skip(!reduced());
   await stubChat(page);
-  await page.goto('/');
+  await page.goto('/terminal');
   await input(page).fill('tour');
   await input(page).press('Enter');
   const card = page.getByRole('region', { name: 'Tour' });
@@ -274,7 +274,7 @@ test('reduced-motion tour skips the CRT step', async ({ page }) => {
 });
 
 test('shortcuts respect an empty prompt and pass axe', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/terminal');
   await input(page).press('?');
   const dialog = page.getByRole('dialog', { name: 'All commands' });
   await expect(dialog).toBeVisible();
@@ -294,7 +294,7 @@ test('touch load leaves the keyboard closed', async ({ browser }) => {
   const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 320, height: 640 } });
   const page = await context.newPage();
   await page.addInitScript(() => localStorage.setItem('boot:v1', '1'));
-  await page.goto('/');
+  await page.goto('/terminal');
   await expect(input(page)).not.toBeFocused();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await input(page).fill('tour');

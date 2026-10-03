@@ -128,6 +128,8 @@ describe('hidden fan commands', () => {
     const shown = text((await createShell({ surface: 'web', origin, live }).run('letterboxd')).output);
     expect(shown).toContain('The Invite (2026)');
     expect(shown).toContain('★★★½');
+    expect((await createShell({ surface: 'web', origin, live }).run('films')).fx).toBe('films');
+    expect(shown).not.toMatch(/model|evaluation/i);
     const offline = text((await createShell({ surface: 'web', origin }).run('movies')).output);
     expect(offline).toContain('letterboxd.com/moghazy17');
   });

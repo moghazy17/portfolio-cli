@@ -158,12 +158,37 @@ test.describe('Regular page', () => {
     await expect(page).toHaveURL(/\/gui$/);
   });
 
+  test('Films stays hidden until the terminal reveals it', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/gui');
+    await expect(page.getByRole('navigation', { name: 'Desktop' }).getByRole('button', { name: 'Films' })).toHaveCount(0);
+    await expect(page.locator('[data-window-entry="films"]')).toHaveCount(0);
+    const input = page.locator('#terminal').getByLabel('Terminal command input');
+    await input.fill('letterboxd');
+    await input.press('Enter');
+    await expect(page.locator('#films')).toBeVisible();
+    const entry = page.locator('[data-window-entry="films"]');
+    await expect(entry).toBeVisible();
+    await page.locator('#films').getByRole('button', { name: 'Minimize Films' }).click();
+    await expect(page.locator('#films')).toBeHidden();
+    await expect(entry).toBeVisible();
+  });
+
+  test('Films is not in the phone stack until revealed', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/gui');
+    await expect(page.locator('#films')).toBeHidden();
+  });
+
   test('every opened window fits a 1366 by 768 desk', async ({ page }) => {
     await page.setViewportSize({ width: 1366, height: 768 });
     await page.goto('/gui');
-    for (const id of ['hero', 'about', 'projects', 'experience', 'skills', 'films', 'guestbook', 'contact']) {
+    for (const id of ['hero', 'about', 'projects', 'experience', 'skills', 'guestbook', 'contact']) {
       await page.locator(`[data-window-entry="${id}"]`).click();
     }
+    await page.locator('#terminal').getByLabel('Terminal command input').fill('films');
+    await page.locator('#terminal').getByLabel('Terminal command input').press('Enter');
+    await expect(page.locator('#films')).toBeVisible();
     await expect(page.locator('.be-win.is-opening')).toHaveCount(0);
     const tabs: Array<{ id: string; x: number; y: number; right: number; bottom: number }> = [];
     for (const window of await page.locator('.be-win:visible').all()) {
@@ -187,7 +212,7 @@ test.describe('Regular page', () => {
   test('phone keeps the complete scrolling stack without desktop boxes', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('/gui');
-    await expect(page.locator('.be-win:visible')).toHaveCount(9);
+    await expect(page.locator('.be-win:visible')).toHaveCount(8); // Films is secret until revealed
     expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeGreaterThan(844);
     await expect(page.locator('.be-box-close:visible, .be-box-zoom:visible, .be-box-collapse, .is-collapsed')).toHaveCount(0);
     await expect(page.locator('#terminal')).toBeVisible();

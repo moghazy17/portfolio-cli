@@ -5,6 +5,7 @@ import {
   bootSequence, guestbookEntryOutput, parseAddress, shouldType, SIGN_MESSAGES, themes, toAddress, welcomeCommand,
 } from '@ahmed-moghazy/shared';
 import type {
+  CommandResult,
   AssistantEvent, AssistantTurn, CommandOutput, Completion, HistoryEntry, NoticeKind, SequenceStep, SignResult,
 } from '@ahmed-moghazy/shared';
 import { peekSnapshot, saveSnapshot, takeSnapshot } from '../lib/terminal-snapshot';
@@ -93,7 +94,7 @@ export interface TerminalOptions {
   windowed?: boolean;
   /** Log shown when there is no session to restore (the window starts with `about` already run). */
   initialHistory?: TerminalEntry[];
-  onFx?: (fx: 'web' | 'confetti') => void;
+  onFx?: (fx: NonNullable<CommandResult['fx']>) => void;
 }
 
 export function useTerminal({ windowed = false, initialHistory, onFx }: TerminalOptions = {}) {

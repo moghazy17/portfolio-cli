@@ -828,3 +828,6 @@ html:has(.gui-root) {
 .be-sound svg { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .be-sound .be-sound-cone { fill: var(--ink); }
 @media (pointer: fine) { .be-sound { display: grid; } }
+
+/* A secret window (Films) stays out of the phone stack too until the terminal reveals it. */
+.be-win.be-secret.is-minimized { display: none; }

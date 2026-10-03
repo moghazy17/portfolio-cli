@@ -25,7 +25,7 @@ interface Props {
   initialHistory?: TerminalEntry[];
   /** Hands the window manager a way to run commands here (desktop icons, hidden marks). */
   registerRunner?: (run: (line: string) => void) => void;
-  onFx?: (fx: 'web' | 'confetti') => void;
+  onFx?: (fx: 'web' | 'confetti' | 'films') => void;
 }
 
 export default function Terminal({ windowed = false, initialHistory, registerRunner, onFx }: Props) {

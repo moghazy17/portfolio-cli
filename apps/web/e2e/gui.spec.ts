@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Browser, type Page } from '@playwright/test';
 import { createShell, cvData, profile, WELCOME_SUBTITLE } from '@ahmed-moghazy/shared';
 
 const sections = ['hero', 'about', 'experience', 'projects', 'skills', 'contact'];
@@ -45,6 +45,20 @@ test.describe('Regular page', () => {
     expect(metrics.terminal.left).toBeGreaterThan(240);
     expect(metrics.terminal.right).toBeLessThan(1440);
     await expect(page.locator('.be-docked-tab')).toBeHidden();
+  });
+
+  test('first log shows the portfolio identity before about and clear removes it', async ({ page }) => {
+    await page.goto('/gui');
+    const log = page.locator('#terminal').getByRole('log', { name: 'Terminal output' });
+    const identity = log.getByTestId('gui-identity');
+    await expect(identity).toContainText(profile.name);
+    await expect(identity).toContainText(profile.label);
+    await expect(identity).toContainText(cvData.contact.location);
+    await expect(identity).toBeInViewport({ ratio: 1 });
+    await expect(log.locator(':scope > div').first().getByTestId('gui-identity')).toBeVisible();
+    await expect(log.locator(':scope > div').nth(1)).toContainText(`About ${profile.name}`);
+    await runCommand(page, 'clear');
+    await expect(identity).toHaveCount(0);
   });
 
   test('desktop icons and Deskbar manage window state', async ({ page }) => {
@@ -150,6 +164,8 @@ test.describe('Regular page', () => {
     for (const id of ['hero', 'about', 'projects', 'experience', 'skills', 'films', 'guestbook', 'contact']) {
       await page.locator(`[data-window-entry="${id}"]`).click();
     }
+    await expect(page.locator('.be-win.is-opening')).toHaveCount(0);
+    const tabs: Array<{ id: string; x: number; y: number; right: number; bottom: number }> = [];
     for (const window of await page.locator('.be-win:visible').all()) {
       const box = await window.boundingBox();
       expect(box, (await window.getAttribute('id')) ?? undefined).not.toBeNull();
@@ -157,6 +173,14 @@ test.describe('Regular page', () => {
       expect(box!.y).toBeGreaterThanOrEqual(0);
       expect(box!.x + box!.width).toBeLessThanOrEqual(1366);
       expect(box!.y + box!.height).toBeLessThanOrEqual(768);
+      const tab = await window.locator('.be-tab').boundingBox();
+      expect(tab).not.toBeNull();
+      tabs.push({ id: (await window.getAttribute('id'))!, x: tab!.x, y: tab!.y, right: tab!.x + tab!.width, bottom: tab!.y + tab!.height });
+    }
+    for (let i = 0; i < tabs.length; i++) for (let j = i + 1; j < tabs.length; j++) {
+      const a = tabs[i];
+      const b = tabs[j];
+      expect(a.right <= b.x || b.right <= a.x || a.bottom <= b.y || b.bottom <= a.y, `${a.id} and ${b.id} tabs overlap`).toBe(true);
     }
   });
 
@@ -167,6 +191,76 @@ test.describe('Regular page', () => {
     expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeGreaterThan(844);
     await expect(page.locator('.be-box-close:visible, .be-box-zoom:visible, .be-box-collapse, .is-collapsed')).toHaveCount(0);
     await expect(page.locator('#terminal')).toBeVisible();
+    const placement = await page.evaluate(() => {
+      const terminal = document.querySelector('#terminal')!.getBoundingClientRect();
+      const resume = document.querySelector('#hero')!.getBoundingClientRect();
+      const chips = document.querySelector('#terminal .command-bar-desk')!.getBoundingClientRect();
+      const dock = document.querySelector('.be-dock')!.getBoundingClientRect();
+      return { terminalBottom: terminal.bottom, resumeTop: resume.top, chipsBottom: chips.bottom, dockTop: dock.top };
+    });
+    expect(placement.resumeTop).toBeGreaterThanOrEqual(placement.terminalBottom);
+    expect(placement.chipsBottom).toBeLessThan(placement.dockTop);
+    await expect(page.getByTestId('gui-identity')).toBeInViewport({ ratio: 1 });
+    await expect(page.getByRole('navigation', { name: 'Dock' }).getByRole('button', { name: 'Résumé' })).toBeVisible();
+  });
+
+  test('coarse-pointer secret grips have clear 44px targets', async ({ browser }: { browser: Browser }) => {
+    const context = await browser.newContext({
+      viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true,
+      baseURL: `http://localhost:${process.env.E2E_PORT || 3100}`,
+    });
+    try {
+      await context.addInitScript(() => sessionStorage.setItem('gui-boot:v1', '1'));
+      const page = await context.newPage();
+      await page.goto('/gui');
+      const grips = await page.locator('.be-grip').evaluateAll((nodes) => nodes.map((node) => {
+        const box = node.getBoundingClientRect();
+        const controls = [...node.parentElement!.querySelectorAll('.be-body button, .be-body a, .be-body input, .be-body textarea')];
+        const overlap = controls.some((control) => {
+          const other = control.getBoundingClientRect();
+          return other.width > 0 && other.height > 0 && box.left < other.right && other.left < box.right && box.top < other.bottom && other.top < box.bottom;
+        });
+        return { width: box.width, height: box.height, overlap };
+      }));
+      expect(grips).toHaveLength(2);
+      for (const grip of grips) {
+        expect(grip.width).toBeGreaterThanOrEqual(44);
+        expect(grip.height).toBeGreaterThanOrEqual(44);
+        expect(grip.overlap).toBe(false);
+      }
+    } finally {
+      await context.close();
+    }
+  });
+
+  test('keyboard focus visibly outlines the terminal input', async ({ page }) => {
+    await page.goto('/');
+    const input = page.getByLabel('Terminal command input');
+    await input.click();
+    await expect(input).not.toHaveCSS('outline-style', 'solid');
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Shift+Tab');
+    await expect(input).toBeFocused();
+    await expect(input).toHaveCSS('outline-style', 'solid');
+    await expect(input).toHaveCSS('outline-width', '2px');
+    for (const theme of ['matrix', 'dracula', 'nord', 'crt']) {
+      await input.fill(`theme ${theme}`);
+      await input.press('Enter');
+      const ratio = await input.evaluate((node) => {
+        const rgb = (value: string) => value.match(/[\d.]+/g)!.slice(0, 3).map(Number);
+        const luminance = (value: string) => {
+          const [r, g, b] = rgb(value).map((channel) => {
+            const s = channel / 255;
+            return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+          });
+          return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        };
+        const outline = luminance(getComputedStyle(node).outlineColor);
+        const background = luminance(getComputedStyle(document.body).backgroundColor);
+        return (Math.max(outline, background) + 0.05) / (Math.min(outline, background) + 0.05);
+      });
+      expect(ratio, `${theme} focus contrast`).toBeGreaterThanOrEqual(3);
+    }
   });
 
   test('shows the switch button without scrolling on phones and desktops', async ({ page }) => {
@@ -236,6 +330,7 @@ test.describe('Regular page', () => {
     await expect(page).toHaveURL(/\/gui$/);
     const windowLog = page.locator('#terminal').getByRole('log', { name: 'Terminal output' });
     await expect(windowLog).toContainText('education');
+    await expect(windowLog.getByTestId('gui-identity')).toHaveCount(0);
 
     const input = page.locator('#terminal').getByLabel('Terminal command input');
     await input.fill('whoami');

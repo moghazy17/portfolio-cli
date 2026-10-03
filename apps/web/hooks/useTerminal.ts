@@ -27,6 +27,8 @@ export interface AssistantEntryState {
 }
 
 export interface TerminalEntry extends HistoryEntry {
+  /** A /gui-only first-log identity card, supplied by the static page. */
+  identity?: { name: string; label: string; location: string };
   tourStepIndex?: number;
   tourSessionId?: string;
   reveal?: boolean;
@@ -198,6 +200,8 @@ export function useTerminal({ windowed = false, initialHistory, onFx }: Terminal
   useEffect(() => {
     const log = scrollRef.current;
     if (!log) return;
+    // Keep the static /gui identity at the top of the first frame; normal commands still follow the prompt.
+    if (windowed && !usedRef.current && !restoredRef.current) return;
     const entry = tourPlaying && tourSessionId && tourIndex < tourLastRunIndex
       ? log.querySelector<HTMLElement>(`[data-tour="${tourSessionId}:${tourIndex}"]`) : null;
     if (entry) {
@@ -205,7 +209,7 @@ export function useTerminal({ windowed = false, initialHistory, onFx }: Terminal
     } else {
       log.scrollTo(0, log.scrollHeight);
     }
-  }, [history, tourPlaying, tourIndex, tourLastRunIndex, tourSessionId]);
+  }, [history, tourPlaying, tourIndex, tourLastRunIndex, tourSessionId, windowed]);
 
   useEffect(() => () => {
     if (addressTimerRef.current !== null) clearTimeout(addressTimerRef.current);

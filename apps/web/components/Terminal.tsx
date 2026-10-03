@@ -85,6 +85,13 @@ export default function Terminal({ windowed = false, initialHistory, registerRun
         <div key={i} data-tour-step={entry.tourStepIndex}
           data-tour={entry.tourSessionId !== undefined && entry.tourStepIndex !== undefined ? `${entry.tourSessionId}:${entry.tourStepIndex}` : undefined}
           style={{ marginBottom: '16px' }}>
+          {entry.identity && (
+            <div className="be-term-identity" data-testid="gui-identity">
+              <strong>{entry.identity.name}</strong>
+              <span>{entry.identity.label}</span>
+              <span>{entry.identity.location}</span>
+            </div>
+          )}
           {entry.prompt && (
             <div>
               <span style={{ color: 'var(--accent)', userSelect: 'none' }}>

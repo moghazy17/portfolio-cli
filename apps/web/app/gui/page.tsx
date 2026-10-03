@@ -50,7 +50,10 @@ export default async function GuiPage() {
   const shell = createShell({ surface: 'web', origin: 'https://moghazy.me' });
   const about = await shell.run('about');
   const { user, host, cwd } = shell.prompt();
-  const initial = [{ prompt: `${user}@${host}:${cwd}$`, input: 'about', output: about.output }];
+  const initial = [
+    { input: '', output: [], identity: { name: profile.name, label: profile.label, location: cvData.contact.location } },
+    { prompt: `${user}@${host}:${cwd}$`, input: 'about', output: about.output },
+  ];
   const { contact, education } = cvData;
   const current = cvData.experience[0];
   // The IANA zone is named after the city in content; keep the two in step if the location changes.
@@ -84,6 +87,8 @@ export default async function GuiPage() {
         <main id="main" className="be-scenes">
           <h1 className="sr-only">{profile.name}, {profile.label}</h1>
           <div className="be-scene be-scene-1">
+            <DeskTerminal initial={initial} />
+
             <BeWindow id="hero" as="header" title="Résumé.pdf" heading={false} className="be-hero"
               mark={{ command: 'sudo hire-me', label: 'Secret: sudo hire-me', glyph: 'key' }}>
               <div className="be-paper">
@@ -104,8 +109,6 @@ export default async function GuiPage() {
               </div>
               <CvLink className="be-button be-button-default be-button-wide" />
             </BeWindow>
-
-            <DeskTerminal initial={initial} />
 
             <BeWindow id="projects" title="Projects" className="be-projects">
               <div className="be-tracker">
@@ -162,7 +165,7 @@ export default async function GuiPage() {
               </div>
             </BeWindow>
 
-            <BeWindow id="skills" title="System Profile" className="be-skills">
+            <BeWindow id="skills" title="Skills" className="be-skills">
               <div className="be-profile">
                 {cvData.skills.map((category) => (
                   <div key={category.name} className="be-profile-group">
@@ -212,9 +215,9 @@ export default async function GuiPage() {
         <DesktopIcons
           variant="dock"
           icons={[
+            { label: 'Résumé', icon: '/desk/resume.webp', open: 'hero' },
             { label: 'About', icon: '/desk/about.webp', open: 'about' },
             { label: 'Projects', icon: '/desk/projects.webp', open: 'projects' },
-            { label: 'Films', icon: '/desk/films.webp', open: 'films' },
             { label: 'Guestbook', icon: '/desk/guestbook.webp', open: 'guestbook' },
             { label: 'Mail', icon: '/desk/mail.webp', open: 'contact' },
           ]}

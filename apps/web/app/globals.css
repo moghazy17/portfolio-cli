@@ -43,6 +43,7 @@ html, body { overflow-x: hidden; }
 @media (pointer: coarse) { .command-sheet { position: fixed; left: 0; right: 0; bottom: var(--keyboard-inset, 0px); width: 100%; max-height: 70vh; border-radius: 12px 12px 0 0; } }
 @media (max-width: 639px) { .command-bar { padding-inline: 8px; } .command-sheet-name { flex-basis: 105px; } }
 .command-input-wrap { flex: 1; min-width: 0; position: relative; }
+.command-input-wrap input:focus-visible:not([data-pointer-focus]) { outline: 2px solid var(--accent); outline-offset: 2px; }
 .tour-finish { color: var(--accent); margin: 12px 0; font-weight: bold; }
 .tour-card { position: sticky; bottom: 24px; z-index: 2; min-width: 0; max-width: 100%; padding: 12px; margin: 12px 0; border: 1px solid var(--primary); border-radius: 8px; background: var(--bg); color: var(--fg); overflow-wrap: anywhere; }
 .tour-card-heading { color: var(--accent); font-weight: bold; }

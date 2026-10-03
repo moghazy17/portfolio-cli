@@ -175,6 +175,8 @@ export default function CommandLine({
             setInput(e.target.value);
           }}
           onKeyDown={handleKeyDown}
+          onPointerDown={(event) => { event.currentTarget.dataset.pointerFocus = 'true'; }}
+          onBlur={(event) => { delete event.currentTarget.dataset.pointerFocus; }}
           enterKeyHint="go"
           spellCheck={false}
           autoComplete="off"
@@ -184,7 +186,6 @@ export default function CommandLine({
             width: '100%',
             background: 'transparent',
             border: 'none',
-            outline: 'none',
             color: 'var(--fg)',
             fontFamily: 'inherit',
             fontSize: '16px',

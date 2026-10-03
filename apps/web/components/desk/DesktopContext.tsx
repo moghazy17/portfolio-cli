@@ -11,7 +11,7 @@ export const deskWindows: ReadonlyArray<{ id: WindowId; title: string; icon: str
   { id: 'about', title: 'About', icon: '/desk/about.webp' },
   { id: 'projects', title: 'Projects', icon: '/desk/projects.webp' },
   { id: 'experience', title: 'Experience', icon: '/desk/experience.webp' },
-  { id: 'skills', title: 'System Profile', icon: '/desk/skills.webp' },
+  { id: 'skills', title: 'Skills', icon: '/desk/skills.webp' },
   { id: 'films', title: 'Films', icon: '/desk/films.webp' },
   { id: 'guestbook', title: 'Guestbook', icon: '/desk/guestbook.webp' },
   { id: 'contact', title: 'Mail', icon: '/desk/mail.webp' },
@@ -60,8 +60,58 @@ export function useDesktop(): Desktop {
 const initialOrder: WindowId[] = ['contact', 'skills', 'about', 'guestbook', 'films', 'experience', 'hero', 'projects', 'terminal'];
 const initialMinimized = new Set<WindowId>(initialOrder.filter((id) => id !== 'terminal'));
 
-/** Opened windows step down and right from the desk's top-left, like BeOS's window placement. */
-const CASCADE = { x: 24, y: 20, step: 32, slots: 7 };
+const TAB_MARGIN = 8;
+const CASCADE_COLUMNS = [24, 260, 496, 732, 968];
+
+/** Measure tabs in layout coordinates so an in-progress open animation cannot skew placement. */
+function tabBox(element: HTMLElement) {
+  const tab = element.querySelector<HTMLElement>('.be-tab')!;
+  const left = element.offsetLeft + tab.offsetLeft;
+  const top = element.offsetTop + tab.offsetTop;
+  return { left, top, right: left + tab.offsetWidth, bottom: top + tab.offsetHeight };
+}
+
+function firstOpenPosition(id: WindowId): Point | null {
+  const element = document.getElementById(id);
+  // A minimized element has no offsetParent until its display rule is lifted for measurement.
+  if (!element) return null;
+  const otherTabs = [...document.querySelectorAll<HTMLElement>('.be-win:not(.is-minimized):not(.is-exiting)')]
+    .filter((win) => win !== element).map(tabBox);
+  const oldX = element.style.getPropertyValue('--x');
+  const oldY = element.style.getPropertyValue('--y');
+  element.classList.remove('is-minimized');
+  try {
+    const desk = element.offsetParent as HTMLElement | null;
+    if (!desk) return null;
+    const preferred = { x: element.offsetLeft, y: element.offsetTop };
+    element.style.setProperty('--x', '12px');
+    element.style.setProperty('--y', '20px');
+    const naturalWidth = element.offsetWidth;
+    const maxX = Math.max(12, desk.clientWidth - naturalWidth - 12);
+    const maxY = Math.max(20, desk.clientHeight - 210);
+    const xSlots = [preferred.x, ...CASCADE_COLUMNS].map((x) => Math.round(Math.min(Math.max(12, x), maxX)));
+    const ySlots = Array.from({ length: 10 }, (_, i) => 20 + i * 58)
+      .filter((y) => y <= maxY).sort((a, b) => Math.abs(a - preferred.y) - Math.abs(b - preferred.y));
+    const candidates = [preferred, ...xSlots.flatMap((x) => ySlots.map((y) => ({ x, y })))];
+    for (const candidate of candidates) {
+      element.style.setProperty('--x', `${candidate.x}px`);
+      element.style.setProperty('--y', `${candidate.y}px`);
+      const tab = tabBox(element);
+      const fits = element.offsetLeft >= 0 && element.offsetTop >= 0 &&
+        element.offsetLeft + element.offsetWidth <= desk.clientWidth &&
+        element.offsetTop + element.offsetHeight <= desk.clientHeight;
+      const free = otherTabs.every((other) =>
+        tab.right + TAB_MARGIN <= other.left || other.right + TAB_MARGIN <= tab.left ||
+        tab.bottom + TAB_MARGIN <= other.top || other.bottom + TAB_MARGIN <= tab.top);
+      if (fits && free) return candidate;
+    }
+    return { x: xSlots[0], y: ySlots[0] ?? 20 };
+  } finally {
+    if (oldX) element.style.setProperty('--x', oldX); else element.style.removeProperty('--x');
+    if (oldY) element.style.setProperty('--y', oldY); else element.style.removeProperty('--y');
+    element.classList.add('is-minimized');
+  }
+}
 
 function reducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -101,7 +151,8 @@ export function DesktopProvider({ children }: { children: React.ReactNode }) {
   const [opening, setOpening] = useState<ReadonlySet<WindowId>>(new Set());
   const [maximized, setMaximized] = useState<ReadonlySet<WindowId>>(new Set());
   const [positions, setPositions] = useState<Partial<Record<WindowId, Point>>>({});
-  const cascadeRef = useRef(0);
+  const positionsRef = useRef(positions);
+  positionsRef.current = positions;
   const terminalRef = useRef<((command: string) => void) | null>(null);
   const stateRef = useRef({ order, minimized });
   stateRef.current = { order, minimized };
@@ -139,12 +190,14 @@ export function DesktopProvider({ children }: { children: React.ReactNode }) {
       stateRef.current = { ...stateRef.current, minimized: without(stateRef.current.minimized, id) };
       setMinimized((set) => without(set, id));
       setMaximized((set) => (set.has(id) ? without(set, id) : set));
-      // First time on the desk: take the next cascade slot. A window that was moved keeps its place.
-      setPositions((map) => {
-        if (map[id] || id === 'terminal') return map;
-        const slot = cascadeRef.current++ % CASCADE.slots;
-        return { ...map, [id]: { x: CASCADE.x + slot * CASCADE.step, y: CASCADE.y + slot * CASCADE.step } };
-      });
+      // Keep dragged/previous positions; otherwise try the window's own CSS spot before finding a free tab slot.
+      if (id !== 'terminal' && !positionsRef.current[id] && isDeskLayout()) {
+        const point = firstOpenPosition(id);
+        if (point) {
+          positionsRef.current = { ...positionsRef.current, [id]: point };
+          setPositions(positionsRef.current);
+        }
+      }
     }
     if (history.replaceState) history.replaceState(null, '', `#${id}`);
     // Wait for the window to be shown before measuring it.
@@ -247,7 +300,8 @@ export function DesktopProvider({ children }: { children: React.ReactNode }) {
   }, [open, minimize, focus]);
 
   const place = useCallback((id: WindowId, point: Point) => {
-    setPositions((map) => ({ ...map, [id]: point }));
+    positionsRef.current = { ...positionsRef.current, [id]: point };
+    setPositions(positionsRef.current);
   }, []);
 
   const run = useCallback((command: string, from?: Element | null) => {

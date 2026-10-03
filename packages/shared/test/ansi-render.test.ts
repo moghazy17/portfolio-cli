@@ -16,7 +16,7 @@ describe('ANSI renderer', () => {
   it('renders about as plain text', () => {
     expect(plain(aboutCommand().output)).toMatchInlineSnapshot(`
       "About Ahmed Moghazy
-      Computer Science graduate specializing in machine learning, applied AI, and data-driven systems. Experienced in designing and deploying end-to-end ML solutions including AutoML pipelines, predictive modeling, and retrieval-augmented generation (RAG) applications using large language models. Strong background in data analysis, feature engineering, and model evaluation, with hands-on exposure to data engineering workflows, MLOps practices, and translating complex data into actionable business insights.
+      AI engineer at PwC. Previously built LLM agents, RAG pipelines, and voice agents for hospitality clients at ACT. Computer Science graduate from Cairo University.
       "
     `);
   });
@@ -33,7 +33,7 @@ describe('ANSI renderer', () => {
       Oct 2024 — June 2025
       ▸ Engineered a modular AutoML pipeline in Python (scikit-learn) with 4 stages: preprocessing, feature selection, model selection, and hyperparameter optimization.
       ▸ Synthesized AutoML foundations (model selection, HPO, evaluation) into the system architecture and experiment plan.
-      ▸ Implemented and benchmarked Grid Search, Random Search, and Bayesian Optimization for HPO on tabular ML tasks.
+      ▸ Implemented and benchmarked Grid Search, Random Search, and Bayesian Optimization for HPO on tabular ML tasks, analyzing trade-offs in performance and compute cost.
       RAG Chatbot (LangChain + FAISS + Ollama)
       Dec 2024 — Jan 2025
       ▸ Built a retrieval-augmented chatbot with LangChain + Ollama Gemma-3 (12B) and a Gradio UI for real-time Q&A.
@@ -41,8 +41,8 @@ describe('ANSI renderer', () => {
       ▸ Embedded with all-MiniLM-L6-v2 and indexed in FAISS; boosted relevance using MultiQueryRetriever + ContextualCompressionRetriever; added SerpAPI + Python REPL tools.
       ExpenSum — Smart Expense Tracker (React + Spring Boot + JWT + LLM)
       Apr 2025 — May 2025
-      ▸ Developed a full-stack expense tracker: React frontend + Spring Boot backend secured with JWT.
-      ▸ Integrated Mistral (via Ollama) to convert natural-language inputs into structured expense entries for single-step data capture.
+      ▸ Developed a full-stack expense tracker: React frontend and Spring Boot backend secured with JWT authentication.
+      ▸ Integrated Mistral (via Ollama) to convert natural-language inputs into structured expense entries, enabling single-step data capture.
       Star-Schema Data Warehouse (SQL, ETL)
       Dec 2023 — Jan 2024
       ▸ Designed a star schema (fact/dimension) for a recommendation dataset.
@@ -54,7 +54,8 @@ describe('ANSI renderer', () => {
   it('renders timeline as plain text', () => {
     expect(plain(timelineCommand().output)).toMatchInlineSnapshot(`
       "Period                 Role / Degree                           Organization
-      Oct 2025 – Present     Software Developer (AI & Backend)       Advanced Computer Technology (ACT)
+      June 2026 – Present    AI Engineer                             PwC ETIC
+      Oct 2025 – June 2026   Software Developer (AI & Backend)       Advanced Computer Technology (ACT)
       Oct 2021 – June 2025   Computer Science — Bachelor of Science  Cairo University
       Oct 2024 – Apr 2025    Machine Learning Engineer Trainee       Digital Egypt Pioneers Initiative (DEPI)
       Aug 2024 – Sep 2024    Data Engineer Intern                    Orange Egypt

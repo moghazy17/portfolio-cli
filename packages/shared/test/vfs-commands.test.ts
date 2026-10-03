@@ -54,7 +54,8 @@ describe('filesystem commands', () => {
     expect(lines((await sh.run('cat projects')).output)).toEqual(['cat: projects: Is a directory']);
     expect(lines((await sh.run('cat missing.md')).output)).toEqual(['cat: missing.md: No such file or directory']);
     expect(lines((await sh.run('cat resume.pdf')).output)).toEqual(["resume.pdf: PDF document — run 'resume' to download it"]);
-    expect(lines((await sh.run('cat about.md | grep -i data')).output).length).toBeGreaterThan(0);
+    const summaryWord = content.resume.basics.summary.match(/[A-Za-z]{4,}/)![0];
+    expect(lines((await sh.run(`cat about.md | grep -i ${summaryWord}`)).output).length).toBeGreaterThan(0);
     const tree = lines((await sh.run('tree')).output);
     expect(tree[0]).toBe('~');
     expect(tree.join('\n')).toContain('├── ');

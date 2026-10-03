@@ -178,7 +178,7 @@ exports[`legacy command output > snapshots about 1`] = `
     {
       "children": [
         {
-          "content": "Computer Science graduate specializing in machine learning, applied AI, and data-driven systems. Experienced in designing and deploying end-to-end ML solutions including AutoML pipelines, predictive modeling, and retrieval-augmented generation (RAG) applications using large language models. Strong background in data analysis, feature engineering, and model evaluation, with hands-on exposure to data engineering workflows, MLOps practices, and translating complex data into actionable business insights.",
+          "content": "AI engineer at PwC. Previously built LLM agents, RAG pipelines, and voice agents for hospitality clients at ACT. Computer Science graduate from Cairo University.",
           "type": "text",
         },
       ],
@@ -244,6 +244,32 @@ exports[`legacy command output > snapshots awards 1`] = `
     {
       "children": [
         {
+          "content": "Sep 2026 — Sep 2026",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+      ],
+      "title": "Anthropic — Claude Certified Developer – Foundations (CCDV-F)",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Aug 2026 — Aug 2026",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+      ],
+      "title": "Amazon Web Services — AWS Certified AI Practitioner (AIF-C01)",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
           "content": "Oct 2024 — Dec 2024",
           "style": {
             "dim": true,
@@ -303,7 +329,7 @@ exports[`legacy command output > snapshots banner 1`] = `
       "type": "ascii",
     },
     {
-      "content": "Data Science & ML Engineer  ·  Cairo, EG",
+      "content": "AI Engineer  ·  Cairo, EG",
       "style": {
         "bold": true,
       },
@@ -329,7 +355,7 @@ exports[`legacy command output > snapshots bio 1`] = `
     {
       "children": [
         {
-          "content": "Computer Science graduate specializing in machine learning, applied AI, and data-driven systems. Experienced in designing and deploying end-to-end ML solutions including AutoML pipelines, predictive modeling, and retrieval-augmented generation (RAG) applications using large language models. Strong background in data analysis, feature engineering, and model evaluation, with hands-on exposure to data engineering workflows, MLOps practices, and translating complex data into actionable business insights.",
+          "content": "AI engineer at PwC. Previously built LLM agents, RAG pipelines, and voice agents for hospitality clients at ACT. Computer Science graduate from Cairo University.",
           "type": "text",
         },
       ],
@@ -349,6 +375,32 @@ exports[`legacy command output > snapshots certifications 1`] = `
         "bold": true,
       },
       "type": "text",
+    },
+    {
+      "children": [
+        {
+          "content": "Sep 2026 — Sep 2026",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+      ],
+      "title": "Anthropic — Claude Certified Developer – Foundations (CCDV-F)",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Aug 2026 — Aug 2026",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+      ],
+      "title": "Amazon Web Services — AWS Certified AI Practitioner (AIF-C01)",
+      "type": "section",
     },
     {
       "children": [
@@ -397,6 +449,32 @@ exports[`legacy command output > snapshots certs 1`] = `
         "bold": true,
       },
       "type": "text",
+    },
+    {
+      "children": [
+        {
+          "content": "Sep 2026 — Sep 2026",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+      ],
+      "title": "Anthropic — Claude Certified Developer – Foundations (CCDV-F)",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Aug 2026 — Aug 2026",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+      ],
+      "title": "Amazon Web Services — AWS Certified AI Practitioner (AIF-C01)",
+      "type": "section",
     },
     {
       "children": [
@@ -697,7 +775,7 @@ exports[`legacy command output > snapshots exp 1`] = `
     {
       "children": [
         {
-          "content": "Oct 2025 — Present",
+          "content": "June 2026 — Present",
           "style": {
             "dim": true,
           },
@@ -705,9 +783,29 @@ exports[`legacy command output > snapshots exp 1`] = `
         },
         {
           "items": [
-            "Architected a Multi-Agent Concierge System using LangGraph, orchestrating specialized agents to handle autonomous guest fulfillment and complex policy inquiries with a 95% intent classification accuracy.",
-            "Engineered a Hierarchical RAG Pipeline in PGVector to navigate high-density hotel policy documents; implemented recursive retrieval strategies that improved context retention and reduced "hallucinations" by 30% on long-form queries.",
-            "Integrated LLM Tool-Access with Oracle Opera PMS via REST APIs, enabling autonomous creation and tracking of guest service requests, reducing manual front-desk entry workload by an estimated 40%.",
+            "Worked in a team building an internal plugin that makes PDF and Microsoft Office documents compliant with PwC standards.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "PwC ETIC — AI Engineer",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Oct 2025 — June 2026",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Built a multi-agent hotel concierge in LangGraph for guest requests and policy questions, with 95% intent classification accuracy.",
+            "Built hierarchical RAG pipeline on PGVector for hotel policy documents; recursive retrieval cut hallucinations on long queries by 30%.",
+            "Connected the agents to Oracle OPERA PMS via REST APIs to create and track guest service requests, cutting manual front-desk entry by an estimated 40%.",
+            "Built voice agents on LiveKit and ElevenLabs: a multilingual hotel agent connected to OHIP / OPERA Cloud, and an Egyptian Arabic ordering agent connected to Oracle Simphony POS.",
             "Containerized the entire multi-agent stack using Docker, streamlining the CI/CD pipeline and reducing deployment downtime across internal testing environments.",
           ],
           "type": "list",
@@ -748,8 +846,8 @@ exports[`legacy command output > snapshots exp 1`] = `
         },
         {
           "items": [
-            "Automated and optimized ETL workflows for company voucher data using Apache NiFi and dbt models.",
-            "Explored pipeline orchestration and scheduling using Apache Airflow to improve data reliability and automation.",
+            "Automated and optimized ETL workflows for voucher data using Apache NiFi and dbt, improving data quality and reliability.",
+            "Explored pipeline orchestration and scheduling with Apache Airflow to increase automation and reduce manual data-handling effort.",
           ],
           "type": "list",
         },
@@ -772,7 +870,7 @@ exports[`legacy command output > snapshots exp 1`] = `
             "Designed and delivered interactive Power BI dashboards visualizing KPIs, improving executive decision-making.",
             "Built and evaluated ML models (Random Forest, XGBoost) for customer lifetime value prediction, achieving an AUC of 0.70.",
             "Contributed to a customer-facing chatbot by unifying vendors and geographic regions using Named Entity Recognition (NER) for accurate offer retrieval.",
-            "Optimized LLM prompts for intent extraction (offers, vendors, regions) and analyzed OpenAI API usage, reducing inference costs by approximately 30% while maintaining response quality.",
+            "Optimized LLM prompts for intent extraction and analyzed OpenAI API usage, reducing inference costs by approximately 30% while maintaining response quality.",
           ],
           "type": "list",
         },
@@ -817,7 +915,7 @@ exports[`legacy command output > snapshots experience 1`] = `
     {
       "children": [
         {
-          "content": "Oct 2025 — Present",
+          "content": "June 2026 — Present",
           "style": {
             "dim": true,
           },
@@ -825,9 +923,29 @@ exports[`legacy command output > snapshots experience 1`] = `
         },
         {
           "items": [
-            "Architected a Multi-Agent Concierge System using LangGraph, orchestrating specialized agents to handle autonomous guest fulfillment and complex policy inquiries with a 95% intent classification accuracy.",
-            "Engineered a Hierarchical RAG Pipeline in PGVector to navigate high-density hotel policy documents; implemented recursive retrieval strategies that improved context retention and reduced "hallucinations" by 30% on long-form queries.",
-            "Integrated LLM Tool-Access with Oracle Opera PMS via REST APIs, enabling autonomous creation and tracking of guest service requests, reducing manual front-desk entry workload by an estimated 40%.",
+            "Worked in a team building an internal plugin that makes PDF and Microsoft Office documents compliant with PwC standards.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "PwC ETIC — AI Engineer",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Oct 2025 — June 2026",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Built a multi-agent hotel concierge in LangGraph for guest requests and policy questions, with 95% intent classification accuracy.",
+            "Built hierarchical RAG pipeline on PGVector for hotel policy documents; recursive retrieval cut hallucinations on long queries by 30%.",
+            "Connected the agents to Oracle OPERA PMS via REST APIs to create and track guest service requests, cutting manual front-desk entry by an estimated 40%.",
+            "Built voice agents on LiveKit and ElevenLabs: a multilingual hotel agent connected to OHIP / OPERA Cloud, and an Egyptian Arabic ordering agent connected to Oracle Simphony POS.",
             "Containerized the entire multi-agent stack using Docker, streamlining the CI/CD pipeline and reducing deployment downtime across internal testing environments.",
           ],
           "type": "list",
@@ -868,8 +986,8 @@ exports[`legacy command output > snapshots experience 1`] = `
         },
         {
           "items": [
-            "Automated and optimized ETL workflows for company voucher data using Apache NiFi and dbt models.",
-            "Explored pipeline orchestration and scheduling using Apache Airflow to improve data reliability and automation.",
+            "Automated and optimized ETL workflows for voucher data using Apache NiFi and dbt, improving data quality and reliability.",
+            "Explored pipeline orchestration and scheduling with Apache Airflow to increase automation and reduce manual data-handling effort.",
           ],
           "type": "list",
         },
@@ -892,7 +1010,7 @@ exports[`legacy command output > snapshots experience 1`] = `
             "Designed and delivered interactive Power BI dashboards visualizing KPIs, improving executive decision-making.",
             "Built and evaluated ML models (Random Forest, XGBoost) for customer lifetime value prediction, achieving an AUC of 0.70.",
             "Contributed to a customer-facing chatbot by unifying vendors and geographic regions using Named Entity Recognition (NER) for accurate offer retrieval.",
-            "Optimized LLM prompts for intent extraction (offers, vendors, regions) and analyzed OpenAI API usage, reducing inference costs by approximately 30% while maintaining response quality.",
+            "Optimized LLM prompts for intent extraction and analyzed OpenAI API usage, reducing inference costs by approximately 30% while maintaining response quality.",
           ],
           "type": "list",
         },
@@ -924,7 +1042,7 @@ exports[`legacy command output > snapshots experience 1`] = `
 }
 `;
 
-exports[`legacy command output > snapshots experience act 1`] = `
+exports[`legacy command output > snapshots experience pwc 1`] = `
 {
   "output": [
     {
@@ -937,7 +1055,7 @@ exports[`legacy command output > snapshots experience act 1`] = `
     {
       "children": [
         {
-          "content": "Oct 2025 — Present",
+          "content": "June 2026 — Present",
           "style": {
             "dim": true,
           },
@@ -945,35 +1063,12 @@ exports[`legacy command output > snapshots experience act 1`] = `
         },
         {
           "items": [
-            "Architected a Multi-Agent Concierge System using LangGraph, orchestrating specialized agents to handle autonomous guest fulfillment and complex policy inquiries with a 95% intent classification accuracy.",
-            "Engineered a Hierarchical RAG Pipeline in PGVector to navigate high-density hotel policy documents; implemented recursive retrieval strategies that improved context retention and reduced "hallucinations" by 30% on long-form queries.",
-            "Integrated LLM Tool-Access with Oracle Opera PMS via REST APIs, enabling autonomous creation and tracking of guest service requests, reducing manual front-desk entry workload by an estimated 40%.",
-            "Containerized the entire multi-agent stack using Docker, streamlining the CI/CD pipeline and reducing deployment downtime across internal testing environments.",
+            "Worked in a team building an internal plugin that makes PDF and Microsoft Office documents compliant with PwC standards.",
           ],
           "type": "list",
         },
       ],
-      "title": "Advanced Computer Technology (ACT) — Software Developer (AI & Backend)",
-      "type": "section",
-    },
-    {
-      "children": [
-        {
-          "content": "Aug 2023 — Sep 2023",
-          "style": {
-            "dim": true,
-          },
-          "type": "text",
-        },
-        {
-          "items": [
-            "Conducted EDA on large datasets and presented insights to stakeholders.",
-            "Automated web scraping pipelines using BeautifulSoup.",
-          ],
-          "type": "list",
-        },
-      ],
-      "title": "Advanced Computer Technology (ACT) — Data Science Intern",
+      "title": "PwC ETIC — AI Engineer",
       "type": "section",
     },
   ],
@@ -984,7 +1079,7 @@ exports[`legacy command output > snapshots experience zzz 1`] = `
 {
   "output": [
     {
-      "content": "No experience found matching "zzz". Try: act, depi, orange, valu, act-intern",
+      "content": "No experience found matching "zzz". Try: pwc, act, depi, orange, valu, act-intern",
       "style": {
         "color": "error",
       },
@@ -1383,7 +1478,7 @@ exports[`legacy command output > snapshots home 1`] = `
       "type": "ascii",
     },
     {
-      "content": "Data Science & ML Engineer  ·  Cairo, EG",
+      "content": "AI Engineer  ·  Cairo, EG",
       "style": {
         "bold": true,
       },
@@ -1507,7 +1602,7 @@ exports[`legacy command output > snapshots neofetch 1`] = `
       "content": "visitor@ahmed-portfolio
 ──────────────────────
 Name:      Ahmed Moghazy
-Role:      Data Science & ML Engineer
+Role:      AI Engineer
 Location:  Cairo, EG
 Education: Cairo University
 Shell:     portfolio-cli v1.0.0
@@ -1666,7 +1761,7 @@ exports[`legacy command output > snapshots proj 1`] = `
           "items": [
             "Engineered a modular AutoML pipeline in Python (scikit-learn) with 4 stages: preprocessing, feature selection, model selection, and hyperparameter optimization.",
             "Synthesized AutoML foundations (model selection, HPO, evaluation) into the system architecture and experiment plan.",
-            "Implemented and benchmarked Grid Search, Random Search, and Bayesian Optimization for HPO on tabular ML tasks.",
+            "Implemented and benchmarked Grid Search, Random Search, and Bayesian Optimization for HPO on tabular ML tasks, analyzing trade-offs in performance and compute cost.",
           ],
           "type": "list",
         },
@@ -1706,8 +1801,8 @@ exports[`legacy command output > snapshots proj 1`] = `
         },
         {
           "items": [
-            "Developed a full-stack expense tracker: React frontend + Spring Boot backend secured with JWT.",
-            "Integrated Mistral (via Ollama) to convert natural-language inputs into structured expense entries for single-step data capture.",
+            "Developed a full-stack expense tracker: React frontend and Spring Boot backend secured with JWT authentication.",
+            "Integrated Mistral (via Ollama) to convert natural-language inputs into structured expense entries, enabling single-step data capture.",
           ],
           "type": "list",
         },
@@ -1805,7 +1900,7 @@ exports[`legacy command output > snapshots projects 1`] = `
           "items": [
             "Engineered a modular AutoML pipeline in Python (scikit-learn) with 4 stages: preprocessing, feature selection, model selection, and hyperparameter optimization.",
             "Synthesized AutoML foundations (model selection, HPO, evaluation) into the system architecture and experiment plan.",
-            "Implemented and benchmarked Grid Search, Random Search, and Bayesian Optimization for HPO on tabular ML tasks.",
+            "Implemented and benchmarked Grid Search, Random Search, and Bayesian Optimization for HPO on tabular ML tasks, analyzing trade-offs in performance and compute cost.",
           ],
           "type": "list",
         },
@@ -1845,8 +1940,8 @@ exports[`legacy command output > snapshots projects 1`] = `
         },
         {
           "items": [
-            "Developed a full-stack expense tracker: React frontend + Spring Boot backend secured with JWT.",
-            "Integrated Mistral (via Ollama) to convert natural-language inputs into structured expense entries for single-step data capture.",
+            "Developed a full-stack expense tracker: React frontend and Spring Boot backend secured with JWT authentication.",
+            "Integrated Mistral (via Ollama) to convert natural-language inputs into structured expense entries, enabling single-step data capture.",
           ],
           "type": "list",
         },
@@ -2065,17 +2160,26 @@ exports[`legacy command output > snapshots sk 1`] = `
         {
           "items": [
             "LangChain",
+            "LangGraph",
+            "Multi-Agent Systems",
             "Retrieval-Augmented Generation (RAG)",
+            "MCP",
             "Prompt Engineering",
+            "Claude API",
+            "Claude Code",
+            "OpenAI API",
+            "Gemini",
             "Hugging Face",
             "Ollama",
+            "LiveKit Agents",
+            "ElevenLabs",
             "FAISS",
             "Vector Databases",
           ],
           "type": "list",
         },
       ],
-      "title": "LLMs & Generative AI",
+      "title": "LLMs, Agents & Voice",
       "type": "section",
     },
     {
@@ -2118,6 +2222,7 @@ exports[`legacy command output > snapshots sk 1`] = `
         {
           "items": [
             "PostgreSQL",
+            "PGVector",
             "MySQL",
             "Star Schema Design",
             "Data Warehousing",
@@ -2132,6 +2237,8 @@ exports[`legacy command output > snapshots sk 1`] = `
       "children": [
         {
           "items": [
+            "AWS (Bedrock)",
+            "UiPath",
             "Azure AI Fundamentals",
             "Huawei Cloud",
             "Git/GitHub",
@@ -2231,17 +2338,26 @@ exports[`legacy command output > snapshots skills 1`] = `
         {
           "items": [
             "LangChain",
+            "LangGraph",
+            "Multi-Agent Systems",
             "Retrieval-Augmented Generation (RAG)",
+            "MCP",
             "Prompt Engineering",
+            "Claude API",
+            "Claude Code",
+            "OpenAI API",
+            "Gemini",
             "Hugging Face",
             "Ollama",
+            "LiveKit Agents",
+            "ElevenLabs",
             "FAISS",
             "Vector Databases",
           ],
           "type": "list",
         },
       ],
-      "title": "LLMs & Generative AI",
+      "title": "LLMs, Agents & Voice",
       "type": "section",
     },
     {
@@ -2284,6 +2400,7 @@ exports[`legacy command output > snapshots skills 1`] = `
         {
           "items": [
             "PostgreSQL",
+            "PGVector",
             "MySQL",
             "Star Schema Design",
             "Data Warehousing",
@@ -2298,6 +2415,8 @@ exports[`legacy command output > snapshots skills 1`] = `
       "children": [
         {
           "items": [
+            "AWS (Bedrock)",
+            "UiPath",
             "Azure AI Fundamentals",
             "Huawei Cloud",
             "Git/GitHub",
@@ -2380,7 +2499,7 @@ exports[`legacy command output > snapshots skills zzz 1`] = `
 {
   "output": [
     {
-      "content": "No skill category matching "zzz". Categories: Programming, Machine Learning & AI, LLMs & Generative AI, Data Analysis & Visualization, Data Engineering & MLOps, Databases, Cloud & Tools, Core Computer Science, Soft Skills",
+      "content": "No skill category matching "zzz". Categories: Programming, Machine Learning & AI, LLMs, Agents & Voice, Data Analysis & Visualization, Data Engineering & MLOps, Databases, Cloud & Tools, Core Computer Science, Soft Skills",
       "style": {
         "color": "error",
       },
@@ -2466,7 +2585,7 @@ exports[`legacy command output > snapshots sudo hire ahmed 1`] = `
     {
       "text": "Send an email",
       "type": "link",
-      "url": "mailto:akhaledmoghazy@gmail.com?subject=Hiring%20inquiry%20via%20Ahmed%20Moghazy%20%7C%20Data%20Science%20%26%20ML%20Engineer&body=Hi%20Ahmed%2C%0A%0AI%20came%20across%20your%20portfolio%20and%20would%20love%20to%20talk%20about%20an%20opportunity.%0A%0A",
+      "url": "mailto:akhaledmoghazy@gmail.com?subject=Hiring%20inquiry%20via%20Ahmed%20Moghazy%20%7C%20AI%20Engineer&body=Hi%20Ahmed%2C%0A%0AI%20came%20across%20your%20portfolio%20and%20would%20love%20to%20talk%20about%20an%20opportunity.%0A%0A",
     },
   ],
 }
@@ -2478,7 +2597,7 @@ exports[`legacy command output > snapshots summary 1`] = `
     {
       "children": [
         {
-          "content": "Computer Science graduate specializing in machine learning, applied AI, and data-driven systems. Experienced in designing and deploying end-to-end ML solutions including AutoML pipelines, predictive modeling, and retrieval-augmented generation (RAG) applications using large language models. Strong background in data analysis, feature engineering, and model evaluation, with hands-on exposure to data engineering workflows, MLOps practices, and translating complex data into actionable business insights.",
+          "content": "AI engineer at PwC. Previously built LLM agents, RAG pipelines, and voice agents for hospitality clients at ACT. Computer Science graduate from Cairo University.",
           "type": "text",
         },
       ],
@@ -2496,7 +2615,7 @@ exports[`legacy command output > snapshots sysinfo 1`] = `
       "content": "visitor@ahmed-portfolio
 ──────────────────────
 Name:      Ahmed Moghazy
-Role:      Data Science & ML Engineer
+Role:      AI Engineer
 Location:  Cairo, EG
 Education: Cairo University
 Shell:     portfolio-cli v1.0.0
@@ -2614,7 +2733,12 @@ exports[`legacy command output > snapshots timeline 1`] = `
       ],
       "rows": [
         [
-          "Oct 2025 – Present",
+          "June 2026 – Present",
+          "AI Engineer",
+          "PwC ETIC",
+        ],
+        [
+          "Oct 2025 – June 2026",
           "Software Developer (AI & Backend)",
           "Advanced Computer Technology (ACT)",
         ],
@@ -2661,7 +2785,12 @@ exports[`legacy command output > snapshots tl 1`] = `
       ],
       "rows": [
         [
-          "Oct 2025 – Present",
+          "June 2026 – Present",
+          "AI Engineer",
+          "PwC ETIC",
+        ],
+        [
+          "Oct 2025 – June 2026",
           "Software Developer (AI & Backend)",
           "Advanced Computer Technology (ACT)",
         ],
@@ -2721,7 +2850,7 @@ exports[`legacy command output > snapshots welcome 1`] = `
       "type": "ascii",
     },
     {
-      "content": "Data Science & ML Engineer  ·  Cairo, EG",
+      "content": "AI Engineer  ·  Cairo, EG",
       "style": {
         "bold": true,
       },
@@ -2772,7 +2901,7 @@ exports[`legacy command output > snapshots work 1`] = `
     {
       "children": [
         {
-          "content": "Oct 2025 — Present",
+          "content": "June 2026 — Present",
           "style": {
             "dim": true,
           },
@@ -2780,9 +2909,29 @@ exports[`legacy command output > snapshots work 1`] = `
         },
         {
           "items": [
-            "Architected a Multi-Agent Concierge System using LangGraph, orchestrating specialized agents to handle autonomous guest fulfillment and complex policy inquiries with a 95% intent classification accuracy.",
-            "Engineered a Hierarchical RAG Pipeline in PGVector to navigate high-density hotel policy documents; implemented recursive retrieval strategies that improved context retention and reduced "hallucinations" by 30% on long-form queries.",
-            "Integrated LLM Tool-Access with Oracle Opera PMS via REST APIs, enabling autonomous creation and tracking of guest service requests, reducing manual front-desk entry workload by an estimated 40%.",
+            "Worked in a team building an internal plugin that makes PDF and Microsoft Office documents compliant with PwC standards.",
+          ],
+          "type": "list",
+        },
+      ],
+      "title": "PwC ETIC — AI Engineer",
+      "type": "section",
+    },
+    {
+      "children": [
+        {
+          "content": "Oct 2025 — June 2026",
+          "style": {
+            "dim": true,
+          },
+          "type": "text",
+        },
+        {
+          "items": [
+            "Built a multi-agent hotel concierge in LangGraph for guest requests and policy questions, with 95% intent classification accuracy.",
+            "Built hierarchical RAG pipeline on PGVector for hotel policy documents; recursive retrieval cut hallucinations on long queries by 30%.",
+            "Connected the agents to Oracle OPERA PMS via REST APIs to create and track guest service requests, cutting manual front-desk entry by an estimated 40%.",
+            "Built voice agents on LiveKit and ElevenLabs: a multilingual hotel agent connected to OHIP / OPERA Cloud, and an Egyptian Arabic ordering agent connected to Oracle Simphony POS.",
             "Containerized the entire multi-agent stack using Docker, streamlining the CI/CD pipeline and reducing deployment downtime across internal testing environments.",
           ],
           "type": "list",
@@ -2823,8 +2972,8 @@ exports[`legacy command output > snapshots work 1`] = `
         },
         {
           "items": [
-            "Automated and optimized ETL workflows for company voucher data using Apache NiFi and dbt models.",
-            "Explored pipeline orchestration and scheduling using Apache Airflow to improve data reliability and automation.",
+            "Automated and optimized ETL workflows for voucher data using Apache NiFi and dbt, improving data quality and reliability.",
+            "Explored pipeline orchestration and scheduling with Apache Airflow to increase automation and reduce manual data-handling effort.",
           ],
           "type": "list",
         },
@@ -2847,7 +2996,7 @@ exports[`legacy command output > snapshots work 1`] = `
             "Designed and delivered interactive Power BI dashboards visualizing KPIs, improving executive decision-making.",
             "Built and evaluated ML models (Random Forest, XGBoost) for customer lifetime value prediction, achieving an AUC of 0.70.",
             "Contributed to a customer-facing chatbot by unifying vendors and geographic regions using Named Entity Recognition (NER) for accurate offer retrieval.",
-            "Optimized LLM prompts for intent extraction (offers, vendors, regions) and analyzed OpenAI API usage, reducing inference costs by approximately 30% while maintaining response quality.",
+            "Optimized LLM prompts for intent extraction and analyzed OpenAI API usage, reducing inference costs by approximately 30% while maintaining response quality.",
           ],
           "type": "list",
         },

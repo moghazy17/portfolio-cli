@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-An interactive portfolio website for Ahmed Moghazy (Data Science & ML Engineer), implemented as a monorepo with a web app and a shared logic package:
+An interactive portfolio website for Ahmed Moghazy (AI Engineer), implemented as a monorepo with a web app and a shared logic package:
 - **Web app** — Next.js browser-based terminal emulator with AI chat
 - **Shared package** — All command logic, CV data, types, theme definitions, and GitHub data fetching
 

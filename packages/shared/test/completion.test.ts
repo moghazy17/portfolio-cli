@@ -53,8 +53,10 @@ describe('shell completion', () => {
     const multiple = shell.complete('t');
     expect(multiple.candidates.length).toBeGreaterThan(1);
     expect(multiple.replacement).toBeUndefined();
-    const workPrefix = content.resume.work[0].slug.slice(0, 1);
-    expect(shell.complete(`experience ${workPrefix}`).replacement).toBe(content.resume.work[0].slug);
+    // A slug that is a prefix of another (e.g. act / act-intern) completes to the shared stem without a space.
+    const slugs = content.resume.work.map((item) => item.slug);
+    const stem = slugs.find((slug) => slugs.some((other) => other !== slug && other.startsWith(slug)))!;
+    expect(shell.complete(`experience ${stem.slice(0, 1)}`).replacement).toBe(stem);
     expect(shell.complete('projects zzz')).toEqual({ start: 9, end: 12, candidates: [] });
     expect(shell.complete('pro later', 3)).toEqual({ start: 0, end: 3, candidates: ['projects'], replacement: 'projects ' });
   });

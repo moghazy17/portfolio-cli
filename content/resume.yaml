@@ -1,16 +1,12 @@
 basics:
   name: Ahmed Moghazy
   label:
-    value: Data Science & ML Engineer
+    value: AI Engineer
     manual: true
   summary:
-    value: Computer Science graduate specializing in machine learning, applied
-      AI, and data-driven systems. Experienced in designing and deploying
-      end-to-end ML solutions including AutoML pipelines, predictive modeling,
-      and retrieval-augmented generation (RAG) applications using large language
-      models. Strong background in data analysis, feature engineering, and model
-      evaluation, with hands-on exposure to data engineering workflows, MLOps
-      practices, and translating complex data into actionable business insights.
+    value: AI engineer at PwC. Previously built LLM agents, RAG pipelines, and
+      voice agents for hospitality clients at ACT. Computer Science graduate
+      from Cairo University.
     manual: true
   email: akhaledmoghazy@gmail.com
   phone: (+20) 115 322 7992
@@ -45,22 +41,31 @@ education:
       - Object-Oriented Programming
 
 work:
+  - slug: pwc
+    name: PwC ETIC
+    position: AI Engineer
+    startDate: 2026-06
+    highlights:
+      - Worked in a team building an internal plugin that makes PDF and
+        Microsoft Office documents compliant with PwC standards.
   - slug: act
     name: Advanced Computer Technology (ACT)
     position: Software Developer (AI & Backend)
     startDate: 2025-10
+    endDate: 2026-06
     highlights:
-      - Architected a Multi-Agent Concierge System using LangGraph,
-        orchestrating specialized agents to handle autonomous guest fulfillment
-        and complex policy inquiries with a 95% intent classification accuracy.
-      - value: Engineered a Hierarchical RAG Pipeline in PGVector to navigate
-          high-density hotel policy documents; implemented recursive retrieval
-          strategies that improved context retention and reduced "hallucinations"
-          by 30% on long-form queries.
+      - Built a multi-agent hotel concierge in LangGraph for guest requests and
+        policy questions, with 95% intent classification accuracy.
+      - value: Built hierarchical RAG pipeline on PGVector for hotel policy
+          documents; recursive retrieval cut hallucinations on long queries by
+          30%.
         manual: true
-      - Integrated LLM Tool-Access with Oracle Opera PMS via REST APIs, enabling
-        autonomous creation and tracking of guest service requests, reducing
-        manual front-desk entry workload by an estimated 40%.
+      - Connected the agents to Oracle OPERA PMS via REST APIs to create and
+        track guest service requests, cutting manual front-desk entry by an
+        estimated 40%.
+      - "Built voice agents on LiveKit and ElevenLabs: a multilingual hotel
+        agent connected to OHIP / OPERA Cloud, and an Egyptian Arabic ordering
+        agent connected to Oracle Simphony POS."
       - Containerized the entire multi-agent stack using Docker, streamlining
         the CI/CD pipeline and reducing deployment downtime across internal
         testing environments.
@@ -84,10 +89,10 @@ work:
     startDate: 2024-08
     endDate: 2024-09
     highlights:
-      - Automated and optimized ETL workflows for company voucher data using
-        Apache NiFi and dbt models.
-      - Explored pipeline orchestration and scheduling using Apache Airflow to
-        improve data reliability and automation.
+      - Automated and optimized ETL workflows for voucher data using Apache
+        NiFi and dbt, improving data quality and reliability.
+      - Explored pipeline orchestration and scheduling with Apache Airflow to
+        increase automation and reduce manual data-handling effort.
   - slug: valu
     name: ValU
     position: Data Science Intern
@@ -103,9 +108,9 @@ work:
       - Contributed to a customer-facing chatbot by unifying vendors and
         geographic regions using Named Entity Recognition (NER) for accurate
         offer retrieval.
-      - Optimized LLM prompts for intent extraction (offers, vendors, regions)
-        and analyzed OpenAI API usage, reducing inference costs by approximately
-        30% while maintaining response quality.
+      - Optimized LLM prompts for intent extraction and analyzed OpenAI API
+        usage, reducing inference costs by approximately 30% while maintaining
+        response quality.
   - slug: act-intern
     name: Advanced Computer Technology (ACT)
     position: Data Science Intern
@@ -143,7 +148,8 @@ projects:
       - Synthesized AutoML foundations (model selection, HPO, evaluation) into
         the system architecture and experiment plan.
       - Implemented and benchmarked Grid Search, Random Search, and Bayesian
-        Optimization for HPO on tabular ML tasks.
+        Optimization for HPO on tabular ML tasks, analyzing trade-offs in
+        performance and compute cost.
   - slug: rag-chatbot
     name: RAG Chatbot
     stack: LangChain + FAISS + Ollama
@@ -166,10 +172,10 @@ projects:
     startDate: 2025-04
     endDate: 2025-05
     highlights:
-      - "Developed a full-stack expense tracker: React frontend + Spring Boot
-        backend secured with JWT."
+      - "Developed a full-stack expense tracker: React frontend and Spring Boot
+        backend secured with JWT authentication."
       - Integrated Mistral (via Ollama) to convert natural-language inputs into
-        structured expense entries for single-step data capture.
+        structured expense entries, enabling single-step data capture.
   - slug: star-schema
     name: Star-Schema Data Warehouse
     stack: SQL, ETL
@@ -181,6 +187,16 @@ projects:
       - Automated daily CSV loads via scheduled SQL jobs (ETL).
 
 certificates:
+  - name: Claude Certified Developer – Foundations (CCDV-F)
+    issuer: Anthropic
+    startDate: 2026-09
+    endDate: 2026-09
+    highlights: []
+  - name: AWS Certified AI Practitioner (AIF-C01)
+    issuer: Amazon Web Services
+    startDate: 2026-08
+    endDate: 2026-08
+    highlights: []
   - name: Deep Learning Specialization
     issuer: DeepLearning.AI
     startDate: 2024-10
@@ -217,13 +233,22 @@ skills:
       - Feature Engineering
       - Model Evaluation
       - Hyperparameter Optimization
-  - name: LLMs & Generative AI
+  - name: LLMs, Agents & Voice
     keywords:
       - LangChain
+      - LangGraph
+      - Multi-Agent Systems
       - Retrieval-Augmented Generation (RAG)
+      - MCP
       - Prompt Engineering
+      - Claude API
+      - Claude Code
+      - OpenAI API
+      - Gemini
       - Hugging Face
       - Ollama
+      - LiveKit Agents
+      - ElevenLabs
       - FAISS
       - Vector Databases
   - name: Data Analysis & Visualization
@@ -246,11 +271,14 @@ skills:
   - name: Databases
     keywords:
       - PostgreSQL
+      - PGVector
       - MySQL
       - Star Schema Design
       - Data Warehousing
   - name: Cloud & Tools
     keywords:
+      - AWS (Bedrock)
+      - UiPath
       - Azure AI Fundamentals
       - Huawei Cloud
       - Git/GitHub

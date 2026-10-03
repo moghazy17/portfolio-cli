@@ -79,6 +79,7 @@ export default async function GuiPage() {
             { label: 'Skills', icon: '/desk/skills.webp', open: 'skills' },
             { label: 'Guestbook', icon: '/desk/guestbook.webp', open: 'guestbook' },
             { label: 'Mail', icon: '/desk/mail.webp', open: 'contact' },
+            { label: 'Films', icon: '/desk/films.webp', open: 'films' },
             { label: 'Matchday', icon: '/desk/matchday.webp', run: 'visca' },
           ]}
         />
@@ -144,7 +145,7 @@ export default async function GuiPage() {
               <ExperienceList experience={cvData.experience} />
             </BeWindow>
 
-            <BeWindow id="films" title="Films" className="be-films be-secret">
+            <BeWindow id="films" title="Films" className="be-films">
               <FilmsList films={diary} />
             </BeWindow>
 

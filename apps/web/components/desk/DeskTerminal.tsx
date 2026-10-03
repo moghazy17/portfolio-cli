@@ -26,16 +26,14 @@ export default function DeskTerminal({ initial }: { initial: TerminalEntry[] }) 
     };
   }, []);
 
-  const openWindow = desktop.open;
-  const onFx = useCallback((fx: 'web' | 'confetti' | 'films') => {
+  const onFx = useCallback((fx: 'web' | 'confetti') => {
     const tab = document.querySelector('#terminal .be-tab');
-    if (fx === 'films') { openWindow('films', tab); return; }
     if (fx === 'web' && !tab) return;
     const cleanup = fx === 'web' ? playWebStrand(tab!) : playConfetti();
     effects.current.add(cleanup);
     const timer = window.setTimeout(() => { effects.current.delete(cleanup); effectTimers.current.delete(timer); }, 1250);
     effectTimers.current.add(timer);
-  }, [openWindow]);
+  }, []);
 
   // Bringing the terminal to the front (tab click, icon, Deskbar) makes it ready to type, as on a real desk.
   useEffect(() => {

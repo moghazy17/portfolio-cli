@@ -502,6 +502,7 @@ html:has(.gui-root) {
 .be-film { grid-template-columns: minmax(0, 1fr) 4rem 6.5rem; }
 .be-films-head { grid-template-columns: minmax(0, 1fr) 4rem 6.5rem; }
 .be-film .be-row-name { align-items: center; }
+.be-film:hover { background: transparent; }
 .be-poster { flex: none; width: 28px; height: 40px; border: 1px solid rgba(0, 0, 0, .35); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .2); }
 .be-stars { display: inline-flex; gap: 6px; color: #1b1f25; letter-spacing: .04em; }
 .be-heart { color: #b3122e; }
@@ -828,6 +829,3 @@ html:has(.gui-root) {
 .be-sound svg { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .be-sound .be-sound-cone { fill: var(--ink); }
 @media (pointer: fine) { .be-sound { display: grid; } }
-
-/* A secret window (Films) stays out of the phone stack too until the terminal reveals it. */
-.be-win.be-secret.is-minimized { display: none; }

@@ -53,7 +53,7 @@ export async function letterboxdCommand(ctx: CommandContext): Promise<CommandRes
     if (!ctx.live?.films) throw Error('No film service');
     const films = (await ctx.live.films(ctx.signal)).slice(0, 5);
     if (!films.length) throw Error('Empty diary');
-    return { fx: 'films', output: [
+    return { output: [
       { type: 'text', content: '🎬 Off the clock — recently on the projector:', style: { bold: true } },
       { type: 'table', headers: ['Rating', 'Film', ''], rows: films.map((film) => [
         stars(film.rating) || '—',
@@ -63,7 +63,7 @@ export async function letterboxdCommand(ctx: CommandContext): Promise<CommandRes
       profileLink,
     ] };
   } catch {
-    return { fx: 'films', output: [
+    return { output: [
       { type: 'text', content: '🎬 The projector is warming up. Full diary here:', style: { dim: true } },
       profileLink,
     ] };

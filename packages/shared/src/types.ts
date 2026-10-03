@@ -282,8 +282,8 @@ export interface CommandResult {
   sign?: { name: string; message: string };
   /** Turns the idle screensaver on or off in the web terminal. */
   screensaver?: boolean;
-  /** A one-shot web-host effect (decoration, or `films` revealing the hidden Films window); other surfaces ignore it. */
-  fx?: 'web' | 'confetti' | 'films';
+  /** A one-shot decorative effect the web host may play; other surfaces ignore it. */
+  fx?: 'web' | 'confetti';
   tour?: TourStep[];
 }
 

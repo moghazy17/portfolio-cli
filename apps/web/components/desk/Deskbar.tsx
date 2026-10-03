@@ -37,12 +37,6 @@ export default function Deskbar({ host, place, timeZone }: { host: string; place
   const sound = useSoundSetting();
   const [time, setTime] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  // Secret windows join the list once the visitor has found them, and stay for the visit.
-  const [found, setFound] = useState<ReadonlySet<string>>(new Set());
-  useEffect(() => {
-    const revealed = deskWindows.filter((entry) => entry.secret && !desktop.minimized.has(entry.id) && !found.has(entry.id));
-    if (revealed.length) setFound(new Set([...found, ...revealed.map((entry) => entry.id)]));
-  }, [desktop.minimized, found]);
 
   useEffect(() => {
     setTime(localTime(timeZone));
@@ -84,7 +78,7 @@ export default function Deskbar({ host, place, timeZone }: { host: string; place
         </button>
       </div>
       <ul id="be-deskbar-links" className="be-deskbar-links">
-        {deskWindows.filter((entry) => !entry.secret || found.has(entry.id)).map((entry) => (
+        {deskWindows.map((entry) => (
           <li key={entry.id}>
             <button
               type="button"

@@ -18,7 +18,7 @@ export default function FilmsList({ films }: { films: FilmEntry[] }) {
           <ul className="be-tracker-rows" aria-label="Recently watched">
             {films.slice(0, 5).map((film) => (
               <li key={`${film.title}-${film.watched}`}>
-                <a className="be-row be-film" href={film.url} target="_blank" rel="noopener noreferrer">
+                <div className="be-row be-film">
                   <span className="be-row-name">
                     <span className="be-poster" style={{ background: swatch(film.title) }} aria-hidden="true" />
                     {film.title}
@@ -28,7 +28,7 @@ export default function FilmsList({ films }: { films: FilmEntry[] }) {
                     {film.rating ? <span aria-label={`${film.rating} out of 5 stars`}>{stars(film.rating)}</span> : null}
                     {film.liked && <span className="be-heart" aria-label="liked">♥</span>}
                   </span>
-                </a>
+                </div>
               </li>
             ))}
           </ul>

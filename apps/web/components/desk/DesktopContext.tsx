@@ -5,15 +5,14 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 export type WindowId = 'terminal' | 'projects' | 'hero' | 'experience' | 'films' | 'guestbook' | 'about' | 'skills' | 'contact';
 
 /** Every window on the desk, in Deskbar order, with the title and icon its Deskbar entry shows. */
-export const deskWindows: ReadonlyArray<{ id: WindowId; title: string; icon: string; secret?: true }> = [
+export const deskWindows: ReadonlyArray<{ id: WindowId; title: string; icon: string }> = [
   { id: 'terminal', title: 'Terminal', icon: '/desk/terminal.webp' },
   { id: 'hero', title: 'Résumé.pdf', icon: '/desk/resume.webp' },
   { id: 'about', title: 'About', icon: '/desk/about.webp' },
   { id: 'projects', title: 'Projects', icon: '/desk/projects.webp' },
   { id: 'experience', title: 'Experience', icon: '/desk/experience.webp' },
   { id: 'skills', title: 'Skills', icon: '/desk/skills.webp' },
-  // Films is a secret: no icon and no Deskbar entry until `films`/`letterboxd` opens it from the terminal.
-  { id: 'films', title: 'Films', icon: '/desk/films.webp', secret: true },
+  { id: 'films', title: 'Films', icon: '/desk/films.webp' },
   { id: 'guestbook', title: 'Guestbook', icon: '/desk/guestbook.webp' },
   { id: 'contact', title: 'Mail', icon: '/desk/mail.webp' },
 ];

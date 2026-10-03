@@ -132,9 +132,24 @@ export function useTerminal({ windowed = false, initialHistory }: TerminalOption
   } = useTour();
 
   const skipBoot = useCallback(() => setBooting(false), []);
+  // Set once the visitor runs or clears something, so an untouched window doesn't replace the welcome on `/`.
+  const usedRef = useRef(false);
+
+  // Pick up the session the other view left behind. On a client-side navigation the new page renders
+  // before the old terminal unmounts and saves, so the render-time peek can miss it; effects run after
+  // that save. Declared first so the boot, prompt and deep-link effects below see the restored state.
+  useEffect(() => {
+    const snapshot = takeSnapshot();
+    if (!snapshot || restoredRef.current === snapshot) return;
+    restoredRef.current = snapshot;
+    shellRef.current = null;
+    setHistory(snapshot.history);
+    setShowWelcome(false);
+    setPrompt(snapshot.prompt);
+  }, []);
 
   useEffect(() => {
-    if (windowed || bootStartedInPage || !initialWelcomeRef.current || window.location.pathname !== '/' || window.location.search || window.location.hash ||
+    if (windowed || restoredRef.current || bootStartedInPage || !initialWelcomeRef.current || window.location.pathname !== '/' || window.location.search || window.location.hash ||
       window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     try {
       if (window.localStorage.getItem('boot:v1')) return;
@@ -195,16 +210,12 @@ export function useTerminal({ windowed = false, initialHistory }: TerminalOption
     if (addressTimerRef.current !== null) clearTimeout(addressTimerRef.current);
   }, []);
 
-  // The restored log is in state now; leaving it in the store would resurrect it on a later mount.
-  useEffect(() => {
-    takeSnapshot();
-  }, []);
-
   // Keep the log and directory for the way back from the regular page. A terminal that was never
   // used has nothing worth keeping, and returning to it should show the welcome as usual.
   useEffect(() => () => {
     const { history: log, showWelcome: welcome, prompt: shownPrompt } = latestRef.current;
     if (!log.length && welcome) return;
+    if (windowed && !usedRef.current && !restoredRef.current) return;
     controllerRef.current?.abort();
     saveSnapshot({ history: log.map(settleEntry), cwd: shellRef.current?.session.cwd ?? '/', prompt: shownPrompt });
   }, []);
@@ -287,6 +298,7 @@ export function useTerminal({ windowed = false, initialHistory }: TerminalOption
   const handleCommand = useCallback(async (input: string, opts: { origin?: 'typed' | 'link' | 'tour'; tourStepIndex?: number; tourSessionId?: string } = {}) => {
     const isLink = opts.origin === 'link';
     const isTour = opts.origin === 'tour';
+    usedRef.current = true;
     if (!isTour) dismissFinished();
     if (!isTour && tourPlaying) stopTour();
     skipBoot();
@@ -478,6 +490,7 @@ export function useTerminal({ windowed = false, initialHistory }: TerminalOption
   }, [skipSequence, updateAssistant, tourPlaying, stopTour]);
 
   const clearScreen = useCallback(() => {
+    usedRef.current = true;
     if (tourPlaying) stopTour();
     skipSequence();
     // The answer being cleared has nowhere to render, so stop it instead of streaming unseen.

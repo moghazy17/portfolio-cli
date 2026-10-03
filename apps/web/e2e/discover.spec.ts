@@ -24,16 +24,16 @@ async function stubChat(page: Page) {
 }
 
 for (const width of [320, 1280]) {
-  test(`suggestions submit commands at ${width}px`, async ({ page }) => {
+  test(`fixed chips submit commands at ${width}px`, async ({ page }) => {
     test.skip(reduced());
     await page.setViewportSize({ width, height: 720 });
     await page.goto('/');
-    const bar = page.getByRole('navigation', { name: 'Suggestions' });
+    const bar = page.getByRole('navigation', { name: 'Quick commands' });
     await expect(bar.getByRole('button', { name: 'projects' })).toBeVisible();
     await bar.getByRole('button', { name: 'projects' }).click();
     await expect(page).toHaveURL(/\/projects$/);
     await expect(page.locator('[role="log"]')).toContainText('projects');
-    await expect(bar.getByRole('button', { name: 'projects' })).toHaveCount(0);
+    await expect(bar.getByRole('button', { name: 'projects' })).toBeVisible();
     await input(page).press('ArrowUp');
     await expect(input(page)).toHaveValue('projects');
     await input(page).fill('');
@@ -41,7 +41,7 @@ for (const width of [320, 1280]) {
     await input(page).fill('skills');
     await input(page).press('Enter');
     await expect(page).toHaveURL(/\/skills$/);
-    await expect(bar.getByRole('button', { name: 'skills' })).toHaveCount(0);
+    await expect(bar.getByRole('button', { name: 'skills' })).toBeVisible();
   });
 }
 
@@ -49,7 +49,7 @@ test('question suggestion uses the assistant submission path', async ({ page }) 
   test.skip(reduced());
   const requests = await stubChat(page);
   await page.goto('/');
-  await page.getByRole('navigation', { name: 'Suggestions' }).getByRole('button', { name: /^Ask the assistant:/ }).click();
+  await page.getByRole('navigation', { name: 'Quick commands' }).getByRole('button', { name: /^Ask the assistant:/ }).click();
   await expect(page.locator('[role="log"]')).toContainText('RAG project answer.');
   expect(requests).toHaveLength(1);
   await expect(page).toHaveURL('/');
@@ -189,8 +189,9 @@ test('guided tour finishes and a deep link never starts it', async ({ page }) =>
   await expect(page.getByText('Starting the tour…')).toBeVisible();
   await expect(page.getByRole('region', { name: 'Tour' })).toHaveCount(0);
   await expect(page.locator('.tour-finish')).toHaveCount(0);
-  await expect(page.getByRole('navigation', { name: 'Suggestions' }).getByRole('button', { name: 'take the tour' })).toBeVisible();
-  await page.getByRole('navigation', { name: 'Suggestions' }).getByRole('button', { name: 'take the tour' }).click();
+  await expect(page.getByRole('navigation', { name: 'Quick commands' })).toBeVisible();
+  await input(page).fill('tour');
+  await input(page).press('Enter');
   const card = page.getByRole('region', { name: 'Tour' });
   for (let step = 1; step < 5; step++) {
     const next = card.getByRole('button', { name: 'Next →' });
@@ -205,7 +206,7 @@ test('guided tour finishes and a deep link never starts it', async ({ page }) =>
   await finish.click();
   await expect(card).toHaveCount(0);
   await expect(page.getByText('Your turn')).toBeVisible();
-  await expect(page.getByRole('navigation', { name: 'Suggestions' })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Quick commands' })).toBeVisible();
   await expect(input(page)).toHaveValue('');
   await expect(input(page)).toBeFocused();
   await expect(page.locator('.terminal-container')).not.toHaveAttribute('data-effect', 'crt');

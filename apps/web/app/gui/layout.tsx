@@ -1,5 +1,6 @@
 import { Archivo } from 'next/font/google';
 import './gui.css';
+import './cursors.css';
 
 const archivo = Archivo({ subsets: ['latin'], variable: '--font-be', weight: ['400', '500', '600', '700'] });
 

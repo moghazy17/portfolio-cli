@@ -19,7 +19,9 @@ html, body { overflow-x: hidden; }
 .command-bar { position: relative; min-width: 0; height: 65px; padding: 10px 16px; border: 1px solid rgba(255,255,255,.05); border-top-color: var(--dimmed); border-radius: 0 0 8px 8px; background: var(--bg); }
 .command-bar-open { z-index: 11; }
 .command-bar-items { display: flex; gap: 8px; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: thin; }
-.command-chip { flex: 0 0 auto; min-height: 44px; padding: 8px 12px; border: 1px solid var(--primary); border-radius: 999px; background: transparent; color: var(--primary); font: inherit; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.command-chip { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--primary); border-radius: 999px; background: transparent; color: var(--primary); font: inherit; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.command-chip img, .command-chip svg { display: block; flex: none; width: 18px; height: 18px; }
+.command-chip:disabled { opacity: .55; cursor: progress; }
 .command-chip:hover, .command-chip:focus-visible { background: var(--primary); color: var(--bg); }
 .command-chip-question { background: var(--accent); border-color: var(--accent); color: var(--bg); }
 .command-chip-question:hover, .command-chip-question:focus-visible { background: var(--accent); color: var(--bg); outline: 2px solid var(--fg); outline-offset: 2px; }

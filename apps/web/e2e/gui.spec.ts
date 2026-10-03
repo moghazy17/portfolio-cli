@@ -26,6 +26,100 @@ async function revealAll(page: Page) {
 }
 
 test.describe('Regular page', () => {
+  test('desktop starts with one centred terminal and no page scroll', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/gui');
+    await expect(page.locator('.be-win:visible')).toHaveCount(1);
+    await expect(page.locator('#terminal')).toBeVisible();
+    await expect(page.getByRole('log', { name: 'Terminal output' })).toBeVisible();
+    const metrics = await page.evaluate(() => ({
+      scrollHeight: document.documentElement.scrollHeight,
+      clientHeight: document.documentElement.clientHeight,
+      terminal: document.getElementById('terminal')!.getBoundingClientRect().toJSON(),
+    }));
+    expect(metrics.scrollHeight).toBe(metrics.clientHeight);
+    expect(metrics.terminal.left).toBeGreaterThan(240);
+    expect(metrics.terminal.right).toBeLessThan(1440);
+    await expect(page.locator('.be-docked-tab')).toBeHidden();
+  });
+
+  test('desktop icons and Deskbar manage window state', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/gui');
+    await page.getByRole('list', { name: 'Desktop' }).getByRole('button', { name: 'Projects' }).click();
+    const projects = page.locator('#projects');
+    const entry = page.locator('[data-window-entry="projects"]');
+    await expect(projects).toBeVisible();
+    await expect(projects).toHaveClass(/is-active/);
+    await expect(entry).toHaveAttribute('aria-pressed', 'true');
+    await entry.click();
+    await expect(projects).toBeHidden();
+    await expect(entry).toContainText('(minimized)');
+    await entry.click();
+    await expect(projects).toBeVisible();
+    await projects.locator('.be-tab').dblclick();
+    await expect(projects).toBeHidden();
+    await entry.click();
+    await projects.getByRole('button', { name: 'Minimize Projects' }).click();
+    await expect(projects).toBeHidden();
+    await entry.click();
+    await projects.getByRole('button', { name: 'Maximize Projects' }).click();
+    await expect(projects).toHaveClass(/is-maximized/);
+    await expect(projects.getByRole('button', { name: 'Restore Projects' })).toHaveAttribute('aria-pressed', 'true');
+    await projects.getByRole('button', { name: 'Restore Projects' }).click();
+    await expect(projects).not.toHaveClass(/is-maximized/);
+  });
+
+  test('hash links open a window, while a plain reload starts fresh', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/gui#projects');
+    await expect(page.locator('#projects')).toBeVisible();
+    await expect(page.locator('#projects')).toHaveClass(/is-active/);
+    await page.goto('/gui');
+    await page.reload();
+    await expect(page.locator('.be-win:visible')).toHaveCount(1);
+    await expect(page.locator('#terminal')).toBeVisible();
+  });
+
+  test('windowed terminal chips run in place and theme the window', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/gui');
+    await page.locator('#terminal .be-chip[data-line="projects"]').click();
+    await expect(page.getByRole('log', { name: 'Terminal output' })).toContainText('projects');
+    await expect(page).toHaveURL(/\/gui$/);
+    const before = await page.locator('#terminal .be-term').evaluate((node) => getComputedStyle(node).backgroundColor);
+    const input = page.locator('#terminal').getByLabel('Terminal command input');
+    await input.fill('theme dracula');
+    await input.press('Enter');
+    await expect.poll(() => page.locator('#terminal .be-term').evaluate((node) => getComputedStyle(node).backgroundColor)).not.toBe(before);
+    await expect(page).toHaveURL(/\/gui$/);
+  });
+
+  test('every opened window fits a 1366 by 768 desk', async ({ page }) => {
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await page.goto('/gui');
+    for (const id of ['hero', 'about', 'projects', 'experience', 'skills', 'films', 'guestbook', 'contact']) {
+      await page.locator(`[data-window-entry="${id}"]`).click();
+    }
+    for (const window of await page.locator('.be-win:visible').all()) {
+      const box = await window.boundingBox();
+      expect(box, (await window.getAttribute('id')) ?? undefined).not.toBeNull();
+      expect(box!.x).toBeGreaterThanOrEqual(0);
+      expect(box!.y).toBeGreaterThanOrEqual(0);
+      expect(box!.x + box!.width).toBeLessThanOrEqual(1366);
+      expect(box!.y + box!.height).toBeLessThanOrEqual(768);
+    }
+  });
+
+  test('phone keeps the complete scrolling stack without desktop boxes', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/gui');
+    await expect(page.locator('.be-win:visible')).toHaveCount(9);
+    expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBeGreaterThan(844);
+    await expect(page.locator('.be-box-close:visible, .be-box-zoom:visible, .be-box-collapse, .is-collapsed')).toHaveCount(0);
+    await expect(page.locator('#terminal')).toBeVisible();
+  });
+
   test('shows the switch button without scrolling on phones and desktops', async ({ page }) => {
     for (const viewport of [{ width: 320, height: 640 }, { width: 1280, height: 800 }]) {
       await page.setViewportSize(viewport);
@@ -41,16 +135,16 @@ test.describe('Regular page', () => {
 
     for (const id of sections) await expect(page.locator(`#${id}`)).toBeAttached();
     await expect(page.locator('header#hero h1')).toHaveText(cvData.name);
-    for (const id of sections.slice(1)) await expect(page.locator(`section#${id} h2`)).toBeVisible();
+    for (const id of sections.slice(1)) await expect(page.locator(`section#${id} h2`)).toBeAttached();
     for (const experience of cvData.experience) {
       await expect(page.locator('#experience').getByText(experience.company, { exact: true }).first()).toBeAttached();
     }
     for (const project of cvData.projects) {
-      await expect(page.locator('#projects').getByRole('heading', { name: project.name })).toBeAttached();
+      await expect(page.locator('#projects h3').filter({ hasText: project.name })).toBeAttached();
     }
     await expect(page.locator('#contact').getByText(cvData.contact.email)).toBeAttached();
     for (const category of cvData.skills) {
-      await expect(page.locator('#skills').getByRole('heading', { name: category.name })).toBeAttached();
+      await expect(page.locator('#skills h3').filter({ hasText: category.name })).toBeAttached();
     }
   });
 
@@ -85,19 +179,37 @@ test.describe('Regular page', () => {
     expect(await viewCookie(page)).toBe('terminal');
   });
 
+  test('shares one session between the full terminal and the window, both ways', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/');
+    await runCommand(page, 'education');
+    await page.getByTestId('open-gui').click();
+    await expect(page).toHaveURL(/\/gui$/);
+    const windowLog = page.locator('#terminal').getByRole('log', { name: 'Terminal output' });
+    await expect(windowLog).toContainText('education');
+
+    const input = page.locator('#terminal').getByLabel('Terminal command input');
+    await input.fill('whoami');
+    await input.press('Enter');
+    await page.getByTestId('back-to-terminal').click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByRole('log')).toContainText('whoami');
+    await expect(page.getByRole('log')).toContainText('education');
+  });
+
   for (const command of ['gui', 'startx']) {
     test(`typing ${command} opens the page`, async ({ page }) => {
       await page.goto('/');
       await runCommand(page, command);
       await expect(page).toHaveURL(/\/gui$/);
-      await expect(page.locator('header#hero h1')).toBeVisible();
+      await expect(page.locator('header#hero h1')).toBeAttached();
     });
   }
 
   test('a /startx link runs the command and switches to the page', async ({ page }) => {
     await page.goto('/startx');
     await expect(page).toHaveURL(/\/gui$/);
-    await expect(page.locator('header#hero h1')).toBeVisible();
+    await expect(page.locator('header#hero h1')).toBeAttached();
   });
 
   test('lands returning visitors on their last view', async ({ page }) => {

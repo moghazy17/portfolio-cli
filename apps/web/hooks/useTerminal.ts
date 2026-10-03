@@ -91,9 +91,10 @@ export interface TerminalOptions {
   windowed?: boolean;
   /** Log shown when there is no session to restore (the window starts with `about` already run). */
   initialHistory?: TerminalEntry[];
+  onFx?: (fx: 'web' | 'confetti') => void;
 }
 
-export function useTerminal({ windowed = false, initialHistory }: TerminalOptions = {}) {
+export function useTerminal({ windowed = false, initialHistory, onFx }: TerminalOptions = {}) {
   const router = useRouter();
   const restoredRef = useRef(peekSnapshot());
   const [history, setHistory] = useState<TerminalEntry[]>(() => restoredRef.current?.history ?? initialHistory ?? []);
@@ -322,6 +323,7 @@ export function useTerminal({ windowed = false, initialHistory }: TerminalOption
     // A cancelled chain may already have changed directory.
     setPrompt(currentPrompt());
     if (controller.signal.aborted || result.cancelled) return;
+    if (!isLink && !isTour && result.fx) onFx?.(result.fx);
 
     if (isLink && result.ask) {
       setPrefill({ text: input, nonce: Date.now() });
@@ -439,7 +441,7 @@ export function useTerminal({ windowed = false, initialHistory }: TerminalOption
         restoreTheme: () => setTheme(startingTheme, false),
       });
     }
-  }, [currentPrompt, getShell, push, router, runAssistant, setTheme, skipSequence, skipBoot, syncAddress, reducedMotion, theme, startTour, stopTour, tourPlaying, dismissFinished, windowed]);
+  }, [currentPrompt, getShell, push, router, runAssistant, setTheme, skipSequence, skipBoot, syncAddress, reducedMotion, theme, startTour, stopTour, tourPlaying, dismissFinished, windowed, onFx]);
 
   const submitSuggestion = useCallback((line: string) => { void handleCommand(line); }, [handleCommand]);
 

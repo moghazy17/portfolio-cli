@@ -29,6 +29,9 @@ interface Desktop {
   order: readonly WindowId[];
   /** Windows taken off the desk (≥1100px only; the phone stack shows everything). */
   minimized: ReadonlySet<WindowId>;
+  /** Windows still visible while their minimize gesture finishes. */
+  exiting: ReadonlySet<WindowId>;
+  opening: ReadonlySet<WindowId>;
   maximized: ReadonlySet<WindowId>;
   /** Desk position of a window that has been placed (cascaded or dragged); unset windows use their CSS spot. */
   positions: Readonly<Partial<Record<WindowId, Point>>>;
@@ -70,9 +73,8 @@ export function isDeskLayout(): boolean {
 }
 
 /** BeOS-style zoom rectangle: an outline that travels from the clicked icon to the window. */
-function zoomRect(from: Element, to: Element) {
-  if (reducedMotion()) return;
-  const a = from.getBoundingClientRect();
+function zoomRect(a: DOMRect, to: Element): Promise<void> {
+  if (reducedMotion()) return Promise.resolve();
   const b = to.getBoundingClientRect();
   const visibleTop = Math.max(0, Math.min(b.top, window.innerHeight - 120));
   const target = { left: b.left, top: visibleTop, width: b.width, height: Math.min(b.height, window.innerHeight - visibleTop) };
@@ -82,8 +84,8 @@ function zoomRect(from: Element, to: Element) {
   const frame = (rect: { left: number; top: number; width: number; height: number }) => ({
     transform: `translate(${rect.left}px, ${rect.top}px)`, width: `${rect.width}px`, height: `${rect.height}px`,
   });
-  ghost.animate([frame(a), frame(target)], { duration: 260, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' })
-    .finished.finally(() => ghost.remove());
+  return ghost.animate([frame(a), frame(target)], { duration: 260, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' })
+    .finished.catch(() => undefined).then(() => { ghost.remove(); });
 }
 
 const without = <T,>(set: ReadonlySet<T>, item: T): Set<T> => {
@@ -95,23 +97,48 @@ const without = <T,>(set: ReadonlySet<T>, item: T): Set<T> => {
 export function DesktopProvider({ children }: { children: React.ReactNode }) {
   const [order, setOrder] = useState<WindowId[]>(initialOrder);
   const [minimized, setMinimized] = useState<ReadonlySet<WindowId>>(initialMinimized);
+  const [exiting, setExiting] = useState<ReadonlySet<WindowId>>(new Set());
+  const [opening, setOpening] = useState<ReadonlySet<WindowId>>(new Set());
   const [maximized, setMaximized] = useState<ReadonlySet<WindowId>>(new Set());
   const [positions, setPositions] = useState<Partial<Record<WindowId, Point>>>({});
   const cascadeRef = useRef(0);
   const terminalRef = useRef<((command: string) => void) | null>(null);
   const stateRef = useRef({ order, minimized });
   stateRef.current = { order, minimized };
+  const animations = useRef(new Map<WindowId, Animation>());
+  const versions = useRef(new Map<WindowId, number>());
+
+  const interrupt = useCallback((id: WindowId) => {
+    const version = (versions.current.get(id) ?? 0) + 1;
+    versions.current.set(id, version);
+    animations.current.get(id)?.cancel();
+    animations.current.delete(id);
+    document.getElementById(id)?.style.removeProperty('transform-origin');
+    return version;
+  }, []);
 
   const front = useMemo(() => [...order].reverse().find((id) => !minimized.has(id)) ?? null, [order, minimized]);
 
   const focus = useCallback((id: WindowId) => {
-    setOrder((list) => (list[list.length - 1] === id ? list : [...list.filter((item) => item !== id), id]));
+    const list = stateRef.current.order;
+    if (list[list.length - 1] === id) return;
+    const next = [...list.filter((item) => item !== id), id];
+    stateRef.current = { ...stateRef.current, order: next };
+    setOrder(next);
   }, []);
 
   const open = useCallback((id: WindowId, from?: Element | null) => {
+    const version = interrupt(id);
+    const animate = isDeskLayout() && !reducedMotion();
+    const wasHidden = stateRef.current.minimized.has(id);
+    const source = from?.getBoundingClientRect();
+    setExiting((set) => without(set, id));
+    setOpening((set) => animate && (wasHidden || !!from) ? new Set(set).add(id) : without(set, id));
     focus(id);
-    if (stateRef.current.minimized.has(id)) {
+    if (wasHidden) {
+      stateRef.current = { ...stateRef.current, minimized: without(stateRef.current.minimized, id) };
       setMinimized((set) => without(set, id));
+      setMaximized((set) => (set.has(id) ? without(set, id) : set));
       // First time on the desk: take the next cascade slot. A window that was moved keeps its place.
       setPositions((map) => {
         if (map[id] || id === 'terminal') return map;
@@ -121,24 +148,95 @@ export function DesktopProvider({ children }: { children: React.ReactNode }) {
     }
     if (history.replaceState) history.replaceState(null, '', `#${id}`);
     // Wait for the window to be shown before measuring it.
-    requestAnimationFrame(() => {
+    requestAnimationFrame(async () => {
       const element = document.getElementById(id);
       if (!element) return;
       if (!isDeskLayout()) element.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'nearest' });
-      if (from) zoomRect(from, element);
+      if (!animate || (!wasHidden && !from)) return;
+      if (source) {
+        const target = element.getBoundingClientRect();
+        element.style.transformOrigin = `${source.left + source.width / 2 < target.left + target.width / 2 ? 'left' : 'right'} center`;
+      }
+      if (source) await zoomRect(source, element);
+      if (versions.current.get(id) !== version) return;
+      const animation = element.animate(
+        [{ transform: 'scale(.85)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }],
+        { duration: 220, easing: 'cubic-bezier(0.16, 1, 0.3, 1)', fill: 'forwards' },
+      );
+      animations.current.set(id, animation);
+      try { await animation.finished; } catch { return; }
+      if (versions.current.get(id) !== version) return;
+      setOpening((set) => without(set, id));
+      requestAnimationFrame(() => animation.cancel());
+      animations.current.delete(id);
+      element.style.removeProperty('transform-origin');
     });
-  }, [focus]);
+  }, [focus, interrupt]);
 
   const minimize = useCallback((id: WindowId) => {
+    const version = interrupt(id);
+    setOpening((set) => without(set, id));
+    const animate = isDeskLayout() && !reducedMotion() && !stateRef.current.minimized.has(id);
+    if (animate) setExiting((set) => new Set(set).add(id));
+    else setExiting((set) => without(set, id));
+    stateRef.current = { ...stateRef.current, minimized: new Set(stateRef.current.minimized).add(id) };
     setMinimized((set) => new Set(set).add(id));
-    setMaximized((set) => (set.has(id) ? without(set, id) : set));
+    if (!animate) setMaximized((set) => (set.has(id) ? without(set, id) : set));
     if (history.replaceState && window.location.hash === `#${id}`) history.replaceState(null, '', window.location.pathname);
-  }, []);
+    if (!animate) return;
+    const element = document.getElementById(id);
+    const entry = document.querySelector(`[data-window-entry="${id}"]`);
+    if (!element) { setExiting((set) => without(set, id)); return; }
+    const a = element.getBoundingClientRect();
+    const b = entry?.getBoundingClientRect();
+    const dx = b ? b.left + b.width / 2 - (a.left + a.width / 2) : 0;
+    const dy = b ? b.top + b.height / 2 - (a.top + a.height / 2) : 0;
+    const animation = element.animate(
+      [{ transform: 'translate(0, 0) scale(1)', opacity: 1 }, { transform: `translate(${dx}px, ${dy}px) scale(.16)`, opacity: 0 }],
+      { duration: 200, easing: 'cubic-bezier(.55, .08, .9, .45)', fill: 'forwards' },
+    );
+    animations.current.set(id, animation);
+    animation.finished.then(() => {
+      if (versions.current.get(id) !== version) return;
+      setExiting((set) => without(set, id));
+      setMaximized((set) => (set.has(id) ? without(set, id) : set));
+      requestAnimationFrame(() => animation.cancel());
+      animations.current.delete(id);
+      if (entry) {
+        entry.classList.remove('be-entry-flash');
+        void (entry as HTMLElement).offsetWidth;
+        entry.classList.add('be-entry-flash');
+        window.setTimeout(() => entry.classList.remove('be-entry-flash'), 260);
+      }
+    }).catch(() => undefined);
+  }, [interrupt]);
 
   const toggleMaximized = useCallback((id: WindowId) => {
+    const version = interrupt(id);
+    const element = document.getElementById(id);
+    const before = element?.getBoundingClientRect();
     focus(id);
     setMaximized((set) => (set.has(id) ? without(set, id) : new Set(set).add(id)));
-  }, [focus]);
+    if (!element || !before || !isDeskLayout() || reducedMotion()) return;
+    requestAnimationFrame(() => {
+      if (versions.current.get(id) !== version) return;
+      const after = element.getBoundingClientRect();
+      const sx = before.width / after.width;
+      const sy = before.height / after.height;
+      const animation = element.animate(
+        [{ transform: `translate(${before.left - after.left}px, ${before.top - after.top}px) scale(${sx}, ${sy})` }, { transform: 'none' }],
+        { duration: 240, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' },
+      );
+      element.style.transformOrigin = 'top left';
+      animations.current.set(id, animation);
+      animation.finished.then(() => {
+        if (versions.current.get(id) === version) {
+          element.style.removeProperty('transform-origin');
+          animations.current.delete(id);
+        }
+      }).catch(() => undefined);
+    });
+  }, [focus, interrupt]);
 
   const activate = useCallback((id: WindowId, from?: Element | null) => {
     const { order: list, minimized: hidden } = stateRef.current;
@@ -171,8 +269,8 @@ export function DesktopProvider({ children }: { children: React.ReactNode }) {
   }, [open]);
 
   const value = useMemo<Desktop>(() => ({
-    front, order, minimized, maximized, positions, open, focus, minimize, toggleMaximized, activate, place, run, registerTerminal,
-  }), [front, order, minimized, maximized, positions, open, focus, minimize, toggleMaximized, activate, place, run, registerTerminal]);
+    front, order, minimized, exiting, opening, maximized, positions, open, focus, minimize, toggleMaximized, activate, place, run, registerTerminal,
+  }), [front, order, minimized, exiting, opening, maximized, positions, open, focus, minimize, toggleMaximized, activate, place, run, registerTerminal]);
 
   return <DesktopContext.Provider value={value}>{children}</DesktopContext.Provider>;
 }

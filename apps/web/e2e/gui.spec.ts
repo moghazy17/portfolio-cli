@@ -26,6 +26,10 @@ async function revealAll(page: Page) {
 }
 
 test.describe('Regular page', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => sessionStorage.setItem('gui-boot:v1', '1'));
+  });
+
   test('desktop starts with one centred terminal and no page scroll', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/gui');
@@ -47,6 +51,7 @@ test.describe('Regular page', () => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/gui');
     await page.getByRole('list', { name: 'Desktop' }).getByRole('button', { name: 'Projects' }).click();
+    await expect(page.getByRole('list', { name: 'Desktop' }).getByRole('button', { name: 'Projects' })).toHaveClass(/is-selected/);
     const projects = page.locator('#projects');
     const entry = page.locator('[data-window-entry="projects"]');
     await expect(projects).toBeVisible();
@@ -69,6 +74,50 @@ test.describe('Regular page', () => {
     await projects.getByRole('button', { name: 'Restore Projects' }).click();
     await expect(projects).not.toHaveClass(/is-maximized/);
   });
+
+  test('rapid Deskbar clicks leave the window hidden and its entry unpressed', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/gui');
+    const entry = page.locator('[data-window-entry="projects"]');
+    await entry.dblclick();
+    await expect(page.locator('#projects')).toBeHidden();
+    await expect(entry).toHaveAttribute('aria-pressed', 'false');
+    await expect(entry).toContainText('(minimized)');
+  });
+
+  test('desktop icon selection moves and clears on the desk background', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/gui');
+    const icons = page.getByRole('list', { name: 'Desktop' });
+    const projects = icons.getByRole('button', { name: 'Projects' });
+    const about = icons.getByRole('button', { name: 'About' });
+    await projects.click();
+    await expect(projects).toHaveClass(/is-selected/);
+    await about.click();
+    await expect(projects).not.toHaveClass(/is-selected/);
+    await expect(about).toHaveClass(/is-selected/);
+    await page.locator('.be-desk').dispatchEvent('pointerdown');
+    await expect(about).not.toHaveClass(/is-selected/);
+  });
+
+  for (const [command, effect] of [['spidey', '.be-fx-web'], ['visca', '.be-fx-confetti']] as const) {
+    test(`${command} plays and cleans up its desk effect`, async ({ page }) => {
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto('/gui');
+      const input = page.locator('#terminal').getByLabel('Terminal command input');
+      await input.fill(command);
+      await input.press('Enter');
+      const node = page.locator(effect);
+      if (test.info().project.name.includes('reduced')) {
+        await expect(node).toHaveCount(0);
+        await expect(page.locator('#terminal .be-term-log')).toContainText(command);
+        await expect(node).toHaveCount(0);
+      } else {
+        await expect(node).toHaveCount(1);
+        await expect(node).toHaveCount(0, { timeout: 2500 });
+      }
+    });
+  }
 
   test('hash links open a window, while a plain reload starts fresh', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });

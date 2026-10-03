@@ -25,9 +25,10 @@ interface Props {
   initialHistory?: TerminalEntry[];
   /** Hands the window manager a way to run commands here (desktop icons, hidden marks). */
   registerRunner?: (run: (line: string) => void) => void;
+  onFx?: (fx: 'web' | 'confetti') => void;
 }
 
-export default function Terminal({ windowed = false, initialHistory, registerRunner }: Props) {
+export default function Terminal({ windowed = false, initialHistory, registerRunner, onFx }: Props) {
   // The desktop's Deskbar already reports presence, and a window has no keyboard-inset layout.
   const presence = usePresence(!windowed);
   useKeyboardInset(!windowed);
@@ -39,7 +40,7 @@ export default function Terminal({ windowed = false, initialHistory, registerRun
     complete, cancel, clearScreen, onListCandidates, onAbandon,
     historyUp, historyDown, resetHistoryCursor,
     booting, bootSteps, skipBoot, reducedMotion, screensaver,
-  } = useTerminal({ windowed, initialHistory });
+  } = useTerminal({ windowed, initialHistory, onFx });
   useEffect(() => { registerRunner?.((line) => { void handleCommand(line); }); }, [registerRunner, handleCommand]);
   const [visible, setVisible] = useState(true);
   useEffect(() => {

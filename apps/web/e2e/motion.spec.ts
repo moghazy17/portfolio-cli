@@ -103,3 +103,31 @@ test.describe('terminal motion', () => {
     await expect(page.getByTestId('screensaver')).toHaveCount(0);
   });
 });
+
+test.describe('Be Desktop motion', () => {
+  test('boot appears once per session and a key skips without reaching the terminal', async ({ page }) => {
+    test.skip(test.info().project.name.includes('reduced'));
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/gui');
+    await expect(page.getByTestId('gui-boot')).toBeVisible();
+    await page.keyboard.press('x');
+    await expect(page.getByTestId('gui-boot')).toHaveCount(0);
+    await expect(page.locator('#terminal').getByLabel('Terminal command input')).toHaveValue('');
+    await page.reload();
+    await expect(page.getByTestId('gui-boot')).toHaveCount(0);
+    await page.evaluate(() => sessionStorage.removeItem('gui-boot:v1'));
+    await page.reload();
+    await expect(page.getByTestId('gui-boot')).toBeVisible();
+    await expect(page.getByTestId('gui-boot')).toHaveCount(0, { timeout: 3000 });
+    await page.getByRole('list', { name: 'Desktop' }).getByRole('button', { name: 'Projects' }).click();
+    await expect(page.locator('#projects')).toBeVisible();
+    await page.goto('/gui#projects');
+    await expect(page.getByTestId('gui-boot')).toHaveCount(0);
+  });
+
+  test('boot never mounts under reduced motion', async ({ page }) => {
+    test.skip(!test.info().project.name.includes('reduced'));
+    await page.goto('/gui');
+    await expect(page.getByTestId('gui-boot')).toHaveCount(0);
+  });
+});

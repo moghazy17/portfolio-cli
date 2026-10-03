@@ -126,7 +126,7 @@ html:has(.gui-root) {
     inset -1px -1px 0 var(--chrome-lo),
     0 12px 24px -16px rgba(6, 22, 44, .55),
     0 1px 3px rgba(6, 22, 44, .2);
-  transition: box-shadow .2s cubic-bezier(.16, 1, .3, 1);
+  transition: box-shadow .16s cubic-bezier(.16, 1, .3, 1), transform .18s cubic-bezier(.16, 1, .3, 1);
 }
 
 .be-win.is-active {
@@ -135,6 +135,12 @@ html:has(.gui-root) {
     inset -1px -1px 0 var(--chrome-lo),
     0 34px 60px -18px rgba(6, 22, 44, .85),
     0 6px 16px rgba(6, 22, 44, .35);
+}
+
+.be-win.is-dragging {
+  transform: scale(1.015);
+  box-shadow: inset 1px 1px 0 var(--chrome-hi), inset -1px -1px 0 var(--chrome-lo),
+    0 38px 68px -16px rgba(6, 22, 44, .75), 0 10px 22px rgba(6, 22, 44, .36);
 }
 
 .be-tab {
@@ -154,7 +160,17 @@ html:has(.gui-root) {
   touch-action: none;
 }
 
-.be-win.is-active .be-tab { background: linear-gradient(var(--tab-hi), var(--tab) 55%, var(--tab-lo)); }
+.be-tab::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(var(--tab-hi), var(--tab) 55%, var(--tab-lo));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .16s ease-out;
+}
+.be-win.is-active .be-tab::before { opacity: 1; }
+.be-tab > * { position: relative; z-index: 1; }
 
 @media (pointer: fine) and (min-width: 1100px) {
   .be-tab { cursor: grab; }
@@ -247,6 +263,37 @@ html:has(.gui-root) {
   outline: 1px solid var(--focus);
   pointer-events: none;
 }
+
+@keyframes be-entry-blink {
+  0%, 100% { opacity: 0; }
+  45% { opacity: 1; }
+}
+.be-deskbar-links button.be-entry-flash { position: relative; }
+.be-deskbar-links button.be-entry-flash > * { position: relative; z-index: 1; }
+.be-deskbar-links button.be-entry-flash::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--select);
+  pointer-events: none;
+  animation: be-entry-blink .26s ease-out;
+}
+
+.be-boot {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: grid;
+  place-items: center;
+  background: var(--gui-bg, #2a69a7);
+  transition: opacity .16s ease-out;
+}
+.be-boot-pending .be-desk { visibility: hidden; }
+.be-boot.is-leaving { opacity: 0; pointer-events: none; }
+.be-boot-icons { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 26px); padding: 20px; }
+.be-boot-icons img { width: clamp(32px, 4.4vw, 56px); height: clamp(32px, 4.4vw, 56px); object-fit: contain; filter: grayscale(1); opacity: .35; }
+.be-boot-icons img.is-lit { filter: none; opacity: 1; }
+.be-boot-icons img.is-lighting { transition: filter .12s ease-out, opacity .12s ease-out; }
 
 /* ---------- Shared content pieces ---------- */
 
@@ -653,7 +700,8 @@ html:has(.gui-root) {
     max-height: calc(100% - var(--y, var(--y0)) - 12px);
     margin: 0;
   }
-  .be-win.is-minimized { display: none; }
+  .be-win.is-minimized:not(.is-exiting) { display: none; }
+  .be-win.is-opening { opacity: 0; }
   .be-win.is-maximized {
     left: 8px;
     top: 22px;
@@ -735,7 +783,9 @@ html:has(.gui-root) {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .be-win, .be-grip-mark { transition: none; }
+  .be-win, .be-grip-mark, .be-tab::before { transition: none; }
+  .be-boot { display: none; }
+  .be-entry-flash::after { animation: none; display: none; }
 }
 
 /* ---------- Deskbar sound toggle (fine pointers only; the sound itself is mouse-only) ---------- */

@@ -10,6 +10,7 @@ import Deskbar from '../../components/desk/Deskbar';
 import DeskTerminal from '../../components/desk/DeskTerminal';
 import DesktopIcons from '../../components/desk/DesktopIcons';
 import { DesktopProvider } from '../../components/desk/DesktopContext';
+import BootScreen from '../../components/desk/BootScreen';
 import ExperienceList from '../../components/desk/ExperienceList';
 import FilmsList from '../../components/desk/FilmsList';
 import GuestbookBody from '../../components/desk/GuestbookBody';
@@ -61,6 +62,7 @@ export default async function GuiPage() {
 
   return (
     <DesktopProvider>
+      <BootScreen />
       <ViewMemory />
       <div className="be-desk">
         <Deskbar host="moghazy.me" place={city} timeZone={`Africa/${city}`} />

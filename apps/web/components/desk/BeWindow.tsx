@@ -93,7 +93,8 @@ export default function BeWindow({
       aria-labelledby={heading ? titleId : undefined}
       data-window={id}
       className={[
-        'be-win', className, active && 'is-active', minimized && 'is-minimized', maximized && 'is-maximized',
+        'be-win', className, active && 'is-active', minimized && 'is-minimized',
+        desktop.exiting.has(id) && 'is-exiting', desktop.opening.has(id) && 'is-opening', maximized && 'is-maximized',
         position && 'is-placed', dragging && 'is-dragging',
       ].filter(Boolean).join(' ')}
       style={style}

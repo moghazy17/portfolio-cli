@@ -136,12 +136,14 @@ test('Enter activates focused tour buttons and Exit returns focus to the prompt'
   await expect(next).toHaveAttribute('aria-disabled', 'false');
   await next.click();
   await expect(card).toContainText('Step 2/');
-  const count = await page.locator('[data-tour-step]').count();
+  // Step 2's output renders just after the card advances; wait for it before taking the count.
+  const steps = page.locator('[data-tour-step]');
+  await expect(steps).toHaveCount(2);
   const back = card.getByRole('button', { name: 'Back' });
   await back.focus();
   await page.keyboard.press('Enter');
   await expect(card).toContainText('Step 1/');
-  expect(await page.locator('[data-tour-step]').count()).toBe(count);
+  await expect(steps).toHaveCount(2);
   await next.focus();
   await page.keyboard.press('Tab');
   const exit = card.getByRole('button', { name: 'Exit' });

@@ -1,0 +1,35 @@
+@media (pointer: fine) {
+  /* Keep a plain PNG first: browsers that reject image-set() for cursor retain it. */
+  .gui-root {
+    cursor: url('/desk/cursors/arrow.png') 0 0, default;
+    cursor: image-set(url('/desk/cursors/arrow.png') 1x, url('/desk/cursors/arrow@2x.png') 2x) 0 0, default;
+  }
+
+  .gui-root :is(a, button, summary, label[for], [role='button'], select) {
+    cursor: url('/desk/cursors/hand.png') 9 0, pointer;
+    cursor: image-set(url('/desk/cursors/hand.png') 1x, url('/desk/cursors/hand@2x.png') 2x) 9 0, pointer;
+  }
+
+  .gui-root button:disabled {
+    cursor: url('/desk/cursors/arrow.png') 0 0, default;
+    cursor: image-set(url('/desk/cursors/arrow.png') 1x, url('/desk/cursors/arrow@2x.png') 2x) 0 0, default;
+  }
+
+  .gui-root :is(input:not([type='checkbox']):not([type='radio']), textarea, [contenteditable='true']) {
+    cursor: url('/desk/cursors/ibeam.png') 8 11, text;
+    cursor: image-set(url('/desk/cursors/ibeam.png') 1x, url('/desk/cursors/ibeam@2x.png') 2x) 8 11, text;
+  }
+
+  .gui-root .be-tab {
+    cursor: url('/desk/cursors/move.png') 10 10, move;
+    cursor: image-set(url('/desk/cursors/move.png') 1x, url('/desk/cursors/move@2x.png') 2x) 10 10, move;
+  }
+
+  .gui-root .be-win.is-dragging,
+  .gui-root .be-win.is-dragging *,
+  html.be-dragging,
+  html.be-dragging * {
+    cursor: url('/desk/cursors/grabbing.png') 10 9, grabbing !important;
+    cursor: image-set(url('/desk/cursors/grabbing.png') 1x, url('/desk/cursors/grabbing@2x.png') 2x) 10 9, grabbing !important;
+  }
+}

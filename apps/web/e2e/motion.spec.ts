@@ -119,7 +119,7 @@ test.describe('Be Desktop motion', () => {
     await page.reload();
     await expect(page.getByTestId('gui-boot')).toBeVisible();
     await expect(page.getByTestId('gui-boot')).toHaveCount(0, { timeout: 3000 });
-    await page.getByRole('list', { name: 'Desktop' }).getByRole('button', { name: 'Projects' }).click();
+    await page.getByRole('navigation', { name: 'Desktop' }).getByRole('button', { name: 'Projects' }).click();
     await expect(page.locator('#projects')).toBeVisible();
     await page.goto('/gui#projects');
     await expect(page.getByTestId('gui-boot')).toHaveCount(0);

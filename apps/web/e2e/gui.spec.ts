@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { createShell, cvData, WELCOME_SUBTITLE } from '@ahmed-moghazy/shared';
+import { createShell, cvData, profile, WELCOME_SUBTITLE } from '@ahmed-moghazy/shared';
 
 const sections = ['hero', 'about', 'experience', 'projects', 'skills', 'contact'];
 
@@ -50,8 +50,8 @@ test.describe('Regular page', () => {
   test('desktop icons and Deskbar manage window state', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/gui');
-    await page.getByRole('list', { name: 'Desktop' }).getByRole('button', { name: 'Projects' }).click();
-    await expect(page.getByRole('list', { name: 'Desktop' }).getByRole('button', { name: 'Projects' })).toHaveClass(/is-selected/);
+    await page.getByRole('navigation', { name: 'Desktop' }).getByRole('button', { name: 'Projects' }).click();
+    await expect(page.getByRole('navigation', { name: 'Desktop' }).getByRole('button', { name: 'Projects' })).toHaveClass(/is-selected/);
     const projects = page.locator('#projects');
     const entry = page.locator('[data-window-entry="projects"]');
     await expect(projects).toBeVisible();
@@ -88,7 +88,7 @@ test.describe('Regular page', () => {
   test('desktop icon selection moves and clears on the desk background', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/gui');
-    const icons = page.getByRole('list', { name: 'Desktop' });
+    const icons = page.getByRole('navigation', { name: 'Desktop' });
     const projects = icons.getByRole('button', { name: 'Projects' });
     const about = icons.getByRole('button', { name: 'About' });
     await projects.click();
@@ -183,7 +183,7 @@ test.describe('Regular page', () => {
     await expect(page).toHaveURL(/\/gui$/);
 
     for (const id of sections) await expect(page.locator(`#${id}`)).toBeAttached();
-    await expect(page.locator('header#hero h1')).toHaveText(cvData.name);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(`${cvData.name}, ${profile.label}`);
     for (const id of sections.slice(1)) await expect(page.locator(`section#${id} h2`)).toBeAttached();
     for (const experience of cvData.experience) {
       await expect(page.locator('#experience').getByText(experience.company, { exact: true }).first()).toBeAttached();
@@ -251,14 +251,14 @@ test.describe('Regular page', () => {
       await page.goto('/');
       await runCommand(page, command);
       await expect(page).toHaveURL(/\/gui$/);
-      await expect(page.locator('header#hero h1')).toBeAttached();
+      await expect(page.getByRole('heading', { level: 1 })).toBeAttached();
     });
   }
 
   test('a /startx link runs the command and switches to the page', async ({ page }) => {
     await page.goto('/startx');
     await expect(page).toHaveURL(/\/gui$/);
-    await expect(page.locator('header#hero h1')).toBeAttached();
+    await expect(page.getByRole('heading', { level: 1 })).toBeAttached();
   });
 
   test('lands returning visitors on their last view', async ({ page }) => {

@@ -19,7 +19,9 @@ export default function DesktopIcons({ icons, variant }: { icons: Icon[]; varian
     return () => document.removeEventListener('pointerdown', clearOnBackground);
   }, [variant]);
   return (
-    <ul className={variant === 'dock' ? 'be-dock' : 'be-icons'} aria-label={variant === 'dock' ? 'Dock' : 'Desktop'}>
+    // A landmark, so the icons are reachable by region navigation (the list keeps its own styling).
+    <nav aria-label={variant === 'dock' ? 'Dock' : 'Desktop'}>
+    <ul className={variant === 'dock' ? 'be-dock' : 'be-icons'}>
       {icons.map((item) => {
         const face = <><img src={item.icon} alt="" width={48} height={48} /><span>{item.label}</span></>;
         return (
@@ -44,5 +46,6 @@ export default function DesktopIcons({ icons, variant }: { icons: Icon[]; varian
         );
       })}
     </ul>
+    </nav>
   );
 }

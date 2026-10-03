@@ -82,11 +82,12 @@ export default async function GuiPage() {
         />
 
         <main id="main" className="be-scenes">
+          <h1 className="sr-only">{profile.name}, {profile.label}</h1>
           <div className="be-scene be-scene-1">
             <BeWindow id="hero" as="header" title="Résumé.pdf" heading={false} className="be-hero"
               mark={{ command: 'sudo hire-me', label: 'Secret: sudo hire-me', glyph: 'key' }}>
               <div className="be-paper">
-                <h1>{profile.name}</h1>
+                <p className="be-paper-name">{profile.name}</p>
                 <p className="be-paper-role">{profile.label}</p>
                 <p className="be-paper-meta">{contact.location}</p>
                 <p className="be-paper-rule">Experience</p>

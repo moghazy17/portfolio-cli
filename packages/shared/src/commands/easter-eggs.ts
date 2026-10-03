@@ -182,7 +182,7 @@ export async function viscaCommand(ctx: CommandContext): Promise<CommandResult> 
       output: [
         banner,
         { type: 'text', content: 'Fixture unavailable', style: { dim: true } },
-        { type: 'link', text: BARCA_FIXTURES_URL, url: BARCA_FIXTURES_URL },
+        { type: 'link', text: 'FC Barcelona fixtures', url: BARCA_FIXTURES_URL },
         ending,
       ],
     };

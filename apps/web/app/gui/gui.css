@@ -766,7 +766,7 @@ html:has(.gui-root) {
     box-shadow: none;
   }
   .be-deskbar-status { order: 3; display: grid; gap: 4px; padding: 8px 10px 6px; color: var(--ink); font-size: 15px; }
-  .be-deskbar-status > :first-child { display: block; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .be-deskbar-status > :first-child { display: flex; font-variant-numeric: tabular-nums; font-weight: 600; }
   .be-icons {
     position: fixed;
     z-index: 50;

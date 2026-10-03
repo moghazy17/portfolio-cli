@@ -287,12 +287,6 @@ export interface CommandResult {
   tour?: TourStep[];
 }
 
-export interface Suggestion {
-  label: string;
-  line: string;
-  kind: 'command' | 'question';
-}
-
 export interface TourStep {
   line: string;
   title: string;

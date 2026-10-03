@@ -314,7 +314,8 @@ export function DesktopProvider({ children }: { children: React.ReactNode }) {
   // Deep links: /gui#projects opens the desk with Projects open and in front.
   useEffect(() => {
     const follow = () => {
-      const id = decodeURIComponent(window.location.hash.slice(1));
+      // A malformed escape (`#%E0`) must not take the desk down; window ids never need decoding anyway.
+      const id = window.location.hash.slice(1);
       if (isWindowId(id)) open(id);
     };
     follow();

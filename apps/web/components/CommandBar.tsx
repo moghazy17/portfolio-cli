@@ -40,7 +40,7 @@ export default function CommandBar({ ready, onSelect, variant = 'terminal' }: {
 
   const focusPrompt = () => requestAnimationFrame(() => document.querySelector<HTMLInputElement>('.terminal-container input')?.focus());
   const closeSheet = () => { setSheetOpen(false); focusPrompt(); };
-  const choose = (line: string) => { setSheetOpen(false); onSelect(line); focusPrompt(); };
+  const choose = (line: string) => { recordClientEvent('suggestion_taps'); setSheetOpen(false); onSelect(line); focusPrompt(); };
   const openSheet = () => {
     setSheetOpen(true);
     recordClientEvent('command_sheet_opens');
@@ -79,7 +79,7 @@ export default function CommandBar({ ready, onSelect, variant = 'terminal' }: {
       {chips.map((chip, index) => <button type="button" className={chipClass(chip.question)}
         key={chip.label} data-line={chip.line} disabled={!ready} tabIndex={activeIndex === index ? 0 : -1}
         onFocus={() => setActiveIndex(index)}
-        onClick={() => { recordClientEvent('suggestion_taps'); choose(chip.line); }}
+        onClick={() => choose(chip.line)}
         aria-label={chip.question ? `Ask the assistant: ${chip.line}` : undefined}>
         {chip.icon ? <img src={chip.icon} alt="" width={18} height={18} /> : spark}{chip.label}
       </button>)}

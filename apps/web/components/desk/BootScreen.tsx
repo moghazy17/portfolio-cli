@@ -19,11 +19,12 @@ export default function BootScreen() {
 
   useEffect(() => {
     const clearPending = () => document.documentElement.classList.remove('be-boot-pending');
-    if (window.location.hash || window.matchMedia('(prefers-reduced-motion: reduce)').matches || sessionStorage.getItem(bootKey)) {
+    let booted = true;
+    try { booted = !!sessionStorage.getItem(bootKey); } catch { /* Storage can be blocked; skip the boot then. */ }
+    if (window.location.hash || window.matchMedia('(prefers-reduced-motion: reduce)').matches || booted) {
       clearPending();
       return;
     }
-    sessionStorage.setItem(bootKey, '1');
     setVisible(true);
     const revealFrame = requestAnimationFrame(() => requestAnimationFrame(clearPending));
     const timers: number[] = [];
@@ -37,6 +38,8 @@ export default function BootScreen() {
     };
     const finish = (skip: boolean) => {
       if (done) return;
+      // Marked here, not at start, so a remounted effect (Strict Mode) replays the boot instead of stranding the overlay.
+      try { sessionStorage.setItem(bootKey, '1'); } catch { /* Storage is optional. */ }
       timers.forEach(window.clearTimeout);
       if (skip) {
         done = true;

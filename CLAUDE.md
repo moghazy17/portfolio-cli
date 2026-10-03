@@ -66,7 +66,7 @@ npm run eval:assistant -w @ahmed-moghazy/shared  # Golden-question assistant eva
 
 `src/surface/` holds the access-surface logic shared by the web host and the curl route: `parseAddress()`/`toAddress()` (one address format for browsers and text clients: command paths like `/skills/llm` plus `/?cmd=`), `isTextClient()`, `wantsColor()`, `runTextRequest()`/`curlIndex()` (curl responses and the root guide), `rateLimitedResponse()`, and `recordSurfaceEvent()`/`readSurfaceStats()` (anonymous daily counters over an injected Redis client).
 
-`src/discover/` defines the shared suggestion sets, rotating prompt examples, `promptExamplesFor()` to avoid visible chips, and scripted tour steps. The `tour` command returns a structured effect on web and a web address on curl.
+`src/discover/` defines the scripted tour steps. The `tour` command returns a structured effect on web and a web address on curl.
 
 `src/shell/` contains the tokenizer, parser, argument parsing, filters, completion, history,
 suggestions, unknown-command handling, and output-to-lines conversion. `src/vfs/` provides
@@ -172,5 +172,5 @@ Exports `fetchGitHubData()` → `GitHubStats`, `GITHUB_USERNAME`, `GITHUB_API_BA
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-`specs/007-unified-command-bar/plan.md` (Spec 007 — unified command bar: one bottom bar with suggestions and an all-commands sheet)
+`specs/007-unified-command-bar/plan.md` (Spec 007 — unified command bar: one bottom bar with fixed chips and an all-commands sheet)
 <!-- SPECKIT END -->

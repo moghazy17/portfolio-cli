@@ -2,8 +2,8 @@ import type { Suggestion, Surface } from '../types';
 import { commandRegistry } from '../commands/registry';
 
 const QUESTION: Suggestion = { label: 'What RAG work has he done?', line: 'What RAG work has he done?', kind: 'question' };
-const LABELS: Record<string, string> = { tour: 'take the tour', gui: 'regular page' };
-const FIRST = ['projects', 'skills', 'tour', 'guestbook', 'gui'];
+const LABELS: Record<string, string> = { tour: 'take the tour', gui: 'regular page', resume: 'download CV' };
+const FIRST = ['projects', 'resume', 'skills', 'tour', 'gui'];
 const DEFAULT = ['projects', 'skills', 'experience', 'guestbook', 'gui', 'tour', 'about', 'contact'];
 const NEXT: Record<string, string[]> = {
   projects: ['skills', 'experience', 'github', 'guestbook', 'gui'],
@@ -15,17 +15,6 @@ const NEXT: Record<string, string[]> = {
   about: ['experience', 'projects', 'skills', 'contact', 'gui'],
   contact: ['projects', 'experience', 'guestbook', 'skills', 'gui'],
 };
-
-export const PROMPT_EXAMPLES = [
-  'try: projects', 'try: skills llm', 'ask: What RAG work has he done?',
-  'try: neofetch', 'try: guestbook', 'try: tour',
-];
-
-export function promptExamplesFor(visibleLines: string[]): string[] {
-  const visible = new Set(visibleLines.map((line) => line.trim().toLowerCase()));
-  const examples = PROMPT_EXAMPLES.filter((example) => !visible.has(example.replace(/^(?:try|ask):\s*/i, '').trim().toLowerCase()));
-  return examples.length ? examples : ['try: neofetch'];
-}
 
 export function suggestionsFor(context: { firstVisit: boolean; lastCommand?: string; surface: Surface }): Suggestion[] {
   const last = commandRegistry.find((item) => item.name === context.lastCommand || item.aliases.includes(context.lastCommand ?? ''))?.name;

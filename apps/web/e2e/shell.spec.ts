@@ -138,15 +138,6 @@ test.describe('US1', () => {
     await expect(page.getByText(/command not found/)).toHaveCount(0);
   });
 
-  test('Ctrl+C exits idle chat', async ({ page }) => {
-    const input = page.getByLabel('Terminal command input');
-    await input.fill('chat');
-    await input.press('Enter');
-    const chatInput = page.getByLabel('Chat input');
-    await expect(chatInput).toBeVisible();
-    await chatInput.press('Control+c');
-    await expect(input).toBeVisible();
-  });
 
   test('updates completion and history within the interaction budget', async ({ page }) => {
     const input = page.getByLabel('Terminal command input');

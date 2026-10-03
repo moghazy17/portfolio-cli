@@ -74,6 +74,11 @@ test.describe('terminal motion', () => {
     await expect(input(page)).toBeFocused();
     await page.waitForTimeout(100);
     await page.clock.fastForward(60_100);
+    await expect(page.getByTestId('screensaver')).toHaveCount(0);
+    await input(page).fill('screensaver');
+    await input(page).press('Enter');
+    await page.waitForTimeout(100);
+    await page.clock.fastForward(60_100);
     await expect(page.getByTestId('screensaver')).toBeVisible();
     await page.keyboard.press('a');
     await expect(page.getByTestId('screensaver')).toHaveCount(0);

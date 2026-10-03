@@ -1,7 +1,11 @@
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
-const entries = [{ id: 'a1B2c3D4e5F6', name: 'Ada', message: 'Lovely site', at: new Date(Date.now() - 3 * 86400000).toISOString() }];
+const entries = [
+  { id: 'a1B2c3D4e5F6', name: 'Ada', message: 'Lovely site', at: new Date(Date.now() - 3 * 86400000).toISOString() },
+  { id: 'a1B2c3D4e5F7', name: 'Grace', message: 'Great terminal', at: new Date(Date.now() - 4 * 86400000).toISOString() },
+  { id: 'a1B2c3D4e5F8', name: 'Linus', message: 'Nice work', at: new Date(Date.now() - 5 * 86400000).toISOString() },
+];
 const signed = { id: 'b1B2c3D4e5F6', name: 'Tester', message: 'Hello', at: new Date().toISOString() };
 
 async function mockLive(page: Page, signStatus = 201) {

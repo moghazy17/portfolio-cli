@@ -4,6 +4,11 @@ import { useEffect, useRef } from 'react';
 import { getMenuGroups } from '@ahmed-moghazy/shared';
 
 const groups = getMenuGroups();
+const shortcuts = [
+  ['Tab', 'Complete a command'], ['↑ / ↓', 'Browse command history'],
+  ['Ctrl+L', 'Clear the screen'], ['Ctrl+C', 'Cancel the current command'],
+  ['? or Esc', 'Open or close this sheet'],
+];
 
 export default function CommandSheet({ onClose, onSelect }: { onClose: () => void; onSelect: (line: string) => void }) {
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -32,6 +37,10 @@ export default function CommandSheet({ onClose, onSelect }: { onClose: () => voi
             <span className="command-sheet-description">{item.label.slice(item.value.length).trim()}</span>
           </button>)}
         </section>)}
+        <section aria-label="Keyboard shortcuts" className="command-sheet-shortcuts">
+          <h3>Keyboard shortcuts</h3>
+          <dl>{shortcuts.map(([key, description]) => <div key={key}><dt>{key}</dt><dd>{description}</dd></div>)}</dl>
+        </section>
       </div>
     </div>
   </>;

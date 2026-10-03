@@ -55,20 +55,6 @@ test('question suggestion uses the assistant submission path', async ({ page }) 
   await expect(page).toHaveURL('/');
 });
 
-test('prompt example rotates, stays outside the input, and hides while typing', async ({ page }) => {
-  await page.clock.install();
-  await page.goto('/');
-  const example = page.locator('.prompt-example');
-  await expect(example).toBeVisible();
-  const initial = await example.textContent();
-  await expect(input(page)).toHaveValue('');
-  await expect(input(page)).not.toHaveAttribute('placeholder');
-  await page.clock.fastForward(4_100);
-  await expect(example).toHaveText(reduced() ? initial! : 'try: neofetch');
-  await input(page).fill('about');
-  await expect(example).toHaveCount(0);
-});
-
 test('guided tour navigates without rerunning steps or reacting to page clicks and scrolls', async ({ page }) => {
   test.skip(reduced());
   await stubChat(page);
@@ -287,9 +273,10 @@ test('reduced-motion tour skips the CRT step', async ({ page }) => {
 test('shortcuts respect an empty prompt and pass axe', async ({ page }) => {
   await page.goto('/');
   await input(page).press('?');
-  const dialog = page.getByRole('dialog', { name: 'Keyboard shortcuts' });
+  const dialog = page.getByRole('dialog', { name: 'All commands' });
   await expect(dialog).toBeVisible();
-  const results = await new AxeBuilder({ page }).include('.command-bar').include('.command-input-wrap').include('.shortcut-sheet').analyze();
+  await expect(dialog.getByRole('region', { name: 'Keyboard shortcuts' })).toBeVisible();
+  const results = await new AxeBuilder({ page }).include('.command-bar').include('.command-input-wrap').include('.command-sheet').analyze();
   expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact ?? ''))).toEqual([]);
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);

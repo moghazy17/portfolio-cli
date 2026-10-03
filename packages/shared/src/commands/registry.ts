@@ -1,4 +1,4 @@
-import type { CommandDefinition, CommandResult } from '../types';
+import type { CommandDefinition, CommandOutput, CommandResult } from '../types';
 import { profile } from '../content';
 import {
   aboutCommand,
@@ -25,6 +25,9 @@ import {
   neofetchCommand,
   helloCommand,
   exitCommand,
+  spideyCommand,
+  viscaCommand,
+  screensaverCommand,
 } from './easter-eggs';
 import { chatCommand } from './chat';
 import { grepLines, headLines, tailLines, wcLines, sortLines } from '../shell/filters';
@@ -33,7 +36,8 @@ import { catCommand, cdCommand, lsCommand, pwdCommand, readOnlyCommand, treeComm
 import type { CommandContext } from '../types';
 import { manCommand } from './man';
 import { resumeCommand } from './resume';
-import { whoCommand, guestbookCommand, signCommand } from './live';
+import { MENU_GROUPS } from './groups';
+import { whoCommand, guestbookCommand, signCommand, letterboxdCommand } from './live';
 
 function lineCount(ctx: CommandContext, name: 'head' | 'tail'): CommandResult {
   const raw = ctx.flags.lines ?? '10';
@@ -50,18 +54,26 @@ function grep(ctx: CommandContext): CommandResult {
     return { output: [{ type: 'error', content: `usage: ${renderSynopsis(commandRegistry.find((def) => def.name === 'grep')!)}` }], status: 'error' };
   }
   const result = grepLines(ctx.stdin || [], ctx.args.join(' '), ctx.flags);
+  if (result.error) return { output: [{ type: 'error', content: result.error }], status: 'error' };
   return { output: [{ type: 'lines', lines: result.lines, showItems: result.showItems }], status: result.status };
 }
 
 function helpCommand(): CommandResult {
-  const rows = commandRegistry
-    .filter((cmd) => !cmd.hidden && cmd.kind !== 'filter')
-    .map((cmd) => [cmd.usage, cmd.description]);
-  rows.push(['<cmd> | grep, head, tail, wc, sort', 'Pipes: filter any command output']);
+  const visible = commandRegistry.filter((cmd) => !cmd.hidden && cmd.kind !== 'filter');
+  const listed = (cmd: CommandDefinition) => MENU_GROUPS.slice(0, -1).some((group) => group.names.has(cmd.name));
+  const sections: Array<[string, CommandDefinition[]]> = [
+    ...MENU_GROUPS.slice(0, -1).map((group): [string, CommandDefinition[]] => [group.heading, visible.filter((cmd) => group.names.has(cmd.name))]),
+    [MENU_GROUPS[MENU_GROUPS.length - 1].heading, visible.filter((cmd) => cmd.menu && !listed(cmd))],
+    ['More', visible.filter((cmd) => !cmd.menu && !listed(cmd))],
+  ];
+  const tables = sections.filter(([, commands]) => commands.length).flatMap(([heading, commands]): CommandOutput[] => [
+    { type: 'text', content: heading, style: { bold: true } },
+    { type: 'table', headers: ['Command', 'Description'], rows: commands.map((cmd) => [cmd.usage, cmd.description]) },
+  ]);
   return {
     output: [
-      { type: 'text', content: 'Available Commands:', style: { bold: true } },
-      { type: 'table', headers: ['Command', 'Description'], rows },
+      ...tables,
+      { type: 'text', content: 'Pipes: <cmd> | grep, head, tail, wc, sort filter any output. Questions in plain words go to the AI.', style: { dim: true } },
       { type: 'divider' },
       {
         type: 'text',
@@ -214,13 +226,13 @@ export const commandRegistry: CommandDefinition[] = [
   },
   {
     name: 'chat',
-    description: `Chat with AI about ${profile.firstName}`,
-    usage: 'chat',
+    description: `Ask the AI about ${profile.firstName}`,
+    usage: 'ask [question]',
     aliases: ['ask', 'ai'],
     surfaces: ['web', 'ssh'],
-    menu: true,
-    man: { description: `Start a conversation about ${profile.firstName}'s portfolio.`, examples: ['chat', 'ask'] },
-    execute: () => chatCommand(),
+    args: { positional: [{ name: 'question', variadic: true }] },
+    man: { description: `Ask a question about ${profile.firstName}'s work. Plain questions at the prompt work too.`, examples: ['ask what RAG work has he done?', 'chat'] },
+    execute: chatCommand,
   },
   {
     name: 'gui',
@@ -237,7 +249,7 @@ export const commandRegistry: CommandDefinition[] = [
   },
   {
     name: 'tour', description: 'Take a guided tour of the terminal', usage: 'tour', aliases: [],
-    surfaces: ['web', 'curl'],
+    surfaces: ['web', 'curl'], menu: true,
     man: { description: 'Play a skippable guided tour in the web terminal. On text clients, show where to start it.', examples: ['tour'] },
     execute: tourCommand,
   },
@@ -249,7 +261,7 @@ export const commandRegistry: CommandDefinition[] = [
   },
   {
     name: 'guestbook', assistant: true, description: 'Read recent guestbook entries', usage: 'guestbook', aliases: [],
-    surfaces: ['web', 'curl'],
+    surfaces: ['web', 'curl'], menu: true,
     man: { description: 'Read the newest guestbook entries and learn how to sign.', examples: ['guestbook'] },
     execute: guestbookCommand,
   },
@@ -275,7 +287,7 @@ export const commandRegistry: CommandDefinition[] = [
     execute: (ctx) => manCommand(ctx, commandRegistry),
   },
   {
-    name: 'resume', description: 'Download or link to the PDF resume', usage: 'resume', aliases: ['cv'],
+    name: 'resume', description: 'Download or link to the PDF resume', usage: 'resume', aliases: ['cv'], menu: true,
     man: { description: 'Download the PDF resume in the browser or print its URL on text surfaces.', examples: ['resume', 'cv'] },
     execute: resumeCommand,
   },
@@ -352,6 +364,39 @@ export const commandRegistry: CommandDefinition[] = [
     execute: () => helloCommand(),
   },
   {
+    name: 'spidey',
+    description: '???',
+    usage: 'spidey',
+    aliases: ['thwip', 'spiderman', 'spider-man'],
+    hidden: true,
+    execute: () => spideyCommand(),
+  },
+  {
+    name: 'visca',
+    description: '???',
+    usage: 'visca',
+    aliases: ['barca', 'barça', 'fcb', 'forca-barca'],
+    hidden: true,
+    execute: () => viscaCommand(),
+  },
+  {
+    name: 'letterboxd',
+    description: '???',
+    usage: 'letterboxd',
+    aliases: ['films', 'movies', 'cinema'],
+    hidden: true,
+    execute: letterboxdCommand,
+  },
+  {
+    name: 'screensaver',
+    description: '???',
+    usage: 'screensaver [on|off]',
+    aliases: ['matrix'],
+    hidden: true,
+    surfaces: ['web'],
+    execute: (ctx) => screensaverCommand(ctx.args),
+  },
+  {
     name: 'exit',
     description: '???',
     usage: 'exit',
@@ -360,15 +405,16 @@ export const commandRegistry: CommandDefinition[] = [
     execute: () => exitCommand(),
   },
   {
-    name: 'grep', assistant: true, description: 'Find lines containing literal text', usage: 'grep [-i] [-v] [-c] [-h] <pattern>',
+    name: 'grep', assistant: true, description: 'Find lines containing text', usage: 'grep [-i] [-v] [-c] [-h] [-E] <pattern>',
     aliases: [], kind: 'filter', surfaces: ['web', 'ssh', 'curl'],
     args: { flags: [
       { short: 'i', long: 'ignore-case', description: 'Ignore case' },
       { short: 'v', long: 'invert-match', description: 'Invert matches' },
       { short: 'c', long: 'count', description: 'Count matches' },
       { short: 'h', long: 'no-filename', description: 'Hide item names' },
+      { short: 'E', long: 'extended-regexp', description: 'Treat the pattern as a regular expression' },
     ], positional: [{ name: 'pattern', required: true }] },
-    man: { description: 'Filter lines by a literal substring.', examples: ['projects | grep React', 'skills | grep -i typescript'] },
+    man: { description: 'Filter lines by a literal substring, or by a regular expression with -E.', examples: ['projects | grep React', 'skills | grep -i typescript', 'experience | grep -iE "rag|langgraph"'] },
     execute: grep,
   },
   {

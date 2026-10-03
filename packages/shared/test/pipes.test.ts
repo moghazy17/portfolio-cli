@@ -75,10 +75,10 @@ describe('shell pipelines', () => {
 
   it('reports usage, option and surface failures and tracks the session status', async () => {
     const instance = shell();
-    expect(await instance.run('projects | grep')).toMatchObject({ output: [{ type: 'error', content: 'usage: grep [-i] [-v] [-c] [-h] <pattern>' }], status: 'error' });
+    expect(await instance.run('projects | grep')).toMatchObject({ output: [{ type: 'error', content: 'usage: grep [-i] [-v] [-c] [-h] [-E] <pattern>' }], status: 'error' });
     expect(instance.session.lastStatus).toBe('error');
     expect(await instance.run('projects | head -n bad')).toMatchObject({ output: [{ type: 'error', content: "head: invalid number of lines: 'bad'" }], status: 'error' });
-    expect(await instance.run('projects | grep -z x')).toMatchObject({ output: [{ type: 'error', content: "grep: unknown option '-z'" }, { type: 'text', content: 'usage: grep [-i] [-v] [-c] [-h] <pattern>' }], status: 'error' });
+    expect(await instance.run('projects | grep -z x')).toMatchObject({ output: [{ type: 'error', content: "grep: unknown option '-z'" }, { type: 'text', content: 'usage: grep [-i] [-v] [-c] [-h] [-E] <pattern>' }], status: 'error' });
     expect(await instance.run('projects --help')).toMatchObject({ output: [{ type: 'text', content: 'usage: projects [name]' }, { type: 'text', content: "See 'man projects' for details." }], status: 'ok' });
     expect(instance.session.lastStatus).toBe('ok');
     expect(instance.prompt()).toEqual({ user: 'visitor', host: 'portfolio', cwd: '~' });

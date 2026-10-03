@@ -1,6 +1,7 @@
 import type { CommandResult } from '../types';
 import { commandRegistry } from './registry';
 import { createShell, type Shell } from '../shell/shell';
+import { MENU_GROUPS } from './groups';
 
 let defaultShell: Shell | undefined;
 
@@ -29,11 +30,7 @@ export function getMenuItems(): Array<{ label: string; value: string }> {
 }
 
 export function getMenuGroups(): Array<{ heading: string; items: Array<{ label: string; value: string }> }> {
-  const groups = [
-    { heading: 'About me', names: new Set(['about', 'education', 'certifications', 'contact']) },
-    { heading: 'Work', names: new Set(['experience', 'projects', 'skills', 'timeline', 'github']) },
-    { heading: 'Explore', names: new Set<string>() },
-  ];
+  const groups = MENU_GROUPS;
   const items = getMenuItems().filter((item, index, menu) => menu.findIndex((entry) => entry.value === item.value) === index);
   return groups.map(({ heading, names }) => ({
     heading,

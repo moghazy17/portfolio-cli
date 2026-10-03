@@ -101,7 +101,7 @@ describe('legacy command output', () => {
   it('snapshots menu items', () => {
     expect(getMenuItems().map((item) => item.value)).toEqual([
       'help', 'about', 'education', 'experience', 'projects', 'skills',
-      'certifications', 'contact', 'timeline', 'github', 'chat', 'gui',
+      'certifications', 'contact', 'timeline', 'github', 'gui', 'tour', 'guestbook', 'resume',
     ]);
     expect(getMenuItems()).toMatchSnapshot();
   });

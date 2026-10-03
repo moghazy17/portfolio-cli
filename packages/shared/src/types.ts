@@ -190,9 +190,22 @@ export interface SkillEvidenceDetails {
   repos: Record<string, string[]>;
 }
 
+export interface FilmEntry {
+  title: string;
+  year?: number;
+  /** Stars out of 5, in half steps. */
+  rating?: number;
+  watched?: string;
+  liked: boolean;
+  rewatch: boolean;
+  url: string;
+}
+
 export interface LiveServices {
   presence(signal: AbortSignal): Promise<PresenceCount>;
   guestbook(signal: AbortSignal): Promise<GuestbookEntry[]>;
+  /** Recent Letterboxd diary entries. */
+  films?(signal: AbortSignal): Promise<FilmEntry[]>;
 }
 
 export type CompletionSource =
@@ -256,7 +269,6 @@ export interface CommandResult {
   status?: 'ok' | 'error';
   notFound?: true;
   clear?: boolean;
-  mode?: 'chat';
   openUrl?: string;
   theme?: string;
   welcome?: boolean;
@@ -266,6 +278,8 @@ export interface CommandResult {
   ask?: { question: string };
   view?: 'gui';
   sign?: { name: string; message: string };
+  /** Turns the idle screensaver on or off in the web terminal. */
+  screensaver?: boolean;
   tour?: TourStep[];
 }
 

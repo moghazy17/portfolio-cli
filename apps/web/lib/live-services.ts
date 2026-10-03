@@ -1,4 +1,4 @@
-import type { GuestbookEntry, LiveServices, PresenceCount, SkillEvidenceDetails } from '@ahmed-moghazy/shared';
+import type { FilmEntry, GuestbookEntry, LiveServices, PresenceCount, SkillEvidenceDetails } from '@ahmed-moghazy/shared';
 
 export const liveServices: LiveServices = {
   async presence(signal: AbortSignal): Promise<PresenceCount> {
@@ -11,6 +11,11 @@ export const liveServices: LiveServices = {
     if (!response.ok) throw new Error(`Guestbook unavailable (${response.status})`);
     const result = await response.json() as { entries: GuestbookEntry[] };
     return result.entries;
+  },
+  async films(signal: AbortSignal): Promise<FilmEntry[]> {
+    const response = await fetch('/api/letterboxd', { signal });
+    if (!response.ok) throw new Error(`Films unavailable (${response.status})`);
+    return ((await response.json()) as { films: FilmEntry[] }).films;
   },
 };
 

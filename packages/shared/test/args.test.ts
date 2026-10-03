@@ -19,11 +19,11 @@ describe('argument parsing', () => {
   });
 
   it('renders synopsis and help', () => {
-    expect(renderSynopsis(command('grep'))).toBe('grep [-i] [-v] [-c] [-h] <pattern>');
+    expect(renderSynopsis(command('grep'))).toBe('grep [-i] [-v] [-c] [-h] [-E] <pattern>');
     expect(renderSynopsis(command('head'))).toBe('head [-n N]');
     expect(renderSynopsis({ ...command('head'), name: 'ls', args: { flags: [], positional: [{ name: 'path', variadic: true }] } })).toBe('ls [path…]');
     expect(helpUsage(command('grep'))).toEqual([
-      { type: 'text', content: 'usage: grep [-i] [-v] [-c] [-h] <pattern>' },
+      { type: 'text', content: 'usage: grep [-i] [-v] [-c] [-h] [-E] <pattern>' },
       { type: 'text', content: "See 'man grep' for details." },
     ]);
   });

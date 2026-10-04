@@ -64,5 +64,5 @@ export function middleware(request: NextRequest, event: NextFetchEvent): NextRes
 }
 
 export const config = {
-  matcher: ['/((?!api/|_next/|.*\\.[^/]+$).*)'],
+  matcher: ['/((?!api/|_next/|_vercel/|.*\\.[^/]+$).*)'],
 };
